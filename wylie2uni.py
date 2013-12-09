@@ -49,19 +49,18 @@ class Translator(object):
         sys.stdout.write(Translator.syllable.uni)
 
     def alphabet(self):
-        i = 1
+        i = 0
 
         for key in W_ROOTLETTERS:
-            s = Syllable(self.toUni(key), key)
-            self.out(s.tsheg())
-
-            if i%4 == 0:
-                sys.stdout.write("\n")
-
+            self.mkSyllable(key)
+            Translator.syllable.tsheg()
+            self.out()
             i += 1
 
-        sys.stdout.write("\n")
+            if i % 4 == 0:
+                sys.stdout.write("\n")
 
+        sys.stdout.write("\n")
 
 class Syllable(object):
     'Syllable structure'
