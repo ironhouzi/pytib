@@ -36,13 +36,17 @@ class Translator(object):
     'Main workhorse for the program'
 
     def __init__(self):
-        self.first = dict(zip(W_ROOTLETTERS, U_ROOTLETTERS))
+        Translator.first = dict(zip(W_ROOTLETTERS, U_ROOTLETTERS))
+        Translator.vowel = dict(zip(W_VOWELS, U_VOWELS))
+
+    def mkSyllable(self, wylie):
+        Translator.syllable = Syllable(self.toUni(wylie), wylie)
 
     def toUni(self, syllable):
-        return self.first[str(syllable)]
+        return Translator.first[str(syllable)]
 
-    def out(self, s):
-        sys.stdout.write(s)
+    def out(self):
+        sys.stdout.write(Translator.syllable.uni)
 
     def alphabet(self):
         i = 1
@@ -63,7 +67,7 @@ class Syllable(object):
     'Syllable structure'
 
     def __init__(self, uni, wylie):
-        self.uni = uni
+        self.uni   = uni
         self.wylie = wylie
         self.count = len(wylie)
 
