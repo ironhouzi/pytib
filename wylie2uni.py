@@ -40,13 +40,28 @@ class Translator(object):
     def out(self, s):
         sys.stdout.write(s)
 
+    def alphabet(self):
+        i = 1
+
+        for key in W_ROOTLETTERS:
+            s = Syllable(self.toUni(key), key)
+            self.out(s.tsheg())
+
+            if i%4 == 0:
+                sys.stdout.write("\n")
+
+            i += 1
+
+        sys.stdout.write("\n")
+
+
 class Syllable(object):
     'Syllable structure'
 
-    def __init__(self, uni, lit):
+    def __init__(self, uni, wylie):
         self.uni = uni
-        self.wylie = lit 
-        self.count = len(lit)
+        self.wylie = wylie
+        self.count = len(wylie)
 
     def __str__(self):
         return self.wylie
@@ -59,18 +74,7 @@ class Syllable(object):
 
 def main():
     t = Translator()
-    i = 1
-
-    for key in W_ROOTLETTERS:
-        s = Syllable(t.toUni(key), key)
-        t.out(s.tsheg())
-
-        if i%4 == 0:
-            sys.stdout.write("\n")
-
-        i += 1
-
-    sys.stdout.write("\n")
+    t.alphabet()
 
 if __name__ =='__main__':
     main()
