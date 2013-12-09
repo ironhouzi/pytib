@@ -76,12 +76,20 @@ class Syllable(object):
     def __repr__(self):
         return self.wylie
 
+    def uni(self):
+        return u''.join([self.uni])
+
     def tsheg(self):
-        return u''.join([self.uni, TSHEG])
+        self.uni = u''.join([self.uni, TSHEG])
+
+    def add(self, uni):
+        self.uni = u''.join([self.uni, uni])
 
 def main():
     t = Translator()
     t.alphabet()
+    # t.mkSyllable(W_ROOTLETTERS[0])
+    # t.out(t.syllable.uni)
 
 if __name__ =='__main__':
     main()
