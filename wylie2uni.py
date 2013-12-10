@@ -34,8 +34,10 @@ TSHEG = u'\u0f0b'
 
 SUPER = [ 'r', 'l', 's' ];
 
+SUBOFFSET = 0x50
+
 class Translator(object):
-    'Main workhorse class, modifies static: Translator.syllable'
+    'Mainly modifies static variable: Translator.syllable'
 
     def __init__(self):
         wTable = W_ROOTLETTERS + W_VOWELS
@@ -44,9 +46,6 @@ class Translator(object):
         Translator.wTable = wTable
         Translator.uTable = uTable
 
-    def count(self):
-        return Translator.syllable.wcnt
-
     def mkSyllable(self, wylie):
         Translator.syllable = Syllable(self.toUni(wylie), wylie)
 
@@ -54,11 +53,13 @@ class Translator(object):
         return Translator.first[str(syllable)]
 
     def toSub(self, syllable):
-        plain = ord(Translator.first[str(syllable)])
-        return unichr(plain + 0x50)
+        return unichr(ord(Translator.first[str(syllable)]) + SUBOFFSET)
 
     def out(self):
         sys.stdout.write(Translator.syllable.uni)
+
+    def addSuper(self, s):
+        Translator.syllable.add(self.toSub(s), s)
 
     def add(self, s):
         # TODO: Remove redundant join
@@ -66,24 +67,46 @@ class Translator(object):
 
         if syll in Translator.wTable:
             self.mkSyllable(syll)
-        else:
-            if self.isSuper(syll):
-                Translator.syllable.add(self.toSub(s), s)
-            else:
-                Translator.syllable.add(self.toUni(s), s)
+            return
 
+        byteCnt = self.multibyte(syll)
+
+        if byteCnt > 1:
+            self.uniMutate(syll, byteCnt, self.isSuper(syll))
+            return
+
+        if self.isSuper(syll):
+            self.addSuper(s)
+            return
+
+        Translator.syllable.add(self.toUni(s), s)
+
+
+    def uniMutate(self, s, i, sub):
+        old = Translator.syllable.uni[:-1]
+
+        if sub:
+            string = Translator.first[s[-i:]]
+        else:
+            string = self.toSub(s[-i:])
+
+        Translator.syllable.uni = u''.join([old, string])
+
+    def multibyte(self, s):
+        if len(s) < 2:
+            return 0
+        elif len(s) >= 3 and s[-3:] == 'tsh':
+            return 3
+        elif len(s) >= 2 and s[-2:] in Translator.first:
+            return 2
+        else:
+            return 0
 
     def isSuper(self, s):
-        if len(s) < 2:
+        if len(s) < 2 or not s[-2] in SUPER:
             return False
-
-        string = list(s)
-
-        if not string[-2] in SUPER:
-            return False
-
-        return True
-
+        else:
+            return True
 
     def tsheg(self):
         Translator.syllable.tsheg()
@@ -116,7 +139,6 @@ class Syllable(object):
     def __init__(self, uni, wylie):
         self.uni   = uni
         self.wylie = wylie
-        self.wcnt  = 1
 
     def __str__(self):
         return self.wylie
@@ -130,15 +152,16 @@ class Syllable(object):
     def add(self, uni, wylie):
         self.wylie = u''.join([self.wylie, wylie])
         self.uni   = u''.join([self.uni, uni])
-        self.wcnt  += 1
 
 def main():
     t = Translator()
     t.alphabet()
     t.vowels()
-    t.mkSyllable('l')
-    t.add('t')
+    t.mkSyllable('t')
+    t.add('s')
+    t.add('h')
     t.add('o')
+    t.add('l')
     t.tsheg()
     print
 
