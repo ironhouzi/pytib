@@ -52,7 +52,14 @@ class Translator(object):
         sys.stdout.write(Translator.syllable.uni)
 
     def add(self, s):
-        Translator.syllable.add(self.toUni(s), s)
+        syll = Translator.syllable.wylie + s
+
+        if not syll in Translator.wTable:
+            Translator.syllable.add(self.toUni(s), s)
+        else:
+            self.mkSyllable(syll)
+            # Translator.syllable.add(self.toUni(syll), syll)
+
 
     def tsheg(self):
         Translator.syllable.tsheg()
@@ -84,20 +91,18 @@ class Syllable(object):
     def __repr__(self):
         return self.wylie
 
-    def uni(self):
-        return u''.join([self.uni])
-
     def tsheg(self):
         self.uni = u''.join([self.uni, TSHEG])
 
     def add(self, uni, wylie):
-        self.uni   = u''.join([self.uni, uni])
         self.wylie = u''.join([self.wylie, wylie])
+        self.uni   = u''.join([self.uni, uni])
 
 def main():
     t = Translator()
     t.alphabet()
-    t.mkSyllable('a')
+    t.mkSyllable('k')
+    t.add('h')
     t.add('i')
     t.tsheg()
     print
