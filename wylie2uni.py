@@ -28,7 +28,7 @@ U_ROOTLETTERS = [
 
 W_VOWELS = [ 'i', 'u', 'e', 'o' ];
 
-U_VOWELS = [ '\u0f72', '\u0f74', '\u0f7a', '\u0f7c' ];
+U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 
 TSHEG = u'\u0f0c'
 
@@ -36,8 +36,11 @@ class Translator(object):
     'Main workhorse for the program'
 
     def __init__(self):
-        Translator.first = dict(zip(W_ROOTLETTERS, U_ROOTLETTERS))
-        Translator.vowel = dict(zip(W_VOWELS, U_VOWELS))
+        wTable = W_ROOTLETTERS + W_VOWELS
+        uTable = U_ROOTLETTERS + U_VOWELS
+        Translator.first = dict(zip(wTable, uTable))
+        Translator.wTable = wTable
+        Translator.uTable = uTable
 
     def mkSyllable(self, wylie):
         Translator.syllable = Syllable(self.toUni(wylie), wylie)
@@ -48,13 +51,19 @@ class Translator(object):
     def out(self):
         sys.stdout.write(Translator.syllable.uni)
 
+    def add(self, s):
+        Translator.syllable.add(self.toUni(s), s)
+
+    def tsheg(self):
+        Translator.syllable.tsheg()
+        self.out()
+
     def alphabet(self):
         i = 0
 
         for key in W_ROOTLETTERS:
             self.mkSyllable(key)
-            Translator.syllable.tsheg()
-            self.out()
+            self.tsheg()
             i += 1
 
             if i % 4 == 0:
@@ -68,7 +77,6 @@ class Syllable(object):
     def __init__(self, uni, wylie):
         self.uni   = uni
         self.wylie = wylie
-        self.count = len(wylie)
 
     def __str__(self):
         return self.wylie
@@ -82,14 +90,17 @@ class Syllable(object):
     def tsheg(self):
         self.uni = u''.join([self.uni, TSHEG])
 
-    def add(self, uni):
-        self.uni = u''.join([self.uni, uni])
+    def add(self, uni, wylie):
+        self.uni   = u''.join([self.uni, uni])
+        self.wylie = u''.join([self.wylie, wylie])
 
 def main():
     t = Translator()
     t.alphabet()
-    # t.mkSyllable(W_ROOTLETTERS[0])
-    # t.out(t.syllable.uni)
+    t.mkSyllable('a')
+    t.add('i')
+    t.tsheg()
+    print
 
 if __name__ =='__main__':
     main()
