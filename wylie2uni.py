@@ -78,13 +78,12 @@ class Translator(object):
 
         # Has multibyte wylie character:
         if byteCnt > 1:
-            self.uniMutate(syll, byteCnt, self.isSuper(syll) or self.isSub(syll))
+            doSub = (self.isSuper(syll) or self.isSub(syll))
+            noSub = self.isVow(syll, byteCnt)
+            self.uniMutate(syll, byteCnt, noSub and doSub)
             return
 
         # Has singlebyte wylie character:
-        # if self.isPre(syll):
-        #     return
-
         if self.isSuper(syll):
             self.addSuper(s)
             return
@@ -213,6 +212,9 @@ def main():
     t.test('rt')
     t.test('mgo')
     t.test('\'khor')
+    t.test('bkhor')
+    t.test('gnm')
+    t.test('gnyis')
 
 if __name__ =='__main__':
     main()
