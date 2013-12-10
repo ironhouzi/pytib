@@ -30,7 +30,7 @@ W_VOWELS = [ 'i', 'u', 'e', 'o' ];
 
 U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 
-TSHEG = u'\u0f0c'
+TSHEG = u'\u0f0b'
 
 class Translator(object):
     'Main workhorse class, modifies static: Translator.syllable'
@@ -111,6 +111,8 @@ def main():
     t = Translator()
     t.alphabet()
     t.vowels()
+    test = u''.join([u'\u0f6a', u'\u0f9f'])
+    print test
     t.mkSyllable('t')
     t.add('s')
     t.add('h')
