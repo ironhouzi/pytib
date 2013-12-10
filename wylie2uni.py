@@ -33,7 +33,7 @@ U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 TSHEG = u'\u0f0c'
 
 class Translator(object):
-    'Main workhorse for the program'
+    'Main workhorse class, modifies static: Translator.syllable'
 
     def __init__(self):
         wTable = W_ROOTLETTERS + W_VOWELS
@@ -52,14 +52,15 @@ class Translator(object):
         sys.stdout.write(Translator.syllable.uni)
 
     def add(self, s):
-        syll = Translator.syllable.wylie + s
+        # TODO: Remove redundant join
+        syll = ''.join([Translator.syllable.wylie, s])
 
         if not syll in Translator.wTable:
             Translator.syllable.add(self.toUni(s), s)
+            # if s in W_VOWELS:
+                # Translator.syllable.add(self.toUni(s), s)
         else:
             self.mkSyllable(syll)
-            # Translator.syllable.add(self.toUni(syll), syll)
-
 
     def tsheg(self):
         Translator.syllable.tsheg()
@@ -77,6 +78,14 @@ class Translator(object):
                 sys.stdout.write("\n")
 
         sys.stdout.write("\n")
+
+    def vowels(self):
+        for key in W_VOWELS:
+            self.mkSyllable('a')
+            self.add(key)
+            self.tsheg()
+
+        print
 
 class Syllable(object):
     'Syllable structure'
@@ -101,9 +110,13 @@ class Syllable(object):
 def main():
     t = Translator()
     t.alphabet()
-    t.mkSyllable('k')
+    t.vowels()
+    t.mkSyllable('t')
+    t.add('s')
     t.add('h')
     t.add('i')
+    t.add('g')
+    t.add('s')
     t.tsheg()
     print
 
