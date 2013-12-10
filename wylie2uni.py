@@ -36,7 +36,10 @@ SUPER = [ 'r', 'l', 's' ];
 
 SUB = [ 'y', 'r', 'l', 'w' ];
 
+PREFIXES = [ 'g', 'd', 'b', 'm', '\'' ];
+
 SUBOFFSET = 0x50
+
 
 class Translator(object):
     'Mainly modifies static variable: Translator.syllable'
@@ -79,12 +82,18 @@ class Translator(object):
             return
 
         # Has singlebyte wylie character:
+        # if self.isPre(syll):
+        #     return
+
         if self.isSuper(syll):
             self.addSuper(s)
             return
 
         if self.isSub(syll):
-            self.addSuper(s)
+            if self.isVow(syll, byteCnt):
+                Translator.syllable.add(self.toUni(s), s)
+            else:
+                self.addSuper(s)
             return
 
         Translator.syllable.add(self.toUni(s), s)
@@ -102,13 +111,13 @@ class Translator(object):
 
     def multibyte(self, s):
         if len(s) < 2:
-            return 0
+            return 1
         elif len(s) >= 3 and s[-3:] == 'tsh':
             return 3
         elif len(s) >= 2 and s[-2:] in Translator.first:
             return 2
         else:
-            return 0
+            return 1
 
     def isSuper(self, s):
         if len(s) < 2 or not s[-2] in SUPER:
@@ -124,6 +133,12 @@ class Translator(object):
 
     def isVow(self, s, byteCnt):
         if s[-byteCnt-1] in W_VOWELS:
+            return True
+        else:
+            return False
+
+    def isPre(self, s):
+        if len(s) == 2 and s[-2] in PREFIXES:
             return True
         else:
             return False
@@ -154,7 +169,7 @@ class Translator(object):
         print
 
     def test(self, string):
-        print string + ":"
+        sys.stdout.write(string + ": ")
         i = 0
         for s in string:
             if i == 0:
@@ -190,11 +205,14 @@ def main():
     t = Translator()
     t.alphabet()
     t.vowels()
+    t.test('bskyongs')
     t.test('skyongs')
     t.test('rgys')
     t.test('rnyongs')
     t.test('lhongs')
     t.test('rt')
+    t.test('mgo')
+    t.test('\'khor')
 
 if __name__ =='__main__':
     main()
