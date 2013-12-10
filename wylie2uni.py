@@ -34,6 +34,8 @@ TSHEG = u'\u0f0b'
 
 SUPER = [ 'r', 'l', 's' ];
 
+SUB = [ 'y', 'r', 'l', 'w' ];
+
 SUBOFFSET = 0x50
 
 class Translator(object):
@@ -71,26 +73,32 @@ class Translator(object):
 
         byteCnt = self.multibyte(syll)
 
+        # Has multibyte wylie character:
         if byteCnt > 1:
-            self.uniMutate(syll, byteCnt, self.isSuper(syll))
+            self.uniMutate(syll, byteCnt, self.isSuper(syll) or self.isSub(syll))
             return
 
+        # Has singlebyte wylie character:
         if self.isSuper(syll):
+            self.addSuper(s)
+            return
+
+        if self.isSub(syll):
             self.addSuper(s)
             return
 
         Translator.syllable.add(self.toUni(s), s)
 
 
-    def uniMutate(self, s, i, sub):
+    def uniMutate(self, s, i, doSub):
         old = Translator.syllable.uni[:-1]
 
-        if sub:
-            string = Translator.first[s[-i:]]
+        if doSub:
+            new = self.toSub(s[-i:])
         else:
-            string = self.toSub(s[-i:])
+            new = Translator.first[s[-i:]]
 
-        Translator.syllable.uni = u''.join([old, string])
+        Translator.syllable.uni = u''.join([old, new])
 
     def multibyte(self, s):
         if len(s) < 2:
@@ -107,6 +115,18 @@ class Translator(object):
             return False
         else:
             return True
+
+    def isSub(self, s):
+        if s[-1] in SUB:
+            return True
+        else:
+            return False
+
+    def isVow(self, s, byteCnt):
+        if s[-byteCnt-1] in W_VOWELS:
+            return True
+        else:
+            return False
 
     def tsheg(self):
         Translator.syllable.tsheg()
@@ -133,6 +153,19 @@ class Translator(object):
 
         print
 
+    def test(self, string):
+        print string + ":"
+        i = 0
+        for s in string:
+            if i == 0:
+               self.mkSyllable(s)
+            else:
+                self.add(s)
+            i += 1
+
+        self.tsheg()
+        print
+
 class Syllable(object):
     'Syllable structure'
 
@@ -157,13 +190,11 @@ def main():
     t = Translator()
     t.alphabet()
     t.vowels()
-    t.mkSyllable('t')
-    t.add('s')
-    t.add('h')
-    t.add('o')
-    t.add('l')
-    t.tsheg()
-    print
+    t.test('skyongs')
+    t.test('rgys')
+    t.test('rnyongs')
+    t.test('lhongs')
+    t.test('rt')
 
 if __name__ =='__main__':
     main()
