@@ -32,6 +32,8 @@ U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 
 TSHEG = u'\u0f0b'
 
+SUPER = [ 'r', 'l', 's' ];
+
 class Translator(object):
     'Main workhorse class, modifies static: Translator.syllable'
 
@@ -42,11 +44,18 @@ class Translator(object):
         Translator.wTable = wTable
         Translator.uTable = uTable
 
+    def count(self):
+        return Translator.syllable.wcnt
+
     def mkSyllable(self, wylie):
         Translator.syllable = Syllable(self.toUni(wylie), wylie)
 
     def toUni(self, syllable):
         return Translator.first[str(syllable)]
+
+    def toSub(self, syllable):
+        plain = ord(Translator.first[str(syllable)])
+        return unichr(plain + 0x50)
 
     def out(self):
         sys.stdout.write(Translator.syllable.uni)
@@ -55,12 +64,26 @@ class Translator(object):
         # TODO: Remove redundant join
         syll = ''.join([Translator.syllable.wylie, s])
 
-        if not syll in Translator.wTable:
-            Translator.syllable.add(self.toUni(s), s)
-            # if s in W_VOWELS:
-                # Translator.syllable.add(self.toUni(s), s)
-        else:
+        if syll in Translator.wTable:
             self.mkSyllable(syll)
+        else:
+            if self.isSuper(syll):
+                Translator.syllable.add(self.toSub(s), s)
+            else:
+                Translator.syllable.add(self.toUni(s), s)
+
+
+    def isSuper(self, s):
+        if len(s) < 2:
+            return False
+
+        string = list(s)
+
+        if not string[-2] in SUPER:
+            return False
+
+        return True
+
 
     def tsheg(self):
         Translator.syllable.tsheg()
@@ -93,6 +116,7 @@ class Syllable(object):
     def __init__(self, uni, wylie):
         self.uni   = uni
         self.wylie = wylie
+        self.wcnt  = 1
 
     def __str__(self):
         return self.wylie
@@ -106,19 +130,15 @@ class Syllable(object):
     def add(self, uni, wylie):
         self.wylie = u''.join([self.wylie, wylie])
         self.uni   = u''.join([self.uni, uni])
+        self.wcnt  += 1
 
 def main():
     t = Translator()
     t.alphabet()
     t.vowels()
-    test = u''.join([u'\u0f6a', u'\u0f9f'])
-    print test
-    t.mkSyllable('t')
-    t.add('s')
-    t.add('h')
-    t.add('i')
-    t.add('g')
-    t.add('s')
+    t.mkSyllable('l')
+    t.add('t')
+    t.add('o')
     t.tsheg()
     print
 
