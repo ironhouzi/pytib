@@ -8,6 +8,7 @@ from math import *
 '''
 
 TSHEG = u'\u0f0b'
+SUBOFFSET = 0x50
 
 class Translator(object):
     'Mainly modifies static variable: Translator.syllable'
@@ -15,7 +16,7 @@ class Translator(object):
     def __init__(self):
         wTable = tables.W_ROOTLETTERS + tables.W_VOWELS
         uTable = tables.U_ROOTLETTERS + tables.U_VOWELS
-        Translator.first = dict(zip(wTable, uTable))
+        Translator.lookup = dict(zip(wTable, uTable))
         Translator.wTable = wTable
         Translator.uTable = uTable
 
@@ -23,10 +24,10 @@ class Translator(object):
         Translator.syllable = Syllable(self.toUni(wylie), wylie)
 
     def toUni(self, syllable):
-        return Translator.first[str(syllable)]
+        return Translator.lookup[str(syllable)]
 
     def toSub(self, syllable):
-        return unichr(ord(Translator.first[str(syllable)]) + tables.SUBOFFSET)
+        return unichr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
 
     def out(self):
         sys.stdout.write(Translator.syllable.uni)
@@ -35,23 +36,23 @@ class Translator(object):
         Translator.syllable.add(self.toSub(s), s)
 
     def add(self, s):
-        # TODO: Remove redundant join
-        syll = ''.join([Translator.syllable.wylie, s])
+        Translator.syllable.wylie = ''.join([Translator.syllable.wylie, s])
+        syll = Translator.syllable.wylie
 
         if syll in Translator.wTable:
             self.mkSyllable(syll)
             return
 
-        byteCnt = self.multibyte(syll)
+        byteCnt = self.countChars(syll)
 
-        # Has multibyte wylie character:
+        # char forms a multibyte wylie character:
         if byteCnt > 1:
             doSub = (self.isSuper(syll) or self.isSub(syll))
             noSub = self.isVow(syll, byteCnt)
-            self.uniMutate(syll, byteCnt, noSub and doSub)
+            self.uniMutate(syll, byteCnt, doSub)
             return
 
-        # Has singlebyte wylie character:
+        # char is a singlebyte wylie character:
         if self.isSuper(syll):
             self.addSuper(s)
             return
@@ -72,16 +73,16 @@ class Translator(object):
         if doSub:
             new = self.toSub(s[-i:])
         else:
-            new = Translator.first[s[-i:]]
+            new = Translator.lookup[s[-i:]]
 
         Translator.syllable.uni = u''.join([old, new])
 
-    def multibyte(self, s):
+    def countChars(self, s):
         if len(s) < 2:
             return 1
-        elif len(s) >= 3 and s[-3:] == 'tsh':
+        elif s[-3:] == 'tsh':
             return 3
-        elif len(s) >= 2 and s[-2:] in Translator.first:
+        elif len(s) >= 2 and s[-2:] in Translator.lookup:
             return 2
         else:
             return 1
@@ -136,7 +137,7 @@ class Translator(object):
         print
 
     def test(self, string):
-        sys.stdout.write(string + ": ")
+        sys.stdout.write(string + " : ")
         i = 0
         for s in string:
             if i == 0:
@@ -165,7 +166,6 @@ class Syllable(object):
         self.uni = u''.join([self.uni, TSHEG])
 
     def add(self, uni, wylie):
-        self.wylie = u''.join([self.wylie, wylie])
         self.uni   = u''.join([self.uni, uni])
 
 def main():
@@ -175,6 +175,7 @@ def main():
     t.test('bskyongs')
     t.test('skyongs')
     t.test('rgys')
+    t.test('tshos')
     t.test('rnyongs')
     t.test('lhongs')
     t.test('rt')

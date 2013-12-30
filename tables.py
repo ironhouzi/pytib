@@ -22,12 +22,8 @@ W_VOWELS = [ 'i', 'u', 'e', 'o' ];
 
 U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 
-TSHEG = u'\u0f0b'
-
 SUPER = [ 'r', 'l', 's' ];
 
 SUB = [ 'y', 'r', 'l', 'w' ];
 
 PREFIXES = [ 'g', 'd', 'b', 'm', '\'' ];
-
-SUBOFFSET = 0x50
