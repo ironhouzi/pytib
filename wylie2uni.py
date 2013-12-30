@@ -1,4 +1,5 @@
 import sys
+import tables
 from math import *
 
 ''' Translator
@@ -6,47 +7,14 @@ from math import *
 
 '''
 
-W_ROOTLETTERS = [
-    'k',  'kh',  'g',  'ng',
-    'c',  'ch',  'j',  'ny',
-    't',  'th',  'd',  'n',
-    'p',  'ph',  'b',  'm',
-    'ts', 'tsh', 'dz', 'w',
-    'zh', 'z',   '\'', 'y',
-    'r',  'l',   'sh', 's',
-    'h',  'a' ];
-
-U_ROOTLETTERS = [
-    u'\u0f40', u'\u0f41', u'\u0f42', u'\u0f44',
-    u'\u0f45', u'\u0f46', u'\u0f47', u'\u0f49',
-    u'\u0f4f', u'\u0f50', u'\u0f51', u'\u0f53',
-    u'\u0f54', u'\u0f55', u'\u0f56', u'\u0f58',
-    u'\u0f59', u'\u0f5a', u'\u0f5b', u'\u0f5d',
-    u'\u0f5e', u'\u0f5f', u'\u0f60', u'\u0f61',
-    u'\u0f62', u'\u0f63', u'\u0f64', u'\u0f66',
-    u'\u0f67', u'\u0f68' ];
-
-W_VOWELS = [ 'i', 'u', 'e', 'o' ];
-
-U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
-
 TSHEG = u'\u0f0b'
-
-SUPER = [ 'r', 'l', 's' ];
-
-SUB = [ 'y', 'r', 'l', 'w' ];
-
-PREFIXES = [ 'g', 'd', 'b', 'm', '\'' ];
-
-SUBOFFSET = 0x50
-
 
 class Translator(object):
     'Mainly modifies static variable: Translator.syllable'
 
     def __init__(self):
-        wTable = W_ROOTLETTERS + W_VOWELS
-        uTable = U_ROOTLETTERS + U_VOWELS
+        wTable = tables.W_ROOTLETTERS + tables.W_VOWELS
+        uTable = tables.U_ROOTLETTERS + tables.U_VOWELS
         Translator.first = dict(zip(wTable, uTable))
         Translator.wTable = wTable
         Translator.uTable = uTable
@@ -58,7 +26,7 @@ class Translator(object):
         return Translator.first[str(syllable)]
 
     def toSub(self, syllable):
-        return unichr(ord(Translator.first[str(syllable)]) + SUBOFFSET)
+        return unichr(ord(Translator.first[str(syllable)]) + tables.SUBOFFSET)
 
     def out(self):
         sys.stdout.write(Translator.syllable.uni)
@@ -119,25 +87,25 @@ class Translator(object):
             return 1
 
     def isSuper(self, s):
-        if len(s) < 2 or not s[-2] in SUPER:
+        if len(s) < 2 or not s[-2] in tables.SUPER:
             return False
         else:
             return True
 
     def isSub(self, s):
-        if s[-1] in SUB:
+        if s[-1] in tables.SUB:
             return True
         else:
             return False
 
     def isVow(self, s, byteCnt):
-        if s[-byteCnt-1] in W_VOWELS:
+        if s[-byteCnt-1] in tables.W_VOWELS:
             return True
         else:
             return False
 
     def isPre(self, s):
-        if len(s) == 2 and s[-2] in PREFIXES:
+        if len(s) == 2 and s[-2] in tables.PREFIXES:
             return True
         else:
             return False
@@ -149,7 +117,7 @@ class Translator(object):
     def alphabet(self):
         i = 0
 
-        for key in W_ROOTLETTERS:
+        for key in tables.W_ROOTLETTERS:
             self.mkSyllable(key)
             self.tsheg()
             i += 1
@@ -160,7 +128,7 @@ class Translator(object):
         sys.stdout.write("\n")
 
     def vowels(self):
-        for key in W_VOWELS:
+        for key in tables.W_VOWELS:
             self.mkSyllable('a')
             self.add(key)
             self.tsheg()
