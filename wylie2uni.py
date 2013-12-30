@@ -32,7 +32,7 @@ class Translator(object):
     def out(self):
         sys.stdout.write(Translator.syllable.uni)
 
-    def addSuper(self, s):
+    def subjoin(self, s):
         Translator.syllable.add(self.toSub(s), s)
 
     def add(self, s):
@@ -43,25 +43,33 @@ class Translator(object):
             self.mkSyllable(syll)
             return
 
+        if s == 'a':
+            return
+
         byteCnt = self.countChars(syll)
 
         # char forms a multibyte wylie character:
         if byteCnt > 1:
-            doSub = (self.isSuper(syll) or self.isSub(syll))
-            noSub = self.isVow(syll, byteCnt)
+            # if self.hasSuper(syll, byteCnt):
+            #     print s, "of ", syll, "has super/multi"
+            # elif self.hasSub(syll, byteCnt):
+            #     print s, "of ", syll, "has sub/multi"
+            doSub = (self.hasSuper(syll, byteCnt) or self.hasSub(syll, byteCnt))
             self.uniMutate(syll, byteCnt, doSub)
             return
 
         # char is a singlebyte wylie character:
-        if self.isSuper(syll):
-            self.addSuper(s)
+        if self.hasSuper(syll, byteCnt):
+            # print s, "of ", syll, "has super"
+            self.subjoin(s)
             return
 
-        if self.isSub(syll):
+        if self.hasSub(syll, byteCnt):
+            # print s, "of ", syll, "has sub"
             if self.isVow(syll, byteCnt):
                 Translator.syllable.add(self.toUni(s), s)
             else:
-                self.addSuper(s)
+                self.subjoin(s)
             return
 
         Translator.syllable.add(self.toUni(s), s)
@@ -87,14 +95,14 @@ class Translator(object):
         else:
             return 1
 
-    def isSuper(self, s):
-        if len(s) < 2 or not s[-2] in tables.SUPER:
-            return False
-        else:
+    def hasSuper(self, s, byteCnt):
+        if len(s) > 1 and s[-byteCnt-1:-byteCnt] in tables.SUPER:
             return True
+        else:
+            return False
 
-    def isSub(self, s):
-        if s[-1] in tables.SUB:
+    def hasSub(self, s, byteCnt):
+        if s[-byteCnt] in tables.SUB:
             return True
         else:
             return False
