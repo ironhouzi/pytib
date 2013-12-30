@@ -39,6 +39,9 @@ class Translator(object):
         Translator.syllable.wylie = ''.join([Translator.syllable.wylie, s])
         syll = Translator.syllable.wylie
 
+        if s == 'a':
+            return
+
         if syll in Translator.wTable:
             self.mkSyllable(syll)
             return
@@ -182,16 +185,20 @@ def main():
     t.vowels()
     t.test('bskyongs')
     t.test('skyongs')
-    t.test('rgys')
+    t.test('rgyas')
     t.test('tshos')
     t.test('rnyongs')
     t.test('lhongs')
-    t.test('rt')
+    t.test('rta')
     t.test('mgo')
     t.test('\'khor')
     t.test('bkhor')
-    t.test('gnm')
+    t.test('gnam')
     t.test('gnyis')
+    t.test('mngar')
+    t.test('sangs')
+    t.test('sngas')
+    t.test('snags')
 
 if __name__ =='__main__':
     main()

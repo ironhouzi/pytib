@@ -18,7 +18,7 @@ U_ROOTLETTERS = [
     u'\u0f62', u'\u0f63', u'\u0f64', u'\u0f66',
     u'\u0f67', u'\u0f68' ];
 
-W_VOWELS = [ 'i', 'u', 'e', 'o' ];
+W_VOWELS = [ 'i', 'u', 'e', 'o', 'a' ];
 
 U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 
