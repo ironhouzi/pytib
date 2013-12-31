@@ -26,7 +26,7 @@ class Translator(object):
         return Translator.lookup[str(syllable)]
 
     def toUniSub(self, syllable):
-        return unichr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
+        return chr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
 
     def output(self):
         sys.stdout.write(Translator.syllable.uni)
@@ -50,21 +50,21 @@ class Translator(object):
         # char forms a multibyte wylie character:
         if byteCnt > 1:
             # if self.hasSuper(syll, byteCnt):
-            #     print char, "of ", syll, "has super/multi"
+            #     print(char, "of ", syll, "has super/multi")
             # elif self.hasSub(syll, byteCnt):
-            #     print char, "of ", syll, "has sub/multi"
+            #     print(char, "of ", syll, "has sub/multi")
             doSub = (self.hasSuper(syll, byteCnt) or self.hasSub(syll, byteCnt))
             self.appendUni(syll, byteCnt, doSub)
             return
 
         # char is a singlebyte wylie character:
         if self.hasSuper(syll, byteCnt):
-            # print char, "of ", syll, "has super"
+            # print(char, "of ", syll, "has super")
             self.subjoin(char)
             return
 
         if self.hasSub(syll, byteCnt):
-            # print char, "of ", syll, "has sub"
+            # print(char, "of ", syll, "has sub")
             if self.hasVowel(syll, byteCnt):
                 Translator.syllable.add(self.toUni(char), char)
             else:
@@ -134,7 +134,7 @@ class Translator(object):
             self.newSyllable('a')
             self.add(key)
             self.tsheg()
-        print
+        print()
 
     def test(self, string):
         sys.stdout.write(string + " : ")
@@ -147,7 +147,7 @@ class Translator(object):
             i += 1
 
         self.tsheg()
-        print
+        print()
 
 class Syllable(object):
     'Syllable structure'
