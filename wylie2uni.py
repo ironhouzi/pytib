@@ -17,36 +17,32 @@ class Translator(object):
         wTable = tables.W_ROOTLETTERS + tables.W_VOWELS
         uTable = tables.U_ROOTLETTERS + tables.U_VOWELS
         Translator.lookup = dict(zip(wTable, uTable))
-        Translator.wTable = wTable
-        Translator.uTable = uTable
+        Translator.wyTable = wTable
 
-    def mkSyllable(self, wylie):
+    def newSyllable(self, wylie):
         Translator.syllable = Syllable(self.toUni(wylie), wylie)
 
     def toUni(self, syllable):
         return Translator.lookup[str(syllable)]
 
-    def toSub(self, syllable):
+    def toUniSub(self, syllable):
         return unichr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
 
-    def out(self):
+    def output(self):
         sys.stdout.write(Translator.syllable.uni)
 
     def subjoin(self, s):
-        Translator.syllable.add(self.toSub(s), s)
+        Translator.syllable.add(self.toUniSub(s), s)
 
-    def add(self, s):
-        Translator.syllable.wylie = ''.join([Translator.syllable.wylie, s])
+    def add(self, char):
+        Translator.syllable.wylie = ''.join([Translator.syllable.wylie, char])
         syll = Translator.syllable.wylie
 
-        if s == 'a':
+        if char == 'a':
             return
 
-        if syll in Translator.wTable:
-            self.mkSyllable(syll)
-            return
-
-        if s == 'a':
+        if syll in Translator.wyTable:
+            self.newSyllable(syll)
             return
 
         byteCnt = self.countChars(syll)
@@ -54,35 +50,35 @@ class Translator(object):
         # char forms a multibyte wylie character:
         if byteCnt > 1:
             # if self.hasSuper(syll, byteCnt):
-            #     print s, "of ", syll, "has super/multi"
+            #     print char, "of ", syll, "has super/multi"
             # elif self.hasSub(syll, byteCnt):
-            #     print s, "of ", syll, "has sub/multi"
+            #     print char, "of ", syll, "has sub/multi"
             doSub = (self.hasSuper(syll, byteCnt) or self.hasSub(syll, byteCnt))
-            self.uniMutate(syll, byteCnt, doSub)
+            self.appendUni(syll, byteCnt, doSub)
             return
 
         # char is a singlebyte wylie character:
         if self.hasSuper(syll, byteCnt):
-            # print s, "of ", syll, "has super"
-            self.subjoin(s)
+            # print char, "of ", syll, "has super"
+            self.subjoin(char)
             return
 
         if self.hasSub(syll, byteCnt):
-            # print s, "of ", syll, "has sub"
-            if self.isVow(syll, byteCnt):
-                Translator.syllable.add(self.toUni(s), s)
+            # print char, "of ", syll, "has sub"
+            if self.hasVowel(syll, byteCnt):
+                Translator.syllable.add(self.toUni(char), char)
             else:
-                self.subjoin(s)
+                self.subjoin(char)
             return
 
-        Translator.syllable.add(self.toUni(s), s)
+        Translator.syllable.add(self.toUni(char), char)
 
 
-    def uniMutate(self, s, i, doSub):
+    def appendUni(self, s, i, doSub):
         old = Translator.syllable.uni[:-1]
 
         if doSub:
-            new = self.toSub(s[-i:])
+            new = self.toUniSub(s[-i:])
         else:
             new = Translator.lookup[s[-i:]]
 
@@ -110,27 +106,21 @@ class Translator(object):
         else:
             return False
 
-    def isVow(self, s, byteCnt):
+    def hasVowel(self, s, byteCnt):
         if s[-byteCnt-1] in tables.W_VOWELS:
-            return True
-        else:
-            return False
-
-    def isPre(self, s):
-        if len(s) == 2 and s[-2] in tables.PREFIXES:
             return True
         else:
             return False
 
     def tsheg(self):
         Translator.syllable.tsheg()
-        self.out()
+        self.output()
 
     def alphabet(self):
         i = 0
 
         for key in tables.W_ROOTLETTERS:
-            self.mkSyllable(key)
+            self.newSyllable(key)
             self.tsheg()
             i += 1
 
@@ -141,10 +131,9 @@ class Translator(object):
 
     def vowels(self):
         for key in tables.W_VOWELS:
-            self.mkSyllable('a')
+            self.newSyllable('a')
             self.add(key)
             self.tsheg()
-
         print
 
     def test(self, string):
@@ -152,7 +141,7 @@ class Translator(object):
         i = 0
         for s in string:
             if i == 0:
-               self.mkSyllable(s)
+               self.newSyllable(s)
             else:
                 self.add(s)
             i += 1
@@ -181,8 +170,8 @@ class Syllable(object):
 
 def main():
     t = Translator()
-    t.alphabet()
-    t.vowels()
+    # t.alphabet()
+    # t.vowels()
     t.test('bskyongs')
     t.test('skyongs')
     t.test('rgyas')
