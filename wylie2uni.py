@@ -1,6 +1,7 @@
 import sys
 import tables
 from math import *
+from sys import argv
 
 ''' Translator
     Wylie to utf-8 conversion.
@@ -38,7 +39,7 @@ class Translator(object):
         Translator.syllable.wylie = ''.join([Translator.syllable.wylie, char])
         syll = Translator.syllable.wylie
 
-        if char == 'a':
+        if char == 'a' or char == '.':
             return
 
         if syll in Translator.wyTable:
@@ -49,22 +50,37 @@ class Translator(object):
 
         # char forms a multibyte wylie character:
         if byteCnt > 1:
-            # if self.hasSuper(syll, byteCnt):
-            #     print(char, "of ", syll, "has super/multi")
-            # elif self.hasSub(syll, byteCnt):
-            #     print(char, "of ", syll, "has sub/multi")
+            if self.hasSuper(syll, byteCnt):
+                print(char, "of ", syll, "has super/multi")
+            elif self.hasSub(syll, byteCnt):
+                print(char, "of ", syll, "has sub/multi")
+
             doSub = (self.hasSuper(syll, byteCnt) or self.hasSub(syll, byteCnt))
             self.appendUni(syll, byteCnt, doSub)
             return
 
         # char is a singlebyte wylie character:
+        if self.checkPrefix(syll, byteCnt):
+            print("syll = ", syll, " byteCnt = ", byteCnt, "prefix!")
+            Translator.syllable.hasPrefix = True
+            Translator.syllable.add(self.toUni(char), char)
+            return
+
         if self.hasSuper(syll, byteCnt):
-            # print(char, "of ", syll, "has super")
+            print(char, "of ", syll, "has super")
             self.subjoin(char)
             return
 
+        print("prefix check: ")
+        if len(syll) == 2:
+            print("len is 2")
+        elif Translator.syllable.hasPrefix:
+            print("has prefix")
+        if len(syll) == 2 and Translator.syllable.hasPrefix:
+            Translator.syllable.add(self.toUni(char), char)
+
         if self.hasSub(syll, byteCnt):
-            # print(char, "of ", syll, "has sub")
+            print(char, "of ", syll, "has sub")
             if self.hasVowel(syll, byteCnt):
                 Translator.syllable.add(self.toUni(char), char)
             else:
@@ -95,13 +111,27 @@ class Translator(object):
             return 1
 
     def hasSuper(self, s, byteCnt):
-        if len(s) > 1 and s[-byteCnt-1:-byteCnt] in tables.SUPER:
+        print("s[-byteCnt-1:-byteCnt] = ", s[-byteCnt-1:-byteCnt])
+
+        if s[-byteCnt:] in tables.W_VOWELS:
+            return False
+        elif len(s) > 1 and s[-byteCnt-1:-byteCnt] in tables.SUPER:
             return True
         else:
             return False
 
     def hasSub(self, s, byteCnt):
-        if s[-byteCnt] in tables.SUB:
+        print("s[-byteCnt] = ", s[-byteCnt])
+        if s[-byteCnt:] in tables.W_VOWELS:
+            return False
+        elif s[-2] == '.' or s[-byteCnt] not in tables.SUB:
+            return False
+        else:
+            return True
+
+    def checkPrefix(self, s, byteCnt):
+        print("checkPrefix: s = ", s, "s[0] = ", s[0])
+        if len(s) == 2 and s[0] in tables.PREFIXES:
             return True
         else:
             return False
@@ -155,6 +185,7 @@ class Syllable(object):
     def __init__(self, uni, wylie):
         self.uni   = uni
         self.wylie = wylie
+        self.hasPrefix = False
 
     def __str__(self):
         return self.wylie
@@ -166,28 +197,38 @@ class Syllable(object):
         self.uni = u''.join([self.uni, TSHEG])
 
     def add(self, uni, wylie):
-        self.uni   = u''.join([self.uni, uni])
+        self.uni = u''.join([self.uni, uni])
 
 def main():
     t = Translator()
     # t.alphabet()
     # t.vowels()
-    t.test('bskyongs')
-    t.test('skyongs')
-    t.test('rgyas')
-    t.test('tshos')
-    t.test('rnyongs')
-    t.test('lhongs')
-    t.test('rta')
-    t.test('mgo')
-    t.test('\'khor')
-    t.test('bkhor')
-    t.test('gnam')
-    t.test('gnyis')
-    t.test('mngar')
-    t.test('sangs')
-    t.test('sngas')
-    t.test('snags')
+
+    if len(argv) < 2:
+        # t.test('bskyongs')
+        t.test('bre')
+        # t.test('skyongs')
+        # t.test('rgyas')
+        # t.test('tshos')
+        # t.test('rnyongs')
+        # t.test('lhongs')
+        t.test('rta')
+        # t.test('mgo')
+        # t.test('mngar')
+        # t.test('sangs')
+        # t.test('sngas')
+        # t.test('snags')
+        # t.test('g.yag')
+        t.test('\'rba')
+        # t.test('g.yag')
+        return
+
+    f = open(argv[1], 'r')
+
+    for line in f:
+        t.test(line.rstrip())
+
+    f.close()
 
 if __name__ =='__main__':
     main()
