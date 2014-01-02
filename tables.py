@@ -22,11 +22,16 @@ W_VOWELS = [ 'i', 'u', 'e', 'o', 'a' ];
 
 U_VOWELS = [ u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c' ];
 
-SUPER = [ 'r', 'l', 's' ];
+SUPER = [   'r', 'l', 's' ];
 
-SUB = [ 'y', 'r', 'l', 'w' ];
+SUB   = [   'y', 'r', 'l', 'w' ];
 
-PREFIXES = [ 'g', 'd', 'b', 'm', '\'' ];
+PREFIXES = ['g', 'd', 'b', 'm', '\''];
+
+SUFFIXES = ['g', 'ng', 'd', 'n', 'b',
+            'm', '\'', 'r', 'l', 's'];
+
+SUFFIX2S = [ 's' 'd' ];
 
 RA_GO = [   'k', 'g', 'ng', 'j', 'ny', 't',
             'd', 'n', 'b',  'm', 'ts', 'dz' ];
@@ -37,12 +42,24 @@ LA_GO = [   'k', 'g', 'ng', 'ch', 'j',
 SA_GO = [   'k', 'g', 'ng', 'ny', 't',
             'd', 'n', 'p',  'b',  'm', 'ts' ];
 
-YA_TA = [ 'k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h' ];
+YA_TA = [   'k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h' ];
 
 RA_TA = [   'k', 'kh', 'g', 't', 'th', 'd',
             'n', 'p', 'ph', 'b', 'm',  's', 'h' ];
 
-LA_TA = [ 'k', 'g', 'b', 'r', 's', 'z' ];
+LA_TA = [   'k', 'g', 'b', 'r', 's', 'z' ];
 
 WA_ZUR = [  'k',   'kh', 'g', 'ny', 'd', 'ts',
             'tsh', 'zh', 'z', 'r',  'l', 'sh', 'h' ];
+
+SUPER_RULES =   [ RA_GO, LA_GO, SA_GO ];
+
+SUB_RULES   =   [ YA_TA, RA_TA, LA_TA, WA_ZUR ];
+
+SYLLSTRUCT  = { 'root':      '',
+                'prefix':    '',
+                'super':     '',
+                'subjoined': '',
+                'vowel':     '',
+                'suffix':    '',
+                'suffix2':   '' }
