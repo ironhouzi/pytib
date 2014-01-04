@@ -36,8 +36,8 @@ SUFFIX2S = ['s' 'd']
 RA_GO = ['k', 'g', 'ng', 'j', 'ny', 't',
          'd', 'n', 'b',  'm', 'ts', 'dz']
 
-LA_GO = ['k', 'g', 'ng', 'ch', 'j',
-         't', 'd', 'p',  'b',  'h']
+LA_GO = ['k', 'g', 'ng', 'c', 'j',
+         't', 'd', 'p',  'b', 'h']
 
 SA_GO = ['k', 'g', 'ng', 'ny', 't',
          'd', 'n', 'p',  'b',  'm', 'ts']
