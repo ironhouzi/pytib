@@ -15,15 +15,15 @@ class Translator(object):
     'Mainly modifies static variable: Translator.syllable'
 
     def __init__(self):
+        Translator.syllable = Syllable('')
         wTable = tables.W_ROOTLETTERS + tables.W_VOWELS
         uTable = tables.U_ROOTLETTERS + tables.U_VOWELS
         Translator.lookup = dict(zip(wTable, uTable))
-        Translator.wyTable = wTable
         Translator.rulesSuper = dict(zip(tables.SUPER, tables.SUPER_RULES))
         Translator.rulesSub = dict(zip(tables.SUB,   tables.SUB_RULES))
 
-    def newSyllable(self, wylie):
-        Translator.syllable = Syllable(wylie)
+    def newSyllable(self):
+        Translator.syllable.wipe()
 
     def toUni(self, syllable):
         return Translator.lookup[str(syllable)]
@@ -75,8 +75,8 @@ class Translator(object):
             # print("else.. i = ", i)
 
             # TODO i == 0
-            # TODO handle g. prefix
             # TODO handle double sub (root + rw + vowel)
+            # TODO remove extra iterations taken by g.ya
 
             if i == 1:      # 2nd letter is vowel
                 # print("vowel(1)")
@@ -128,8 +128,8 @@ class Translator(object):
                     self.setStruct('subjoined',  parts[1])
 
                 if not self.checkPrefix(parts[0]) \
-                        and self.validSuper(parts[1], parts[2]) \
-                        and not self.validSub(parts[2], parts[1]):
+                        and self.validSuper(parts[0], parts[1]) \
+                        and self.validSub(parts[2], parts[1]):
                     self.setStruct('super',      parts[0])
                     self.setStruct('root',       parts[1])
                     self.setStruct('subjoined',  parts[2])
@@ -138,13 +138,22 @@ class Translator(object):
 
             elif i == 4:    # 5th letter is vowel (max allowed)
                 # print("vowel(4)")
-                self.setStruct('prefix',     parts[0])
-                self.setStruct('super',      parts[1])
-                self.setStruct('root',       parts[2])
-                self.setStruct('subjoined',  parts[3])
-                self.setStruct('vowel',      parts[4])
+                self.setStruct('prefix',    parts[0])
+                self.setStruct('super',     parts[1])
+                self.setStruct('root',      parts[2])
+                self.setStruct('subjoined', parts[3])
+                self.setStruct('vowel',     parts[4])
 
-    # TODO: Handle letters past vowel!
+            self.findPrefixes(i, parts)
+
+    def findPrefixes(self, vowelPosition, parts):
+        j = 0
+
+        for i in range(vowelPosition+1, len(parts)):
+            wyChar = parts[i]
+            if wyChar:
+                self.setStruct(tables.POSTVOWEL[j], wyChar)
+                j += 1
 
     def noVowels(self, parts):
         for char in parts:
@@ -265,7 +274,7 @@ class Translator(object):
         i = 0
 
         for key in tables.W_ROOTLETTERS:
-            self.newSyllable(key)
+            self.newSyllable()
             self.tsheg()
             i += 1
 
@@ -287,9 +296,9 @@ class Translator(object):
 
         for s in string:
             if i == 0:
-                self.newSyllable(s)
-            else:
-                self.add(s)
+                self.newSyllable()
+
+            self.add(s)
             i += 1
 
         self.tsheg()
@@ -310,7 +319,7 @@ class Syllable(object):
     def __init__(self, wylie):
         self.wylie = wylie
         self.uni = u''
-        self.struct = dict((k, '') for k in tables.SYLLSTRUCT)
+        self.struct = dict((key, '') for key in tables.SYLLSTRUCT)
 
     def __str__(self):
         return self.wylie
@@ -358,23 +367,24 @@ def main():
         # t.partTest('snags')
         # t.partTest('g.yag')
 
+        t.test('sangs')
         t.test('bre')
         t.test('rta')
         t.test('mgo')
         t.test('gya')
         t.test('g.ya')
-        # t.test('g.yag')
-        # t.test('\'rba')
-        # t.test('brnyes')
-        # t.test('rgyas')
-        # t.test('tshos')
-        # t.test('rnyongs')
-        # t.test('lhongs')
-        # t.test('mngar')
-        # t.test('sangs')
-        # t.test('sngas')
-        # t.test('skyongs')
-        # t.test('bskyongs')
+        t.test('g.yag')
+        t.test('\'rba')
+        t.test('tshos')
+        t.test('lhongs')
+        t.test('mngar')
+        t.test('sngas')
+        t.test('rnyongs')
+        t.test('brnyes')
+        t.test('rgyas')
+        t.test('skyongs')
+        t.test('bskyongs')
+        t.test('grwa')
         return
 
     f = open(argv[1], 'r')

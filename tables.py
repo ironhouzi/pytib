@@ -56,6 +56,16 @@ SUPER_RULES = [RA_GO, LA_GO, SA_GO]
 
 SUB_RULES = [YA_TA, RA_TA, LA_TA, WA_ZUR]
 
+PREVOWEL = ['prefix',
+            'super',
+            'root',
+            'subjoined',
+            'vowel']
+
+POSTVOWEL = ['suffix',
+             'suffix2']
+
+# SYLLSTRUCT = [PREVOWEL, POSTVOWEL]
 SYLLSTRUCT = ['prefix',
               'super',
               'root',
