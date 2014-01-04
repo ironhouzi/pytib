@@ -49,8 +49,8 @@ RA_TA = ['k', 'kh', 'g', 't', 'th', 'd',
 
 LA_TA = ['k', 'g', 'b', 'r', 's', 'z']
 
-WA_ZUR = ['k',   'kh', 'g', 'ny', 'd', 'ts',
-          'tsh', 'zh', 'z', 'r',  'l', 'sh', 'h']
+WA_ZUR = ['k',   'kh', 'g', 'c', 'ny', 't', 'd', 'ts',
+          'tsh', 'zh', 'z', 'r', 'l', 'sh', 's', 'h']
 
 SUPER_RULES = [RA_GO, LA_GO, SA_GO]
 
@@ -60,16 +60,22 @@ PREVOWEL = ['prefix',
             'super',
             'root',
             'subjoined',
+            'secondsub',
             'vowel']
 
 POSTVOWEL = ['suffix',
-             'suffix2']
+             'suffix2',
+             'genitive',
+             'genvowel']
 
 # SYLLSTRUCT = [PREVOWEL, POSTVOWEL]
 SYLLSTRUCT = ['prefix',
               'super',
               'root',
               'subjoined',
+              'secondsub',
               'vowel',
               'suffix',
-              'suffix2']
+              'suffix2',
+              'genitive',
+              'genvowel']
