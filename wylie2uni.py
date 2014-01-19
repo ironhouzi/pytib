@@ -1,10 +1,11 @@
-# TODO: Write unit tests!
+'''Wylie2Uni
+    Wylie to Unicode convertor'''
+
+# TODO: Write unit testWylies!
 
 import sys
 import tables
-
-'''Wylie2Uni
-    Wylie to Unicode convertor'''
+from sys import argv
 
 TSHEG = u'\u0f0b'
 SUBOFFSET = 0x50
@@ -15,30 +16,30 @@ class Translator(object):
         variable: Translator.syllable'''
 
     def __init__(self):
-        Translator.syllable = Syllable('')
+        self.syllable = Syllable('')
         wTable = tables.W_ROOTLETTERS + tables.W_VOWELS
         uTable = tables.U_ROOTLETTERS + tables.U_VOWELS
-        Translator.lookup = dict(zip(wTable, uTable))
-        Translator.rulesSuper = dict(zip(tables.SUPER, tables.SUPER_RULES))
-        Translator.rulesSub = dict(zip(tables.SUB,   tables.SUB_RULES))
+        self.lookup = dict(zip(wTable, uTable))
+        self.rulesSuper = dict(zip(tables.SUPER, tables.SUPER_RULES))
+        self.rulesSub = dict(zip(tables.SUB,   tables.SUB_RULES))
 
     def newSyllable(self):
-        Translator.syllable.new()
+        self.syllable = Syllable('')
 
     def toUnicode(self, syllable):
-        return Translator.lookup[str(syllable)]
+        return self.lookup[str(syllable)]
 
     def toSubjoinedUnicode(self, syllable):
-        return chr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
+        return chr(ord(self.lookup[str(syllable)]) + SUBOFFSET)
 
     def setStruct(self, key, value):
-        Translator.syllable.struct[key] = value
+        self.syllable.struct[key] = value
 
     def clearSyllable(self):
-        Translator.syllable.clear()
+        self.syllable.clear()
 
     def getCharacterOf(self, key):
-        return Translator.syllable.struct[key]
+        return self.syllable.struct[key]
 
     def getVowelIndex(self, parts):
         for i, char in enumerate(parts):
@@ -48,42 +49,29 @@ class Translator(object):
 
     def isSuperscribed(self, parts, vowelPosition):
         if vowelPosition == 2:
-            if self.validSuperscribe(parts[0], parts[1]) \
-                    and not self.validSubscribe(parts[1], parts[0]):
-                return True
-            else:
-                return False
-
+            return self.validSuperscribe(parts[0], parts[1]) \
+                and not self.validSubscribe(parts[1], parts[0])
         else:   # vowelPosition == 3
-            if self.isPrefix(parts[0]) \
-                    and self.validSuperscribe(parts[1], parts[2]) \
-                    and not self.validSubscribe(parts[2], parts[1]):
-                return True
-            else:
-                return False
+            return self.isPrefix(parts[0]) \
+                and self.validSuperscribe(parts[1], parts[2]) \
+                and not self.validSubscribe(parts[2], parts[1])
 
     def isSubscribed(self, parts, vowelPosition):
         if vowelPosition == 2:
-            if not self.validSuperscribe(parts[0], parts[1]) \
-                    and self.validSubscribe(parts[1], parts[0]):
-                return True
-            else:
-                return False
+            return not self.validSuperscribe(parts[0], parts[1]) \
+                and self.validSubscribe(parts[1], parts[0])
 
         else:   # vowelPosition == 3
-            if self.isPrefix(parts[0]) \
-                    and not self.validSuperscribe(parts[1], parts[2]) \
-                    and self.validSubscribe(parts[2], parts[1]):
-                return True
-            else:
-                return False
+            return self.isPrefix(parts[0]) \
+                and not self.validSuperscribe(parts[1], parts[2]) \
+                and self.validSubscribe(parts[2], parts[1])
 
     def normalWylie(self, parts, vowelPosition):
         if vowelPosition == 0:
             if parts[0] in tables.W_VOWELS:
                 if parts[0] != 'a':
     # TODO This gives incorrect wylie. Move to renderUnicode().
-                    Translator.syllable.wylie = ''.join(['a', parts[0]])
+                    self.syllable.wylie = ''.join(['a', parts[0]])
                     self.setStruct('root', 'a')
                     self.setStruct('vowel', parts[0])
                 else:
@@ -201,7 +189,7 @@ class Translator(object):
             is composed of.'''
 
         result = []
-        syll = Translator.syllable.wylie
+        syll = self.syllable.wylie
 
         while len(syll) != 0:
             for i in range(3, 0, -1):
@@ -218,17 +206,17 @@ class Translator(object):
         if head not in tables.SUPER:
             return False
         else:
-            return root in Translator.rulesSuper[head]
+            return root in self.rulesSuper[head]
 
     def validSubscribe(self, sub, root):
         if sub not in tables.SUB:
             return False
 
         else:
-            return root in Translator.rulesSub[sub]
+            return root in self.rulesSub[sub]
 
     def appendWylieChar(self, char):
-        Translator.syllable.wylie = ''.join([Translator.syllable.wylie, char])
+        self.syllable.wylie = ''.join([self.syllable.wylie, char])
 
     def add(self, char):
         self.appendWylieChar(char)
@@ -249,7 +237,7 @@ class Translator(object):
             if char == 'a' and comp != 'root':
                 continue
 
-            newString = [Translator.syllable.uni]
+            newString = [self.syllable.uni]
 
             if char:
     # TODO: More efficient handling of g. irregular.
@@ -263,7 +251,7 @@ class Translator(object):
                 else:
                     newString.append(self.toUnicode(char))
 
-                Translator.syllable.uni = u''.join(newString)
+                self.syllable.uni = u''.join(newString)
 
     def isPrefix(self, char):
         if char in tables.PREFIXES:
@@ -272,8 +260,8 @@ class Translator(object):
             return False
 
     def tsheg(self):
-        Translator.syllable.tsheg()
-        return Translator.syllable.uni
+        self.syllable.tsheg()
+        return self.syllable.uni
 
     def alphabet(self):  # {{{
         for i, key in enumerate(tables.W_ROOTLETTERS):
@@ -292,7 +280,7 @@ class Translator(object):
             self.tsheg()
         print()
 
-    def test(self, string):
+    def testWylie(self, string):
         self.newSyllable()
 
         for i, s in enumerate(string):
@@ -328,10 +316,6 @@ class Syllable(object):
         for s in tables.SYLLSTRUCT:
             self.struct[s] = ''
 
-    def new(self):
-        self.clear()
-        self.wylie = ''
-
 
 def main():
     t = Translator()
@@ -339,49 +323,48 @@ def main():
     # t.vowels()
 
     if len(argv) < 2:
-        t.test('sangs')
-        t.test('bre')
-        t.test('rta')
-        t.test('mgo')
-        t.test('gya')
-        t.test('g.yag')
-        t.test('\'rba')
-        t.test('tshos')
-        t.test('lhongs')
-        t.test('mngar')
-        t.test('sngas')
-        t.test('rnyongs')
-        t.test('brnyes')
-        t.test('rgyas')
-        t.test('skyongs')
-        t.test('bskyongs')
-        t.test('grwa')
-        t.test('spre\'u')
-        t.test('spre\'u\'i')
-        t.test('\'dra')
-        t.test('\'bya')
-        t.test('\'gra')
-        t.test('\'gyang')
-        t.test('\'khra')
-        t.test('\'khyig')
-        t.test('\'kyags')
-        t.test('\'phre')
-        t.test('\'phyags')
-        t.test('a')
-        t.test('o')
-        t.test('a\'am')
-        t.test('ab')
-        t.test('bswa')
-        # t.test('bha')
+        t.testWylie('sangs')
+        t.testWylie('bre')
+        t.testWylie('rta')
+        t.testWylie('mgo')
+        t.testWylie('gya')
+        t.testWylie('g.yag')
+        t.testWylie('\'rba')
+        t.testWylie('tshos')
+        t.testWylie('lhongs')
+        t.testWylie('mngar')
+        t.testWylie('sngas')
+        t.testWylie('rnyongs')
+        t.testWylie('brnyes')
+        t.testWylie('rgyas')
+        t.testWylie('skyongs')
+        t.testWylie('bskyongs')
+        t.testWylie('grwa')
+        t.testWylie('spre\'u')
+        t.testWylie('spre\'u\'i')
+        t.testWylie('\'dra')
+        t.testWylie('\'bya')
+        t.testWylie('\'gra')
+        t.testWylie('\'gyang')
+        t.testWylie('\'khra')
+        t.testWylie('\'khyig')
+        t.testWylie('\'kyags')
+        t.testWylie('\'phre')
+        t.testWylie('\'phyags')
+        t.testWylie('a')
+        t.testWylie('o')
+        t.testWylie('a\'am')
+        t.testWylie('ab')
+        t.testWylie('bswa')
+        # t.testWylie('bha')
         return
 
     f = open(argv[1], 'r')
 
     for line in f:
-        t.test(line.rstrip())
+        t.testWylie(line.rstrip())
 
     f.close()
 
 if __name__ == '__main__':
-    from sys import argv
     main()
