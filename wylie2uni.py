@@ -51,6 +51,38 @@ class Translator(object):
                 return i
         return -1
 
+    def isSuperscribed(self, parts, vowelPosition):
+        if vowelPosition == 2:
+            if self.validSuperscribe(parts[0], parts[1]) \
+                    and not self.validSubscribe(parts[1], parts[0]):
+                return True
+            else:
+                return False
+
+        else:   # vowelPosition == 3
+            if self.checkPrefix(parts[0]) \
+                    and self.validSuperscribe(parts[1], parts[2]) \
+                    and not self.validSubscribe(parts[2], parts[1]):
+                return True
+            else:
+                return False
+
+    def isSubscribed(self, parts, vowelPosition):
+        if vowelPosition == 2:
+            if not self.validSuperscribe(parts[0], parts[1]) \
+                    and self.validSubscribe(parts[1], parts[0]):
+                return True
+            else:
+                return False
+
+        else:   # vowelPosition == 3
+            if self.checkPrefix(parts[0]) \
+                    and not self.validSuperscribe(parts[1], parts[2]) \
+                    and self.validSubscribe(parts[2], parts[1]):
+                return True
+            else:
+                return False
+
     def determineUnicode(self):
         parts = self.partition()
         self.clearSyllable()
@@ -98,16 +130,12 @@ class Translator(object):
                 #     self.setStruct('prefix', parts[0])
                 #     self.setStruct('root',   parts[1])
 
-                if not self.validSuperscribe(parts[0], parts[1]) \
-                        and self.validSubscribe(parts[1], parts[0]):
-
+                if self.isSubscribed(parts, vowelPosition):
                     # print("vowel(2).case1")
                     self.setStruct('root',      parts[0])
                     self.setStruct('subjoined', parts[1])
 
-                elif self.validSuperscribe(parts[0], parts[1]) \
-                        and not self.validSubscribe(parts[1], parts[0]):
-
+                elif self.isSuperscribed(parts, vowelPosition):
                     # print("vowel(2).case2")
                     self.setStruct('super', parts[0])
                     self.setStruct('root',  parts[1])
@@ -127,23 +155,17 @@ class Translator(object):
                     # print(Translator.syllable.struct)
 
                 # print("vowel(3)")
-                elif self.checkPrefix(parts[0]) \
-                        and self.validSuperscribe(parts[1], parts[2]) \
-                        and not self.validSubscribe(parts[2], parts[1]):
+                elif self.isSuperscribed(parts, vowelPosition):
                     self.setStruct('prefix', parts[0])
                     self.setStruct('super',  parts[1])
                     self.setStruct('root',   parts[2])
 
-                elif self.checkPrefix(parts[0]) \
-                        and not self.validSuperscribe(parts[1], parts[2]) \
-                        and self.validSubscribe(parts[2], parts[1]):
+                elif self.isSubscribed(parts, vowelPosition):
                     self.setStruct('prefix',    parts[0])
                     self.setStruct('root',      parts[1])
                     self.setStruct('subjoined', parts[2])
 
-                elif not self.checkPrefix(parts[0]) \
-                        and self.validSuperscribe(parts[0], parts[1]) \
-                        and self.validSubscribe(parts[2], parts[1]):
+                else:
                     self.setStruct('super',     parts[0])
                     self.setStruct('root',      parts[1])
                     self.setStruct('subjoined', parts[2])
