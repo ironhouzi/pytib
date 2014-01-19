@@ -85,9 +85,6 @@ class Translator(object):
                 return False
 
     def normalWylie(self, parts, vowelPosition):
-    # TODO remove extra iterations taken by g.ya
-    # TODO replace ugly predicates with functions
-
         if vowelPosition == 0:
             if parts[0] in tables.W_VOWELS:
                 if parts[0] != 'a':
