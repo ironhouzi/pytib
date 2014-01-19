@@ -31,12 +31,6 @@ class Translator(object):
     def toSubjoinedUnicode(self, syllable):
         return chr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
 
-    def outputUnicode(self):
-        if __name__ == "__main__":
-            sys.stdout.write(Translator.syllable.uni)
-        else:
-            return Translator.syllable.uni
-
     def setStruct(self, key, value):
         Translator.syllable.struct[key] = value
 
@@ -279,7 +273,7 @@ class Translator(object):
 
     def tsheg(self):
         Translator.syllable.tsheg()
-        self.outputUnicode()
+        return Translator.syllable.uni
 
     def alphabet(self):  # {{{
         for i, key in enumerate(tables.W_ROOTLETTERS):
@@ -299,21 +293,13 @@ class Translator(object):
         print()
 
     def test(self, string):
-        sys.stdout.write(string + " : ")
-
         self.newSyllable()
+
         for i, s in enumerate(string):
             self.add(s)
 
-        self.tsheg()
-        print()
+        print(string + " : " + self.tsheg())
 
-    def partTest(self, string):
-        sys.stdout.write(string + " : ")
-
-        self.newSyllable(string)
-        l = self.partition()
-        print(str(l))
     # }}}
 
 
