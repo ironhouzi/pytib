@@ -3,8 +3,8 @@
 import sys
 import tables
 
-'''Translator
-    Wylie to utf-8 conversion.'''
+'''Wylie2Uni
+    Wylie to Unicode convertor'''
 
 TSHEG = u'\u0f0b'
 SUBOFFSET = 0x50
@@ -178,7 +178,6 @@ class Translator(object):
         else:
             vowelPosition = self.getVowelIndex(parts)
             self.normalWylie(parts, vowelPosition)
-
             self.findSuffixes(vowelPosition, parts)
 
     def isIrregular(self, vowelPosition, parts):
@@ -281,11 +280,11 @@ class Translator(object):
         else:
             return False
 
-    def tsheg(self):  # {{{
+    def tsheg(self):
         Translator.syllable.tsheg()
         self.outputUnicode()
 
-    def alphabet(self):
+    def alphabet(self):  # {{{
         for i, key in enumerate(tables.W_ROOTLETTERS):
             self.newSyllable()
             self.tsheg()
@@ -318,7 +317,7 @@ class Translator(object):
         self.newSyllable(string)
         l = self.partition()
         print(str(l))
-# }}}
+    # }}}
 
 
 class Syllable(object):
@@ -357,23 +356,6 @@ def main():
     # t.vowels()
 
     if len(argv) < 2:
-        # t.partTest('bskyongs')
-        # t.partTest('bre')
-        # t.partTest('\'rba')
-        # t.partTest('brnyes')
-        # t.partTest('skyongs')
-        # t.partTest('rgyas')
-        # t.partTest('tshos')
-        # t.partTest('rnyongs')
-        # t.partTest('lhongs')
-        # t.partTest('rta')
-        # t.partTest('mgo')
-        # t.partTest('mngar')
-        # t.partTest('sangs')
-        # t.partTest('sngas')
-        # t.partTest('snags')
-        # t.partTest('g.yag')
-
         t.test('sangs')
         t.test('bre')
         t.test('rta')
