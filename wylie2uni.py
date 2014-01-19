@@ -2,17 +2,16 @@ import sys
 import tables
 from sys import argv
 
-''' Translator
-    Wylie to utf-8 conversion.
-
-'''
+'''Translator
+    Wylie to utf-8 conversion.'''
 
 TSHEG = u'\u0f0b'
 SUBOFFSET = 0x50
 
 
 class Translator(object):
-    'Mainly modifies static variable: Translator.syllable'
+    '''Translates wylie into Tibetan Unicode, by mainly modifying the static
+        variable: Translator.syllable'''
 
     def __init__(self):
         Translator.syllable = Syllable('')
@@ -96,7 +95,7 @@ class Translator(object):
                 self.setStruct('root', 'a')
                 self.setStruct('vowel', parts[0])
 
-        # TODO Remove redundant vowel check
+# TODO Remove redundant vowel check
         if self.noVowels(parts):
             # print("returned nowowels")
             return
@@ -105,8 +104,8 @@ class Translator(object):
             vowelPosition = self.getVowelIndex(parts)
             # print("else.. vowelPosition = ", vowelPosition)
 
-            # TODO remove extra iterations taken by g.ya
-            # TODO replace ugly predicates with functions
+# TODO remove extra iterations taken by g.ya
+# TODO replace ugly predicates with functions
 
             if vowelPosition == 0:
                 if parts[0] in tables.W_VOWELS:
@@ -190,6 +189,8 @@ class Translator(object):
             self.findSuffixes(vowelPosition, parts)
 
     def checkIrregular(self, vowelPosition, parts):
+        '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
+
         if parts[vowelPosition-1] == 'w' and \
                 parts[vowelPosition-2] == 'r':
             # print("chIrr returned true")
@@ -199,8 +200,7 @@ class Translator(object):
             return False
 
     def findSuffixes(self, vowelPosition, parts):
-
-        # TODO: Create iterator for POSTVOWEL.next
+# TODO: Create iterator for POSTVOWEL.next *if* that doesn't impede performance
         j = 0
         for i in range(vowelPosition+1, len(parts)):
             wyChar = parts[i]
@@ -280,7 +280,7 @@ class Translator(object):
                 # print(Translator.syllable.struct)
                 # print(i)
 
-                # TODO: More efficient handling of g. irregular.
+# TODO: More efficient handling of g. irregular.
                 if char == 'g.':
                     char = 'g'
                     self.setStruct(comp, char)
