@@ -1,6 +1,7 @@
+# TODO: Write unit tests!
+
 import sys
 import tables
-from sys import argv
 
 '''Translator
     Wylie to utf-8 conversion.'''
@@ -31,7 +32,10 @@ class Translator(object):
         return chr(ord(Translator.lookup[str(syllable)]) + SUBOFFSET)
 
     def outputUnicode(self):
-        sys.stdout.write(Translator.syllable.uni)
+        if __name__ == "__main__":
+            sys.stdout.write(Translator.syllable.uni)
+        else:
+            return Translator.syllable.uni
 
     def setStruct(self, key, value):
         Translator.syllable.struct[key] = value
@@ -39,12 +43,10 @@ class Translator(object):
     def clearSyllable(self):
         Translator.syllable.clear()
 
-    def checkStruct(self, key):
+    def getCharacterOf(self, key):
         return Translator.syllable.struct[key]
 
     def getVowelIndex(self, parts):
-        # print("parts\n", parts)
-
         for i, char in enumerate(parts):
             if char in tables.W_VOWELS:
                 return i
@@ -59,7 +61,7 @@ class Translator(object):
                 return False
 
         else:   # vowelPosition == 3
-            if self.checkPrefix(parts[0]) \
+            if self.isPrefix(parts[0]) \
                     and self.validSuperscribe(parts[1], parts[2]) \
                     and not self.validSubscribe(parts[2], parts[1]):
                 return True
@@ -75,132 +77,121 @@ class Translator(object):
                 return False
 
         else:   # vowelPosition == 3
-            if self.checkPrefix(parts[0]) \
+            if self.isPrefix(parts[0]) \
                     and not self.validSuperscribe(parts[1], parts[2]) \
                     and self.validSubscribe(parts[2], parts[1]):
                 return True
             else:
                 return False
 
-    def determineUnicode(self):
+    def normalWylie(self, parts, vowelPosition):
+    # TODO remove extra iterations taken by g.ya
+    # TODO replace ugly predicates with functions
+
+        if vowelPosition == 0:
+            if parts[0] in tables.W_VOWELS:
+                if parts[0] != 'a':
+    # TODO This gives incorrect wylie. Move to renderUnicode().
+                    Translator.syllable.wylie = ''.join(['a', parts[0]])
+                    self.setStruct('root', 'a')
+                    self.setStruct('vowel', parts[0])
+                else:
+                    self.setStruct('root',  parts[0])
+                    self.setStruct('vowel', parts[0])
+
+        if vowelPosition == 1:
+            self.setStruct('root', parts[0])
+            self.setStruct('vowel', parts[1])
+
+        elif vowelPosition == 2:
+            if self.isSubscribed(parts, vowelPosition):
+                self.setStruct('root',      parts[0])
+                self.setStruct('subjoined', parts[1])
+
+            elif self.isSuperscribed(parts, vowelPosition):
+                self.setStruct('super', parts[0])
+                self.setStruct('root',  parts[1])
+
+            else:
+                self.setStruct('prefix', parts[0])
+                self.setStruct('root',   parts[1])
+
+            self.setStruct('vowel',  parts[2])
+
+        elif vowelPosition == 3:
+            if self.isIrregular(vowelPosition, parts):
+                self.setStruct('root',      parts[0])
+                self.setStruct('subjoined', parts[1])
+                self.setStruct('secondsub', parts[2])
+
+            elif self.isSuperscribed(parts, vowelPosition):
+                self.setStruct('prefix', parts[0])
+                self.setStruct('super',  parts[1])
+                self.setStruct('root',   parts[2])
+
+            elif self.isSubscribed(parts, vowelPosition):
+                self.setStruct('prefix',    parts[0])
+                self.setStruct('root',      parts[1])
+                self.setStruct('subjoined', parts[2])
+
+            else:
+                self.setStruct('super',     parts[0])
+                self.setStruct('root',      parts[1])
+                self.setStruct('subjoined', parts[2])
+
+            self.setStruct('vowel',  parts[3])
+
+        elif vowelPosition == 4:  # (max allowed)
+            if self.isIrregular(vowelPosition, parts):
+                self.setStruct('prefix',    parts[0])
+                self.setStruct('root',      parts[1])
+                self.setStruct('subjoined', parts[2])
+                self.setStruct('secondsub', parts[3])
+            else:
+                self.setStruct('prefix',    parts[0])
+                self.setStruct('super',     parts[1])
+                self.setStruct('root',      parts[2])
+                self.setStruct('subjoined', parts[3])
+
+            self.setStruct('vowel', parts[4])
+
+    def singleWylieCharacter(self, parts):
+        self.setStruct('root', parts[0])
+
+        if parts[0] in tables.W_VOWELS:
+            self.setStruct('vowel', parts[0])
+        else:
+            self.setStruct('root', 'a')
+            self.setStruct('vowel', parts[0])
+
+    def determineWylie(self):
         parts = self.partition()
         self.clearSyllable()
 
         if len(parts) == 1:
-            self.setStruct('root', parts[0])
+            self.singleWylieCharacter(parts)
 
-            if parts[0] in tables.W_VOWELS:
-                self.setStruct('vowel', parts[0])
-            else:
-                self.setStruct('root', 'a')
-                self.setStruct('vowel', parts[0])
-
-# TODO Remove redundant vowel check
+    # TODO Remove redundant vowel check
         if self.noVowels(parts):
-            # print("returned nowowels")
             return
 
         else:
             vowelPosition = self.getVowelIndex(parts)
-            # print("else.. vowelPosition = ", vowelPosition)
-
-# TODO remove extra iterations taken by g.ya
-# TODO replace ugly predicates with functions
-
-            if vowelPosition == 0:
-                if parts[0] in tables.W_VOWELS:
-                    if parts[0] != 'a':
-                        Translator.syllable.wylie = ''.join(['a', parts[0]])
-                        self.setStruct('root', 'a')
-                        self.setStruct('vowel', parts[0])
-                    else:
-                        self.setStruct('root',  parts[0])
-                        self.setStruct('vowel', parts[0])
-
-            if vowelPosition == 1:
-                # print("vowel(1)")
-                self.setStruct('root', parts[0])
-                self.setStruct('vowel', parts[1])
-
-            elif vowelPosition == 2:
-                # print("vowel(2)")
-
-                # if parts[0] == 'g.' and parts[1] == 'y':
-                #     self.setStruct('prefix', parts[0])
-                #     self.setStruct('root',   parts[1])
-
-                if self.isSubscribed(parts, vowelPosition):
-                    # print("vowel(2).case1")
-                    self.setStruct('root',      parts[0])
-                    self.setStruct('subjoined', parts[1])
-
-                elif self.isSuperscribed(parts, vowelPosition):
-                    # print("vowel(2).case2")
-                    self.setStruct('super', parts[0])
-                    self.setStruct('root',  parts[1])
-
-                else:
-                    # print("vowel(2).case3")
-                    self.setStruct('prefix', parts[0])
-                    self.setStruct('root',   parts[1])
-
-                self.setStruct('vowel',  parts[2])
-
-            elif vowelPosition == 3:
-                if self.checkIrregular(vowelPosition, parts):
-                    self.setStruct('root',      parts[0])
-                    self.setStruct('subjoined', parts[1])
-                    self.setStruct('secondsub', parts[2])
-                    # print(Translator.syllable.struct)
-
-                # print("vowel(3)")
-                elif self.isSuperscribed(parts, vowelPosition):
-                    self.setStruct('prefix', parts[0])
-                    self.setStruct('super',  parts[1])
-                    self.setStruct('root',   parts[2])
-
-                elif self.isSubscribed(parts, vowelPosition):
-                    self.setStruct('prefix',    parts[0])
-                    self.setStruct('root',      parts[1])
-                    self.setStruct('subjoined', parts[2])
-
-                else:
-                    self.setStruct('super',     parts[0])
-                    self.setStruct('root',      parts[1])
-                    self.setStruct('subjoined', parts[2])
-
-                self.setStruct('vowel',  parts[3])
-
-            elif vowelPosition == 4:  # (max allowed)
-                if self.checkIrregular(vowelPosition, parts):
-                    self.setStruct('prefix',    parts[0])
-                    self.setStruct('root',      parts[1])
-                    self.setStruct('subjoined', parts[2])
-                    self.setStruct('secondsub', parts[3])
-                else:
-                    # print("vowel(4)")
-                    self.setStruct('prefix',    parts[0])
-                    self.setStruct('super',     parts[1])
-                    self.setStruct('root',      parts[2])
-                    self.setStruct('subjoined', parts[3])
-
-                self.setStruct('vowel',     parts[4])
+            self.normalWylie(parts, vowelPosition)
 
             self.findSuffixes(vowelPosition, parts)
 
-    def checkIrregular(self, vowelPosition, parts):
+    def isIrregular(self, vowelPosition, parts):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
 
-        if parts[vowelPosition-1] == 'w' and \
-                parts[vowelPosition-2] == 'r':
-            # print("chIrr returned true")
-            # print(parts)
+        if parts[vowelPosition-1] == 'w' \
+                and parts[vowelPosition-2] == 'r':
             return True
         else:
             return False
 
     def findSuffixes(self, vowelPosition, parts):
-# TODO: Create iterator for POSTVOWEL.next *if* that doesn't impede performance
+    # TODO: Iterator for POSTVOWEL.next *if* that doesn't impede performance
         j = 0
         for i in range(vowelPosition+1, len(parts)):
             wyChar = parts[i]
@@ -216,8 +207,8 @@ class Translator(object):
         return True
 
     def partition(self):
-        ''' Generates a list of wylie characters, from which the wylie string
-            is composed of. '''
+        '''Generates a list of wylie characters, from which the wylie string
+            is composed of.'''
 
         result = []
         syll = Translator.syllable.wylie
@@ -235,26 +226,15 @@ class Translator(object):
 
     def validSuperscribe(self, head, root):
         if head not in tables.SUPER:
-            # print("validSuperscribe false")
             return False
         else:
-            # if root in Translator.rulesSuper[head]:
-            #     print("validSuperscribe true")
-            # else:
-            #     print("validSuperscribe false")
-
             return root in Translator.rulesSuper[head]
 
     def validSubscribe(self, sub, root):
         if sub not in tables.SUB:
-            # print("validSubscribe false: not in SUB")
             return False
-        else:
-            # if root in Translator.rulesSub[sub]:
-            #     print("validSub. root: ", root, "sub: ", sub, ":: true")
-            # else:
-            #     print("validSubscribe false")
 
+        else:
             return root in Translator.rulesSub[sub]
 
     def appendWylieChar(self, char):
@@ -262,14 +242,19 @@ class Translator(object):
 
     def add(self, char):
         self.appendWylieChar(char)
-        self.determineUnicode()
+        self.determineWylie()
         self.renderUnicode()
 
+    def needsSubjoin(self, comp):
+        if comp == 'subjoined' or comp == 'secondsub' \
+                or (comp == 'root' and self.getCharacterOf('super')):
+            return True
+        else:
+            return False
+
     def renderUnicode(self):
-        # print("render wylie:", Translator.syllable.wylie)
         for comp in tables.SYLLSTRUCT:
-            # print("Starting loop iteration ", i, "for: ", comp)
-            char = self.checkStruct(comp)
+            char = self.getCharacterOf(comp)
 
             if char == 'a' and comp != 'root':
                 continue
@@ -277,26 +262,20 @@ class Translator(object):
             newString = [Translator.syllable.uni]
 
             if char:
-                # print(Translator.syllable.struct)
-                # print(i)
-
-# TODO: More efficient handling of g. irregular.
+    # TODO: More efficient handling of g. irregular.
                 if char == 'g.':
                     char = 'g'
                     self.setStruct(comp, char)
 
-                if comp == 'subjoined' or comp == 'secondsub' \
-                        or (comp == 'root' and self.checkStruct('super')):
-                    # print(comp, " subjoining ", char)
+                if self.needsSubjoin(comp):
                     newString.append(self.toSubjoinedUnicode(char))
+
                 else:
-                    # print(comp, " else: appending ", char)
                     newString.append(self.toUnicode(char))
 
-                # print("appending: ", newString)
                 Translator.syllable.uni = u''.join(newString)
 
-    def checkPrefix(self, char):
+    def isPrefix(self, char):
         if char in tables.PREFIXES:
             return True
         else:
@@ -343,6 +322,7 @@ class Translator(object):
 
 
 class Syllable(object):
+    '''Used as static object for the Translator class'''
 
     def __init__(self, wylie):
         self.wylie = wylie
@@ -438,4 +418,5 @@ def main():
     f.close()
 
 if __name__ == '__main__':
+    from sys import argv
     main()
