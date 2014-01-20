@@ -12,8 +12,7 @@ SUBOFFSET = 0x50
 
 
 class Translator(object):
-    '''Translates wylie into Tibetan Unicode, by mainly modifying the static
-        variable: Translator.syllable'''
+    '''Translates wylie into Tibetan Unicode'''
 
     def __init__(self):
         self.syllable = Syllable('')
@@ -292,8 +291,6 @@ class Translator(object):
 
 
 class Syllable(object):
-    '''Used as static object for the Translator class'''
-
     def __init__(self, wylie):
         self.wylie = wylie
         self.uni = u''
