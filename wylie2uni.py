@@ -287,6 +287,16 @@ class Translator(object):
 
         print(string + " : " + self.tsheg())
 
+    def printBytecodes(self, string):
+        self.newSyllable()
+
+        for i, s in enumerate(string):
+            self.add(s)
+
+        for uni in self.syllable.uni:
+            print('U+{0:04X}'.format(ord(uni)))
+
+
     # }}}
 
 
@@ -320,39 +330,40 @@ def main():
     # t.vowels()
 
     if len(argv) < 2:
-        t.testWylie('sangs')
-        t.testWylie('bre')
-        t.testWylie('rta')
-        t.testWylie('mgo')
-        t.testWylie('gya')
-        t.testWylie('g.yag')
-        t.testWylie('\'rba')
-        t.testWylie('tshos')
-        t.testWylie('lhongs')
-        t.testWylie('mngar')
-        t.testWylie('sngas')
-        t.testWylie('rnyongs')
-        t.testWylie('brnyes')
-        t.testWylie('rgyas')
-        t.testWylie('skyongs')
-        t.testWylie('bskyongs')
-        t.testWylie('grwa')
-        t.testWylie('spre\'u')
-        t.testWylie('spre\'u\'i')
-        t.testWylie('\'dra')
-        t.testWylie('\'bya')
-        t.testWylie('\'gra')
-        t.testWylie('\'gyang')
-        t.testWylie('\'khra')
-        t.testWylie('\'khyig')
-        t.testWylie('\'kyags')
-        t.testWylie('\'phre')
-        t.testWylie('\'phyags')
-        t.testWylie('a')
-        t.testWylie('o')
-        t.testWylie('a\'am')
-        t.testWylie('ab')
-        t.testWylie('bswa')
+        t.printBytecodes('bskyongs')
+        # t.testWylie('sangs')
+        # t.testWylie('bre')
+        # t.testWylie('rta')
+        # t.testWylie('mgo')
+        # t.testWylie('gya')
+        # t.testWylie('g.yag')
+        # t.testWylie('\'rba')
+        # t.testWylie('tshos')
+        # t.testWylie('lhongs')
+        # t.testWylie('mngar')
+        # t.testWylie('sngas')
+        # t.testWylie('rnyongs')
+        # t.testWylie('brnyes')
+        # t.testWylie('rgyas')
+        # t.testWylie('skyongs')
+        # t.testWylie('bskyongs')
+        # t.testWylie('grwa')
+        # t.testWylie('spre\'u')
+        # t.testWylie('spre\'u\'i')
+        # t.testWylie('\'dra')
+        # t.testWylie('\'bya')
+        # t.testWylie('\'gra')
+        # t.testWylie('\'gyang')
+        # t.testWylie('\'khra')
+        # t.testWylie('\'khyig')
+        # t.testWylie('\'kyags')
+        # t.testWylie('\'phre')
+        # t.testWylie('\'phyags')
+        # t.testWylie('a')
+        # t.testWylie('o')
+        # t.testWylie('a\'am')
+        # t.testWylie('ab')
+        # t.testWylie('bswa')
         # t.testWylie('bha')
         return
 
