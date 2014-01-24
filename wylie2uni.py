@@ -7,7 +7,12 @@ import sys
 import tables
 from sys import argv
 
-TSHEG = u'\u0f0b'
+''' Translator
+    Wylie to utf-8 conversion.
+
+'''
+
+TSHEG = '\u0f0b'
 SUBOFFSET = 0x50
 
 
@@ -250,7 +255,7 @@ class Translator(object):
                 else:
                     newString.append(self.toUnicode(char))
 
-                self.syllable.uni = u''.join(newString)
+                self.syllable.uni = ''.join(newString)
 
     def isPrefix(self, char):
         if char in tables.PREFIXES:
@@ -287,13 +292,23 @@ class Translator(object):
 
         print(string + " : " + self.tsheg())
 
+    def printBytecodes(self, string):
+        self.newSyllable()
+
+        for i, s in enumerate(string):
+            self.add(s)
+
+        for uni in self.syllable.uni:
+            print('U+{0:04X}'.format(ord(uni)))
+
+
     # }}}
 
 
 class Syllable(object):
     def __init__(self, wylie):
         self.wylie = wylie
-        self.uni = u''
+        self.uni = ''
         self.struct = dict((key, '') for key in tables.SYLLSTRUCT)
 
     def __str__(self):
@@ -303,13 +318,13 @@ class Syllable(object):
         return self.wylie
 
     def tsheg(self):
-        self.uni = u''.join([self.uni, TSHEG])
+        self.uni = ''.join([self.uni, TSHEG])
 
     def add(self, uni):
-        self.uni = u''.join([self.uni, uni])
+        self.uni = ''.join([self.uni, uni])
 
     def clear(self):
-        self.uni = u''
+        self.uni = ''
         for s in tables.SYLLSTRUCT:
             self.struct[s] = ''
 
@@ -320,39 +335,40 @@ def main():
     # t.vowels()
 
     if len(argv) < 2:
-        t.testWylie('sangs')
-        t.testWylie('bre')
-        t.testWylie('rta')
-        t.testWylie('mgo')
-        t.testWylie('gya')
-        t.testWylie('g.yag')
-        t.testWylie('\'rba')
-        t.testWylie('tshos')
-        t.testWylie('lhongs')
-        t.testWylie('mngar')
-        t.testWylie('sngas')
-        t.testWylie('rnyongs')
-        t.testWylie('brnyes')
-        t.testWylie('rgyas')
-        t.testWylie('skyongs')
-        t.testWylie('bskyongs')
-        t.testWylie('grwa')
-        t.testWylie('spre\'u')
-        t.testWylie('spre\'u\'i')
-        t.testWylie('\'dra')
-        t.testWylie('\'bya')
-        t.testWylie('\'gra')
-        t.testWylie('\'gyang')
-        t.testWylie('\'khra')
-        t.testWylie('\'khyig')
-        t.testWylie('\'kyags')
-        t.testWylie('\'phre')
-        t.testWylie('\'phyags')
-        t.testWylie('a')
-        t.testWylie('o')
-        t.testWylie('a\'am')
-        t.testWylie('ab')
-        t.testWylie('bswa')
+        t.printBytecodes('bskyongs')
+        # t.testWylie('sangs')
+        # t.testWylie('bre')
+        # t.testWylie('rta')
+        # t.testWylie('mgo')
+        # t.testWylie('gya')
+        # t.testWylie('g.yag')
+        # t.testWylie('\'rba')
+        # t.testWylie('tshos')
+        # t.testWylie('lhongs')
+        # t.testWylie('mngar')
+        # t.testWylie('sngas')
+        # t.testWylie('rnyongs')
+        # t.testWylie('brnyes')
+        # t.testWylie('rgyas')
+        # t.testWylie('skyongs')
+        # t.testWylie('bskyongs')
+        # t.testWylie('grwa')
+        # t.testWylie('spre\'u')
+        # t.testWylie('spre\'u\'i')
+        # t.testWylie('\'dra')
+        # t.testWylie('\'bya')
+        # t.testWylie('\'gra')
+        # t.testWylie('\'gyang')
+        # t.testWylie('\'khra')
+        # t.testWylie('\'khyig')
+        # t.testWylie('\'kyags')
+        # t.testWylie('\'phre')
+        # t.testWylie('\'phyags')
+        # t.testWylie('a')
+        # t.testWylie('o')
+        # t.testWylie('a\'am')
+        # t.testWylie('ab')
+        # t.testWylie('bswa')
         # t.testWylie('bha')
         return
 
