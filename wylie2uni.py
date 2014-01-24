@@ -7,7 +7,7 @@ from sys import argv
 
 '''
 
-TSHEG = u'\u0f0b'
+TSHEG = '\u0f0b'
 SUBOFFSET = 0x50
 
 
@@ -270,7 +270,7 @@ class Translator(object):
                     newString.append(self.toUni(char))
 
                 # print("appending: ", newString)
-                Translator.syllable.uni = u''.join(newString)
+                Translator.syllable.uni = ''.join(newString)
 
     def checkPrefix(self, char):
         if char in tables.PREFIXES:
@@ -330,7 +330,7 @@ class Syllable(object):
 
     def __init__(self, wylie):
         self.wylie = wylie
-        self.uni = u''
+        self.uni = ''
         self.struct = dict((key, '') for key in tables.SYLLSTRUCT)
 
     def __str__(self):
@@ -340,13 +340,13 @@ class Syllable(object):
         return self.wylie
 
     def tsheg(self):
-        self.uni = u''.join([self.uni, TSHEG])
+        self.uni = ''.join([self.uni, TSHEG])
 
     def add(self, uni):
-        self.uni = u''.join([self.uni, uni])
+        self.uni = ''.join([self.uni, uni])
 
     def correct(self):
-        self.uni = u''
+        self.uni = ''
 
         for s in tables.SYLLSTRUCT:
             self.struct[s] = ''
