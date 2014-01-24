@@ -255,7 +255,7 @@ class Translator(object):
                 else:
                     newString.append(self.toUnicode(char))
 
-                self.syllable.uni = u''.join(newString)
+                self.syllable.uni = ''.join(newString)
 
     def isPrefix(self, char):
         if char in tables.PREFIXES:
@@ -324,7 +324,7 @@ class Syllable(object):
         self.uni = ''.join([self.uni, uni])
 
     def clear(self):
-        self.uni = u''
+        self.uni = ''
         for s in tables.SYLLSTRUCT:
             self.struct[s] = ''
 
