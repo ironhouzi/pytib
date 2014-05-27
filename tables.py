@@ -33,28 +33,29 @@ SUFFIXES = ['g', 'ng', 'd', 'n', 'b',
 
 SUFFIX2S = ['s' 'd']
 
-RA_GO = ['k', 'g', 'ng', 'j', 'ny', 't',
-         'd', 'n', 'b',  'm', 'ts', 'dz']
+RAGO_ROOTLETTERS = ['k', 'g', 'ng', 'j', 'ny', 't',
+                    'd', 'n', 'b',  'm', 'ts', 'dz']
 
-LA_GO = ['k', 'g', 'ng', 'c', 'j',
-         't', 'd', 'p',  'b', 'h']
+LAGO_ROOTLETTERS = ['k', 'g', 'ng', 'c', 'j',
+                    't', 'd', 'p',  'b', 'h']
 
-SA_GO = ['k', 'g', 'ng', 'ny', 't',
-         'd', 'n', 'p',  'b',  'm', 'ts']
+SAGO_ROOTLETTERS = ['k', 'g', 'ng', 'ny', 't',
+                    'd', 'n', 'p',  'b',  'm', 'ts']
 
-YA_TA = ['k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h']
+YATA_ROOTLETTERS = ['k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h']
 
-RA_TA = ['k', 'kh', 'g', 't', 'th', 'd',
-         'n', 'p', 'ph', 'b', 'm',  's', 'h']
+RATA_ROOTLETTERS = ['k', 'kh', 'g', 't', 'th', 'd',
+                    'n', 'p', 'ph', 'b', 'm',  's', 'h']
 
-LA_TA = ['k', 'g', 'b', 'r', 's', 'z']
+LATA_ROOTLETTERS = ['k', 'g', 'b', 'r', 's', 'z']
 
-WA_ZUR = ['k',   'kh', 'g', 'c', 'ny', 't', 'd', 'ts',
-          'tsh', 'zh', 'z', 'r', 'l', 'sh', 's', 'h']
+WAZUR_ROOTLETTERS = ['k',   'kh', 'g', 'c', 'ny', 't', 'd', 'ts',
+                     'tsh', 'zh', 'z', 'r', 'l', 'sh', 's', 'h']
 
-SUPER_RULES = [RA_GO, LA_GO, SA_GO]
+SUPER_RULES = [RAGO_ROOTLETTERS, LAGO_ROOTLETTERS, SAGO_ROOTLETTERS]
 
-SUB_RULES = [YA_TA, RA_TA, LA_TA, WA_ZUR]
+SUB_RULES = [YATA_ROOTLETTERS, RATA_ROOTLETTERS,
+             LATA_ROOTLETTERS, WAZUR_ROOTLETTERS]
 
 PREVOWEL = ['prefix',
             'super',
