@@ -15,6 +15,12 @@ class Translator(object):
     '''Translates wylie into Tibetan Unicode
     Instantiates a Syllable object in the object variable self.syllable.
     Contain methods for analyzing and validifying the Syllable-object.
+    Basic steps for the analysis:
+        1. Partition the wylie string into wylie letters.
+        2. Find the position of the vowel.
+        3. Define the syllable components (prefix, superscribed, etc.) for all
+            letters before and including the vowel.
+        4. Define the syllable components for the letters after the vowel.
     '''
 
     def __init__(self):
@@ -34,157 +40,161 @@ class Translator(object):
     def toSubjoinedUnicode(self, syllable):
         return chr(ord(self.lookup[str(syllable)]) + SUBOFFSET)
 
-    def modifySyllable(self, component, letter):
-        self.syllable.structure[component] = letter
+    def modSyllableStructure(self, component, wylieLetter):
+        self.syllable.structure[component] = wylieLetter
 
-    def getCharacterOf(self, component):
+    def getCharacterFor(self, component):
         return self.syllable.structure[component]
 
-    def getVowelIndex(self, vowelParts):
-        for i, char in enumerate(vowelParts):
+    def getVowelIndex(self, wylieLetters):
+        for i, char in enumerate(wylieLetters):
             if char in tables.W_VOWELS:
                 return i
         return -1
 
-    def isSuperscribed(self, vowelParts, vowelPosition):
+    def isSuperscribed(self, wylieLetters, vowelPosition):
         if vowelPosition == 2:
-            return self.validSuperscribe(vowelParts[0], vowelParts[1]) \
-                and not self.validSubscribe(vowelParts[1], vowelParts[0])
+            return self.validSuperscribe(wylieLetters[0], wylieLetters[1]) \
+                and not self.validSubscribe(wylieLetters[1], wylieLetters[0])
         else:   # vowelPosition == 3
-            return self.isPrefix(vowelParts[0]) \
-                and self.validSuperscribe(vowelParts[1], vowelParts[2]) \
-                and not self.validSubscribe(vowelParts[2], vowelParts[1])
+            return self.isPrefix(wylieLetters[0]) \
+                and self.validSuperscribe(wylieLetters[1], wylieLetters[2]) \
+                and not self.validSubscribe(wylieLetters[2], wylieLetters[1])
 
-    def isSubscribed(self, vowelParts, vowelPosition):
+    def isSubscribed(self, wylieLetters, vowelPosition):
         if vowelPosition == 2:
-            return not self.validSuperscribe(vowelParts[0], vowelParts[1]) \
-                and self.validSubscribe(vowelParts[1], vowelParts[0])
+            return not self.validSuperscribe(wylieLetters[0], wylieLetters[1]) \
+                and self.validSubscribe(wylieLetters[1], wylieLetters[0])
         else:   # vowelPosition == 3
-            return self.isPrefix(vowelParts[0]) \
-                and not self.validSuperscribe(vowelParts[1], vowelParts[2]) \
-                and self.validSubscribe(vowelParts[2], vowelParts[1])
+            return self.isPrefix(wylieLetters[0]) \
+                and not self.validSuperscribe(wylieLetters[1], wylieLetters[2]) \
+                and self.validSubscribe(wylieLetters[2], wylieLetters[1])
 
-    def vowelAtZero(self, vowelParts):
-        if vowelParts[0] in tables.W_VOWELS:
-            if vowelParts[0] != 'a':
-            # TODO This gives incorrect wylie. Move to renderUnicode().
-                self.syllable.wylie = ''.join(['a', vowelParts[0]])
-                self.modifySyllable('root', 'a')
-                self.modifySyllable('vowel', vowelParts[0])
+    def vowelAtZero(self, wylieLetters):
+        if wylieLetters[0] in tables.W_VOWELS:
+            # wylieLetters[0] != 'a' ?
+            if wylieLetters[0] != W_ROOTLETTERS[-1]:
+            # For single letter vowels w/o the 'a'. Prepends the vowel with
+            # the 'a' character, to get correct unicode.
+            # TODO  Move to renderUnicode().
+                self.syllable.wylie = ''.join([W_ROOTLETTERS[-1],
+                                               wylieLetters[0]])
+                self.modSyllableStructure('root', W_ROOTLETTERS[-1])
+                self.modSyllableStructure('vowel', wylieLetters[0])
             else:
-                self.modifySyllable('root',  vowelParts[0])
-                self.modifySyllable('vowel', vowelParts[0])
+                self.modSyllableStructure('root',  wylieLetters[0])
+                self.modSyllableStructure('vowel', wylieLetters[0])
 
-    def vowelAtOne(self, vowelParts):
-        self.modifySyllable('root', vowelParts[0])
-        self.modifySyllable('vowel', vowelParts[1])
+    def vowelAtOne(self, wylieLetters):
+        self.modSyllableStructure('root', wylieLetters[0])
+        self.modSyllableStructure('vowel', wylieLetters[1])
 
-    def vowelAtTwo(self, vowelParts):
-        if self.isSubscribed(vowelParts, 2):
-            self.modifySyllable('root',      vowelParts[0])
-            self.modifySyllable('subjoined', vowelParts[1])
-        elif self.isSuperscribed(vowelParts, 2):
-            self.modifySyllable('super', vowelParts[0])
-            self.modifySyllable('root',  vowelParts[1])
+    def vowelAtTwo(self, wylieLetters):
+        if self.isSubscribed(wylieLetters, 2):
+            self.modSyllableStructure('root',      wylieLetters[0])
+            self.modSyllableStructure('subjoined', wylieLetters[1])
+        elif self.isSuperscribed(wylieLetters, 2):
+            self.modSyllableStructure('super', wylieLetters[0])
+            self.modSyllableStructure('root',  wylieLetters[1])
         else:
-            self.modifySyllable('prefix', vowelParts[0])
-            self.modifySyllable('root',   vowelParts[1])
-        self.modifySyllable('vowel', vowelParts[2])
+            self.modSyllableStructure('prefix', wylieLetters[0])
+            self.modSyllableStructure('root',   wylieLetters[1])
+        self.modSyllableStructure('vowel', wylieLetters[2])
 
-    def vowelAtThree(self, vowelParts):
-        if self.isIrregular(3, vowelParts):
-            self.modifySyllable('root',      vowelParts[0])
-            self.modifySyllable('subjoined', vowelParts[1])
-            self.modifySyllable('secondsub', vowelParts[2])
-        elif self.isSuperscribed(vowelParts, 3):
-            self.modifySyllable('prefix', vowelParts[0])
-            self.modifySyllable('super',  vowelParts[1])
-            self.modifySyllable('root',   vowelParts[2])
-        elif self.isSubscribed(vowelParts, 3):
-            self.modifySyllable('prefix',    vowelParts[0])
-            self.modifySyllable('root',      vowelParts[1])
-            self.modifySyllable('subjoined', vowelParts[2])
+    def vowelAtThree(self, wylieLetters):
+        if self.isIrregular(3, wylieLetters):
+            self.modSyllableStructure('root',      wylieLetters[0])
+            self.modSyllableStructure('subjoined', wylieLetters[1])
+            self.modSyllableStructure('secondsub', wylieLetters[2])
+        elif self.isSuperscribed(wylieLetters, 3):
+            self.modSyllableStructure('prefix', wylieLetters[0])
+            self.modSyllableStructure('super',  wylieLetters[1])
+            self.modSyllableStructure('root',   wylieLetters[2])
+        elif self.isSubscribed(wylieLetters, 3):
+            self.modSyllableStructure('prefix',    wylieLetters[0])
+            self.modSyllableStructure('root',      wylieLetters[1])
+            self.modSyllableStructure('subjoined', wylieLetters[2])
         else:
-            self.modifySyllable('super',     vowelParts[0])
-            self.modifySyllable('root',      vowelParts[1])
-            self.modifySyllable('subjoined', vowelParts[2])
-        self.modifySyllable('vowel', vowelParts[3])
+            self.modSyllableStructure('super',     wylieLetters[0])
+            self.modSyllableStructure('root',      wylieLetters[1])
+            self.modSyllableStructure('subjoined', wylieLetters[2])
+        self.modSyllableStructure('vowel', wylieLetters[3])
 
-    def vowelAtFour(self, vowelParts):
-        if self.isIrregular(4, vowelParts):
-            self.modifySyllable('prefix',    vowelParts[0])
-            self.modifySyllable('root',      vowelParts[1])
-            self.modifySyllable('subjoined', vowelParts[2])
-            self.modifySyllable('secondsub', vowelParts[3])
+    def vowelAtFour(self, wylieLetters):
+        if self.isIrregular(4, wylieLetters):
+            self.modSyllableStructure('prefix',    wylieLetters[0])
+            self.modSyllableStructure('root',      wylieLetters[1])
+            self.modSyllableStructure('subjoined', wylieLetters[2])
+            self.modSyllableStructure('secondsub', wylieLetters[3])
         else:
-            self.modifySyllable('prefix',    vowelParts[0])
-            self.modifySyllable('super',     vowelParts[1])
-            self.modifySyllable('root',      vowelParts[2])
-            self.modifySyllable('subjoined', vowelParts[3])
-        self.modifySyllable('vowel', vowelParts[4])
+            self.modSyllableStructure('prefix',    wylieLetters[0])
+            self.modSyllableStructure('super',     wylieLetters[1])
+            self.modSyllableStructure('root',      wylieLetters[2])
+            self.modSyllableStructure('subjoined', wylieLetters[3])
+        self.modSyllableStructure('vowel', wylieLetters[4])
 
     analyzeSyllable = [vowelAtZero, vowelAtOne, vowelAtTwo,
                        vowelAtThree, vowelAtFour]
 
-    def singleWylieCharacter(self, vowelParts):
-        self.modifySyllable('root', vowelParts[0])
-        if vowelParts[0] in tables.W_VOWELS:
-            self.modifySyllable('vowel', vowelParts[0])
+    def singleWylieChar(self, wylieLetters):
+        self.modSyllableStructure('root', wylieLetters[0])
+        if wylieLetters[0] in tables.W_VOWELS:
+            self.modSyllableStructure('vowel', wylieLetters[0])
         else:
-            self.modifySyllable('root', 'a')
-            self.modifySyllable('vowel', vowelParts[0])
+            self.modSyllableStructure('root', 'a')
+            self.modSyllableStructure('vowel', wylieLetters[0])
 
-    def determineWylie(self):
-        vowelParts = self.partition()
+    def analyzeWylie(self):
+        wylieLetters = self.partitionToWylie(self.syllable)
         self.syllable.clear()
-        if len(vowelParts) == 1:
-            self.singleWylieCharacter(vowelParts)
+        if len(wylieLetters) == 1:
+            self.singleWylieChar(wylieLetters)
         # TODO Remove redundant vowel check
-        if self.noVowels(vowelParts):
+        if self.hasNoVowel(wylieLetters):
             return
         else:
-            vowelPosition = self.getVowelIndex(vowelParts)
-            self.analyzeSyllable[vowelPosition](self, vowelParts)
-            self.findSuffixes(vowelPosition, vowelParts)
+            vowelPosition = self.getVowelIndex(wylieLetters)
+            self.analyzeSyllable[vowelPosition](self, wylieLetters)
+            self.findSuffixes(vowelPosition, wylieLetters)
 
-    def isIrregular(self, vowelPosition, vowelParts):
+    def isIrregular(self, vowelPosition, wylieLetters):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
-        if vowelParts[vowelPosition-1] == tables.W_ROOTLETTERS[19] \
-                and vowelParts[vowelPosition-2] == tables.W_ROOTLETTERS[24]:
+        if wylieLetters[vowelPosition-1] == tables.W_ROOTLETTERS[19] \
+                and wylieLetters[vowelPosition-2] == tables.W_ROOTLETTERS[24]:
             return True
         else:
             return False
 
-    def findSuffixes(self, vowelPosition, vowelParts):
+    def findSuffixes(self, vowelPosition, wylieLetters):
     # TODO: Iterator for POSTVOWEL.next *if* that doesn't impede performance
         j = 0
-        for i in range(vowelPosition+1, len(vowelParts)):
-            wylieChar = vowelParts[i]
+        for i in range(vowelPosition+1, len(wylieLetters)):
+            wylieChar = wylieLetters[i]
             if wylieChar:
-                self.modifySyllable(tables.POSTVOWEL[j], wylieChar)
+                self.modSyllableStructure(tables.POSTVOWEL[j], wylieChar)
                 j += 1
 
-    def noVowels(self, vowelParts):
-        for char in vowelParts:
+    def hasNoVowel(self, wylieLetters):
+        for char in wylieLetters:
             if char in tables.W_VOWELS:
                 return False
         return True
 
-    def partition(self):
+    def partitionToWylie(self, syllable):
         '''Generates a list of wylie characters, from which the wylie string
             is composed of.
            Test if the i last roman letters in the wylie string matches a
            valid wylie character and continue until the entire wylie string
            is partitioned.'''
         result = []
-        syllable = self.syllable.wylie
-        while len(syllable) != 0:
+        wylieSyllable = syllable.wylie
+        while len(wylieSyllable) != 0:
             for i in range(3, 0, -1):
-                part = syllable[:i]
+                part = wylieSyllable[:i]
                 if part in tables.W_ROOTLETTERS + tables.W_VOWELS \
-                        or part == 'g.':
+                        or part == tables.IRREGULAR_G:
                     result.append(part)
-                    syllable = syllable[len(part):]
+                    wylieSyllable = wylieSyllable[len(part):]
         return result
 
     def validSuperscribe(self, headLetter, rootLetter):
@@ -204,28 +214,28 @@ class Translator(object):
 
     def appendLetter(self, char):
         self.appendWylieChar(char)
-        self.determineWylie()
+        self.analyzeWylie()
         self.renderUnicode()
 
     def needsSubjoin(self, component):
         if component == 'subjoined' or component == 'secondsub' \
-                or (component == 'root' and self.getCharacterOf('super')):
+                or (component == 'root' and self.getCharacterFor('super')):
             return True
         else:
             return False
 
     def renderUnicode(self):
-        for comp in tables.SYLLSTRUCT:
-            char = self.getCharacterOf(comp)
-            if char == 'a' and comp != 'root':
+        for syllableComponent in tables.SYLLSTRUCT:
+            char = self.getCharacterFor(syllableComponent)
+            if char == 'a' and syllableComponent != 'root':
                 continue
             newString = [self.syllable.uni]
             if char:
     # TODO: More efficient handling of g. irregular.
                 if char == 'g.':
                     char = 'g'
-                    self.modifySyllable(comp, char)
-                if self.needsSubjoin(comp):
+                    self.modSyllableStructure(syllableComponent, char)
+                if self.needsSubjoin(syllableComponent):
                     newString.append(self.toSubjoinedUnicode(char))
                 else:
                     newString.append(self.toUnicode(char))
@@ -249,7 +259,7 @@ class Translator(object):
                 sys.stdout.write("\n")
         sys.stdout.write("\n")
 
-    def vowels(self):
+    def listVowels(self):
         for key in tables.W_VOWELS:
             self.newSyllable('a')
             self.appendLetter(key)
@@ -298,43 +308,43 @@ class Syllable(object):
 def main():
     t = Translator()
     # t.listAlphabet()
-    # t.vowels()
+    # t.listVowels()
     if len(argv) < 2:
-        t.printBytecodes('bskyongs')
-        # t.testWylie('sangs')
-        # t.testWylie('bre')
-        # t.testWylie('rta')
-        # t.testWylie('mgo')
-        # t.testWylie('gya')
-        # t.testWylie('g.yag')
-        # t.testWylie('\'rba')
-        # t.testWylie('tshos')
-        # t.testWylie('lhongs')
-        # t.testWylie('mngar')
-        # t.testWylie('sngas')
-        # t.testWylie('rnyongs')
-        # t.testWylie('brnyes')
-        # t.testWylie('rgyas')
-        # t.testWylie('skyongs')
-        # t.testWylie('bskyongs')
-        # t.testWylie('grwa')
-        # t.testWylie('spre\'u')
-        # t.testWylie('spre\'u\'i')
-        # t.testWylie('\'dra')
-        # t.testWylie('\'bya')
-        # t.testWylie('\'gra')
-        # t.testWylie('\'gyang')
-        # t.testWylie('\'khra')
-        # t.testWylie('\'khyig')
-        # t.testWylie('\'kyags')
-        # t.testWylie('\'phre')
-        # t.testWylie('\'phyags')
-        # t.testWylie('a')
-        # t.testWylie('o')
-        # t.testWylie('a\'am')
-        # t.testWylie('ab')
-        # t.testWylie('bswa')
-        # t.testWylie('bha')
+        # t.printBytecodes('bskyongs')
+        t.testWylie('sangs')
+        t.testWylie('bre')
+        t.testWylie('rta')
+        t.testWylie('mgo')
+        t.testWylie('gya')
+        t.testWylie('g.yag')
+        t.testWylie('\'rba')
+        t.testWylie('tshos')
+        t.testWylie('lhongs')
+        t.testWylie('mngar')
+        t.testWylie('sngas')
+        t.testWylie('rnyongs')
+        t.testWylie('brnyes')
+        t.testWylie('rgyas')
+        t.testWylie('skyongs')
+        t.testWylie('bskyongs')
+        t.testWylie('grwa')
+        t.testWylie('spre\'u')
+        t.testWylie('spre\'u\'i')
+        t.testWylie('\'dra')
+        t.testWylie('\'bya')
+        t.testWylie('\'gra')
+        t.testWylie('\'gyang')
+        t.testWylie('\'khra')
+        t.testWylie('\'khyig')
+        t.testWylie('\'kyags')
+        t.testWylie('\'phre')
+        t.testWylie('\'phyags')
+        t.testWylie('a')
+        t.testWylie('o')
+        t.testWylie('a\'am')
+        t.testWylie('ab')
+        t.testWylie('bswa')
+        t.testWylie('bha')
         return
     f = open(argv[1], 'r')
     for line in f:
