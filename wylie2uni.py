@@ -149,8 +149,8 @@ class Translator(object):
 
     def isIrregular(self, vowelPosition, vowelParts):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
-        if vowelParts[vowelPosition-1] == 'w' \
-                and vowelParts[vowelPosition-2] == 'r':
+        if vowelParts[vowelPosition-1] == tables.W_ROOTLETTERS[19] \
+                and vowelParts[vowelPosition-2] == tables.W_ROOTLETTERS[24]:
             return True
         else:
             return False

@@ -22,40 +22,79 @@ W_VOWELS = ['i', 'u', 'e', 'o', 'a']
 
 U_VOWELS = [u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c']
 
-SUPER = ['r', 'l', 's']
+# ['r', 'l', 's']
+SUPER = [W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27]]
 
-SUB = ['y', 'r', 'l', 'w']
+# ['y', 'r', 'l', 'w']
+SUB = [W_ROOTLETTERS[23], W_ROOTLETTERS[24],
+       W_ROOTLETTERS[25], W_ROOTLETTERS[19]]
 
-PREFIXES = ['g', 'd', 'b', 'm', '\'']
+# ['g', 'd', 'b', 'm', '\'']
+PREFIXES = [W_ROOTLETTERS[2],  W_ROOTLETTERS[10], W_ROOTLETTERS[14],
+            W_ROOTLETTERS[15], W_ROOTLETTERS[22]]
 
-SUFFIXES = ['g', 'ng', 'd', 'n', 'b',
-            'm', '\'', 'r', 'l', 's']
+# ['g', 'ng', 'd', 'n', 'b', 'm', '\'', 'r', 'l', 's']
+SUFFIXES = [W_ROOTLETTERS[2],  W_ROOTLETTERS[3],  W_ROOTLETTERS[10],
+            W_ROOTLETTERS[11], W_ROOTLETTERS[14], W_ROOTLETTERS[15],
+            W_ROOTLETTERS[22], W_ROOTLETTERS[24], W_ROOTLETTERS[25],
+            W_ROOTLETTERS[27]]
 
-SUFFIX2S = ['s' 'd']
+# SUFFIX2S = ['s' 'd']
+SUFFIX2S = [W_ROOTLETTERS[27], W_ROOTLETTERS[10]]
 
-RAGO_ROOTLETTERS = ['k', 'g', 'ng', 'j', 'ny', 't',
-                    'd', 'n', 'b',  'm', 'ts', 'dz']
+#  ['k', 'g', 'ng', 'j', 'ny', 't', 'd', 'n', 'b',  'm', 'ts', 'dz']
+RAGO_ROOTLETTERS = [W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[3],
+                    W_ROOTLETTERS[6],  W_ROOTLETTERS[7],  W_ROOTLETTERS[8],
+                    W_ROOTLETTERS[10], W_ROOTLETTERS[11], W_ROOTLETTERS[14],
+                    W_ROOTLETTERS[15], W_ROOTLETTERS[16], W_ROOTLETTERS[18]]
 
-LAGO_ROOTLETTERS = ['k', 'g', 'ng', 'c', 'j',
-                    't', 'd', 'p',  'b', 'h']
+#  ['k', 'g', 'ng', 'c', 'j', 't', 'd', 'p',  'b', 'h']
+LAGO_ROOTLETTERS = [W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[3],
+                    W_ROOTLETTERS[4],  W_ROOTLETTERS[6],  W_ROOTLETTERS[8],
+                    W_ROOTLETTERS[10], W_ROOTLETTERS[12], W_ROOTLETTERS[14],
+                    W_ROOTLETTERS[28]]
 
-SAGO_ROOTLETTERS = ['k', 'g', 'ng', 'ny', 't',
-                    'd', 'n', 'p',  'b',  'm', 'ts']
+#  ['k', 'g', 'ng', 'ny', 't', 'd', 'n', 'p',  'b',  'm', 'ts']
+SAGO_ROOTLETTERS = [W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[3],
+                    W_ROOTLETTERS[7],  W_ROOTLETTERS[8],  W_ROOTLETTERS[10],
+                    W_ROOTLETTERS[11], W_ROOTLETTERS[12], W_ROOTLETTERS[14],
+                    W_ROOTLETTERS[15], W_ROOTLETTERS[16]]
 
-YATA_ROOTLETTERS = ['k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h']
+#  ['k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h']
+YATA_ROOTLETTERS = [W_ROOTLETTERS[0], W_ROOTLETTERS[1], W_ROOTLETTERS[2],
+                    W_ROOTLETTERS[12], W_ROOTLETTERS[13], W_ROOTLETTERS[14],
+                    W_ROOTLETTERS[15], W_ROOTLETTERS[28]]
 
-RATA_ROOTLETTERS = ['k', 'kh', 'g', 't', 'th', 'd',
-                    'n', 'p', 'ph', 'b', 'm',  's', 'h']
+#  ['k', 'kh', 'g', 't', 'th', 'd', 'n', 'p', 'ph', 'b', 'm',  's', 'h']
+RATA_ROOTLETTERS = [W_ROOTLETTERS[0], W_ROOTLETTERS[1], W_ROOTLETTERS[2],
+                    W_ROOTLETTERS[8], W_ROOTLETTERS[9], W_ROOTLETTERS[10],
+                    W_ROOTLETTERS[11], W_ROOTLETTERS[12], W_ROOTLETTERS[13],
+                    W_ROOTLETTERS[14], W_ROOTLETTERS[15],  W_ROOTLETTERS[27],
+                    W_ROOTLETTERS[28]]
 
-LATA_ROOTLETTERS = ['k', 'g', 'b', 'r', 's', 'z']
+#  ['k', 'g', 'b', 'r', 's', 'z']
+LATA_ROOTLETTERS = [W_ROOTLETTERS[0], W_ROOTLETTERS[2], W_ROOTLETTERS[14],
+                    W_ROOTLETTERS[24], W_ROOTLETTERS[27], W_ROOTLETTERS[21]]
 
-WAZUR_ROOTLETTERS = ['k',   'kh', 'g', 'c', 'ny', 't', 'd', 'ts',
-                     'tsh', 'zh', 'z', 'r', 'l', 'sh', 's', 'h']
+# ['k', 'kh', 'g', 'c', 'ny', 't', 'd', 'ts', 'tsh', 'zh', 'z', 'r', 'l', 'sh', 's', 'h']
+WAZUR_ROOTLETTERS = [W_ROOTLETTERS[0],   W_ROOTLETTERS[1], W_ROOTLETTERS[2],
+                     W_ROOTLETTERS[4], W_ROOTLETTERS[7], W_ROOTLETTERS[8],
+                     W_ROOTLETTERS[10], W_ROOTLETTERS[16], W_ROOTLETTERS[17],
+                     W_ROOTLETTERS[20], W_ROOTLETTERS[21], W_ROOTLETTERS[24],
+                     W_ROOTLETTERS[25], W_ROOTLETTERS[26], W_ROOTLETTERS[27],
+                     W_ROOTLETTERS[28]]
+
+# 'g.' to define a W_ROOTLETTERS[2] prefix with a 'ya' root letter.
+IRREGULAR_G = ''.join([W_ROOTLETTERS[2], '.'])
 
 SUPER_RULES = [RAGO_ROOTLETTERS, LAGO_ROOTLETTERS, SAGO_ROOTLETTERS]
 
 SUB_RULES = [YATA_ROOTLETTERS, RATA_ROOTLETTERS,
              LATA_ROOTLETTERS, WAZUR_ROOTLETTERS]
+
+
+# Syllable objects have the following structure. The individual elements are
+# referred to as 'components', or 'syllable components'.
 
 PREVOWEL = ['prefix',
             'super',
@@ -69,14 +108,4 @@ POSTVOWEL = ['suffix',
              'genitive',
              'genvowel']
 
-# SYLLSTRUCT = [PREVOWEL, POSTVOWEL]
-SYLLSTRUCT = ['prefix',
-              'super',
-              'root',
-              'subjoined',
-              'secondsub',
-              'vowel',
-              'suffix',
-              'suffix2',
-              'genitive',
-              'genvowel']
+SYLLSTRUCT = PREVOWEL + POSTVOWEL
