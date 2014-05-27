@@ -285,7 +285,7 @@ class Syllable(object):
         self.uni = ''.join([self.uni, uni])
 
     def clear(self):
-        self.uni = u''
+        self.uni = ''
         for s in tables.SYLLSTRUCT:
             self.structure[s] = ''
 
