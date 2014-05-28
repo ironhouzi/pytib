@@ -6,7 +6,6 @@
 
 # TODO: Write unit tests!
 
-import sys
 import tables
 from sys import argv
 
