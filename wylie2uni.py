@@ -12,7 +12,6 @@ from sys import argv
 
 class Translator(object):
     '''Translates wylie into Tibetan Unicode
-    Instantiates a Syllable object in the object variable self.syllable.
     Contain methods for analyzing and validifying the Syllable-object.
     Basic steps for the analysis:
         1. Partition the wylie string into wylie letters.
