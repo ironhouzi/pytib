@@ -14,8 +14,8 @@ class Translator(object):
     '''Translates wylie into Tibetan Unicode
     Contain methods for analyzing and validifying a Syllable object.
     Basic steps for the analysis:
-        1. Partition into a list of wylie letters, the string in Syllable.wylie.
-        2. Find the position of the vowel in the list.
+        1. Partition into a list of wylie letters, the Syllable.wylie string.
+        2. Find the vowel position in the list.
         3. Define the syllable components (prefix, superscribed, etc.) for all
             letters before the vowel.
         4. Define the syllable components for the letters after the vowel.
@@ -75,10 +75,9 @@ class Translator(object):
             # TODO  Move to generateUnicode().
                 syllable.wylie = ''.join([wylie_a_vowel, wylieLetters[0]])
                 self.modSyllableStructure(syllable, 'root', wylie_a_vowel)
-                self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
             else:
-                self.modSyllableStructure(syllable, 'root',  wylieLetters[0])
-                self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
+                self.modSyllableStructure(syllable, 'root', wylieLetters[0])
+            self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
 
     def vowelAtSecondPosition(self, syllable, wylieLetters):
         self.modSyllableStructure(syllable, 'root', wylieLetters[0])
@@ -166,9 +165,8 @@ class Translator(object):
         for i in range(vowelPosition+1, len(wylieLetters)):
             wylieChar = wylieLetters[i]
             if wylieChar:
-                self.modSyllableStructure(syllable,
-                                          tables.POSTVOWEL[j],
-                                          wylieChar)
+                syllableComponent = tables.POSTVOWEL[j]
+                self.modSyllableStructure(syllable, syllableComponent, wylieChar)
                 j += 1
 
     def hasNoVowel(self, wylieLetters):
