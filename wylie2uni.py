@@ -65,7 +65,7 @@ class Translator(object):
                 and not self.validSuperscribe(wylieLetters[1], wylieLetters[2]) \
                 and self.validSubscribe(wylieLetters[1], wylieLetters[2])
 
-    def vowelAtZero(self, syllable, wylieLetters):
+    def vowelAtFirstPosition(self, syllable, wylieLetters):
         wylie_a_vowel = tables.W_ROOTLETTERS[-1]
         if wylieLetters[0] in tables.W_VOWELS:
             if wylieLetters[0] != wylie_a_vowel:
@@ -79,11 +79,11 @@ class Translator(object):
                 self.modSyllableStructure(syllable, 'root',  wylieLetters[0])
                 self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
 
-    def vowelAtOne(self, syllable, wylieLetters):
+    def vowelAtSecondPosition(self, syllable, wylieLetters):
         self.modSyllableStructure(syllable, 'root', wylieLetters[0])
         self.modSyllableStructure(syllable, 'vowel', wylieLetters[1])
 
-    def vowelAtTwo(self, syllable, wylieLetters):
+    def vowelAtThirdPosition(self, syllable, wylieLetters):
         if self.isSubscribed(wylieLetters, 2):
             self.modSyllableStructure(syllable, 'root',      wylieLetters[0])
             self.modSyllableStructure(syllable, 'subjoined', wylieLetters[1])
@@ -95,7 +95,7 @@ class Translator(object):
             self.modSyllableStructure(syllable, 'root',   wylieLetters[1])
         self.modSyllableStructure(syllable, 'vowel', wylieLetters[2])
 
-    def vowelAtThree(self, syllable, wylieLetters):
+    def vowelAtFourthPosition(self, syllable, wylieLetters):
         if self.isIrregular(3, wylieLetters):
             self.modSyllableStructure(syllable, 'root',      wylieLetters[0])
             self.modSyllableStructure(syllable, 'subjoined', wylieLetters[1])
@@ -114,7 +114,7 @@ class Translator(object):
             self.modSyllableStructure(syllable, 'subjoined', wylieLetters[2])
         self.modSyllableStructure(syllable, 'vowel', wylieLetters[3])
 
-    def vowelAtFour(self, syllable, wylieLetters):
+    def vowelAtFifthPosition(self, syllable, wylieLetters):
         if self.isIrregular(4, wylieLetters):
             self.modSyllableStructure(syllable, 'prefix',    wylieLetters[0])
             self.modSyllableStructure(syllable, 'root',      wylieLetters[1])
@@ -127,8 +127,9 @@ class Translator(object):
             self.modSyllableStructure(syllable, 'subjoined', wylieLetters[3])
         self.modSyllableStructure(syllable, 'vowel', wylieLetters[4])
 
-    analyzeSyllable = (vowelAtZero, vowelAtOne, vowelAtTwo,
-                       vowelAtThree, vowelAtFour)
+    analyzeSyllable = (vowelAtFirstPosition, vowelAtSecondPosition,
+                       vowelAtThirdPosition, vowelAtFourthPosition,
+                       vowelAtFifthPosition)
 
     def singleWylieLetter(self, syllable, wylieLetters):
         self.modSyllableStructure(syllable, 'root', wylieLetters[0])
