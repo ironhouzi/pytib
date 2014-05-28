@@ -12,13 +12,15 @@ from sys import argv
 
 class Translator(object):
     '''Translates wylie into Tibetan Unicode
-    Contain methods for analyzing and validifying the Syllable-object.
+    Contain methods for analyzing and validifying a Syllable object.
     Basic steps for the analysis:
-        1. Partition the wylie string into wylie letters.
-        2. Find the position of the vowel.
+        1. Partition into a list of wylie letters, the string in Syllable.wylie.
+        2. Find the position of the vowel in the list.
         3. Define the syllable components (prefix, superscribed, etc.) for all
             letters before the vowel.
         4. Define the syllable components for the letters after the vowel.
+        5. Compute the unicode string based on the analysis and store the
+            unicode string in Syllable.uni.
     '''
 
     def __init__(self):
