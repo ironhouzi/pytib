@@ -238,10 +238,7 @@ class Translator(object):
                 syllable.uni = ''.join(newString)
 
     def isPrefix(self, char):
-        if char in tables.PREFIXES:
-            return True
-        else:
-            return False
+        return char in tables.PREFIXES
 
     def tsheg(self, syllable):
         syllable.tsheg()
