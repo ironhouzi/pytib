@@ -127,8 +127,8 @@ class Translator(object):
             self.modSyllableStructure(syllable, 'subjoined', wylieLetters[3])
         self.modSyllableStructure(syllable, 'vowel', wylieLetters[4])
 
-    analyzeSyllable = [vowelAtZero, vowelAtOne, vowelAtTwo,
-                       vowelAtThree, vowelAtFour]
+    analyzeSyllable = (vowelAtZero, vowelAtOne, vowelAtTwo,
+                       vowelAtThree, vowelAtFour)
 
     def singleWylieLetter(self, syllable, wylieLetters):
         self.modSyllableStructure(syllable, 'root', wylieLetters[0])
