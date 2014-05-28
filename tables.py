@@ -39,7 +39,7 @@ SUFFIXES = [W_ROOTLETTERS[2],  W_ROOTLETTERS[3],  W_ROOTLETTERS[10],
             W_ROOTLETTERS[22], W_ROOTLETTERS[24], W_ROOTLETTERS[25],
             W_ROOTLETTERS[27]]
 
-# SUFFIX2S = ['s' 'd']
+# ['s' 'd']
 SUFFIX2S = [W_ROOTLETTERS[27], W_ROOTLETTERS[10]]
 
 #  ['k', 'g', 'ng', 'j', 'ny', 't', 'd', 'n', 'b',  'm', 'ts', 'dz']
