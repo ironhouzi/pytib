@@ -150,10 +150,9 @@ class Translator(object):
         if self.hasNoVowel(wylieLetters):
             # TODO handle exception
             return
-        else:
-            vowelPosition = self.getVowelIndex(wylieLetters)
-            self.analyzeSyllable[vowelPosition](self, syllable, wylieLetters)
-            self.findSuffixes(syllable, vowelPosition, wylieLetters)
+        vowelPosition = self.getVowelIndex(wylieLetters)
+        self.analyzeSyllable[vowelPosition](self, syllable, wylieLetters)
+        self.findSuffixes(syllable, vowelPosition, wylieLetters)
 
     def isIrregular(self, vowelPosition, wylieLetters):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
