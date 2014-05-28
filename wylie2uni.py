@@ -275,7 +275,7 @@ class Syllable(object):
         return self.wylie
 
     def tsheg(self):
-        self.uni = u''.join([self.uni, tables.TSHEG])
+        self.uni = ''.join([self.uni, tables.TSHEG])
 
     def appendUni(self, uni):
         self.uni = ''.join([self.uni, uni])

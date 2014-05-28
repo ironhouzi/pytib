@@ -9,18 +9,18 @@ W_ROOTLETTERS = [
     'h',  'a']
 
 U_ROOTLETTERS = [
-    u'\u0f40', u'\u0f41', u'\u0f42', u'\u0f44',
-    u'\u0f45', u'\u0f46', u'\u0f47', u'\u0f49',
-    u'\u0f4f', u'\u0f50', u'\u0f51', u'\u0f53',
-    u'\u0f54', u'\u0f55', u'\u0f56', u'\u0f58',
-    u'\u0f59', u'\u0f5a', u'\u0f5b', u'\u0f5d',
-    u'\u0f5e', u'\u0f5f', u'\u0f60', u'\u0f61',
-    u'\u0f62', u'\u0f63', u'\u0f64', u'\u0f66',
-    u'\u0f67', u'\u0f68']
+    '\u0f40', '\u0f41', '\u0f42', '\u0f44',
+    '\u0f45', '\u0f46', '\u0f47', '\u0f49',
+    '\u0f4f', '\u0f50', '\u0f51', '\u0f53',
+    '\u0f54', '\u0f55', '\u0f56', '\u0f58',
+    '\u0f59', '\u0f5a', '\u0f5b', '\u0f5d',
+    '\u0f5e', '\u0f5f', '\u0f60', '\u0f61',
+    '\u0f62', '\u0f63', '\u0f64', '\u0f66',
+    '\u0f67', '\u0f68']
 
 W_VOWELS = ['i', 'u', 'e', 'o', 'a']
 
-U_VOWELS = [u'\u0f72', u'\u0f74', u'\u0f7a', u'\u0f7c']
+U_VOWELS = ['\u0f72', '\u0f74', '\u0f7a', '\u0f7c']
 
 # ['r', 'l', 's']
 SUPER = [W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27]]
