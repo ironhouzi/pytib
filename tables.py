@@ -33,9 +33,12 @@ SPACE     = '\u00a0'
 SHAD      = '\u0f0d'
 NYIS_SHAD = '\u0f0e'
 
-W_VOWELS = ['i', 'u', 'e', 'o', W_ROOTLETTERS[-1]]
+W_VOWELS = ['i', 'u', 'e', 'o']
 
 U_VOWELS = ['\u0f72', '\u0f74', '\u0f7a', '\u0f7c']
+
+S_VOWELS = [
+    ]
 
 W_SYMBOLS = ['/', '//']
 
@@ -134,7 +137,8 @@ SUBOFFSET = 0x50
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
 S_RULES_4 = ['phyw']
-S_RULES_3 = ['ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye']
-S_RULES_2 = ['gg', 'gh', 'dh', 'dd', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr',
-             'hy', 'ty', 'tv', 'tw', 'bh', 'bb', 'ss']
+S_RULES_3 = ['ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye', 'n.y']
+S_RULES_2 = ['gh', 'dh', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr', 'hy', 'ty',
+             'tv', 'tw', 'tz', 'bh', 'ss']
+S_RULES_2_IRREGULAR = ['gg', 'dd', 'bb']
 S_RULES_ALL = S_RULES_4 + S_RULES_3 + S_RULES_2
