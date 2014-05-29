@@ -18,9 +18,28 @@ U_ROOTLETTERS = [
     '\u0f62', '\u0f63', '\u0f64', '\u0f66',
     '\u0f67', '\u0f68']
 
-W_VOWELS = ['i', 'u', 'e', 'o', 'a']
+S_ROOTLETTERS = [
+    'k',  'kh',  'g',  'ng',
+    'c',  'ch',  'j',  'ny',
+    't',  'th',  'd',  'n',
+    'p',  'ph',  'b',  'm',
+    'ts', 'tsh', 'dz', 'w',
+    'zh', 'z',   '\'', 'y',
+    'r',  'l',   'sh', 's',
+    'h',  'a']
+
+TSHEG     = '\u0f0b'
+SPACE     = '\u00a0'
+SHAD      = '\u0f0d'
+NYIS_SHAD = '\u0f0e'
+
+W_VOWELS = ['i', 'u', 'e', 'o', W_ROOTLETTERS[-1]]
 
 U_VOWELS = ['\u0f72', '\u0f74', '\u0f7a', '\u0f7c']
+
+W_SYMBOLS = ['/', '//']
+
+U_SYMBOLS = [SHAD, NYIS_SHAD]
 
 # ['r', 'l', 's']
 SUPER = [W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27]]
@@ -110,5 +129,12 @@ POSTVOWEL = ['suffix',
 
 SYLLSTRUCT = PREVOWEL + POSTVOWEL
 
-TSHEG = '\u0f0b'
 SUBOFFSET = 0x50
+
+# The SHAD or NYIS SHAD are not to be drawn if followed by these letters
+SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
+S_RULES_4 = ['phyw']
+S_RULES_3 = ['ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye']
+S_RULES_2 = ['gg', 'gh', 'dh', 'dd', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr',
+             'hy', 'ty', 'tv', 'tw', 'bh', 'bb', 'ss']
+S_RULES_ALL = S_RULES_4 + S_RULES_3 + S_RULES_2

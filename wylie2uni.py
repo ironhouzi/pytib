@@ -4,8 +4,6 @@
     Requires Python 3
 '''
 
-# TODO: Write unit tests!
-
 import tables
 from sys import argv
 
@@ -243,6 +241,19 @@ class Translator(object):
         syllable.tsheg()
         return syllable.uni
 
+    validSanskrit = [sanskritStartsWithG]
+
+    def isSanskrit(self, syllable):
+        string = syllable.wylie
+        matches = tables.S_RULES_ALL
+        for substring in matches:
+            if string.startswith(substring):
+                return True
+        return 'ai' in string or 'au' in string:
+
+    def sanskritStartsWithT(self, string):
+        pass
+
     # {{{
     def testWylie(self, wylieString):
         syllable = Syllable('')
@@ -286,6 +297,7 @@ class Syllable(object):
 
 
 def main():
+# TODO: Write unit tests!
     t = Translator()
     if len(argv) < 2:
         t.printBytecodes('bskyongs')
