@@ -51,7 +51,7 @@ SW_VOWELS = (
         'ā',  W_VOWELS[0], 'ī',  W_VOWELS[1],
         'ū',  W_VOWELS[2], 'ai', W_VOWELS[3],
         'au', 'ṛ',         'ṝ',  'ḷ',
-        'ḹ',  'aṃ',        'aḥ', )
+        'ḹ',  'ṃ',         'ḥ', )
 
 SU_VOWELS = (
         '\u0f71', U_VOWELS[0], '\u0f73', U_VOWELS[1],
