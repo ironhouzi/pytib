@@ -21,27 +21,26 @@ class sankritTest(unittest.TestCase):
 
 
 class wylieTest(unittest.TestCase):
-    w_defs = [
-        'sangs',   'bre',     'rta',        'mgo',
-        'gya',     'g.yag',   '\'rba',      'tshos',
-        'lhongs',  'mngar',   'sngas',      'rnyongs',
-        'brnyes',  'rgyas',   'skyongs',    'bskyongs',
-        'grwa',    'spre\'u', 'spre\'u\'i', '\'dra',
-        '\'bya',   '\'gra',   '\'gyang',    '\'khra',
-        '\'khyig', '\'kyags', '\'phre',     '\'phyags',
-        'a',       'o',       'a\'am',      'ab',
-        'bswa',    'bha',     'grwa' ]
 
-    u_defs = [
-        'སངས་', 'བྲེ་',    'རྟ་',   'མགོ་',
-        'གྱ་',   'གཡག་',  'འརྦ་',  'ཚོས་',
-        'ལྷོངས་', 'མངར་',  'སྔས་',  'རྙོངས་',
-        'བརྙེས་', 'རྒྱས་',   'སྐྱོངས་', 'བསྐྱོངས་',
-        'གྲྭ་',   'སྤྲེའུ་',   'སྤྲེའུའི་', 'འདྲ་',
-        'འབྱ་',  'འགྲ་',   'འགྱང་', 'འཁྲ་',
-        'འཁྱིག་', 'འཀྱགས་', 'འཕྲེ་',  'འཕྱགས་',
-        'ཨ་',   'ཨོ་',    'ཨའམ་', 'ཨབ་',
-        'བསྭ་',  'བཧ་',   'གྲྭ་' ]
+    w_defs = ('sangs',   'bre',     'rta',        'mgo',
+              'gya',     'g.yag',   '\'rba',      'tshos',
+              'lhongs',  'mngar',   'sngas',      'rnyongs',
+              'brnyes',  'rgyas',   'skyongs',    'bskyongs',
+              'grwa',    'spre\'u', 'spre\'u\'i', '\'dra',
+              '\'bya',   '\'gra',   '\'gyang',    '\'khra',
+              '\'khyig', '\'kyags', '\'phre',     '\'phyags',
+              'a',       'o',       'a\'am',      'ab',
+              'bswa',    'bha',     'grwa', )
+
+    u_defs = ( 'སངས་', 'བྲེ་',    'རྟ་',   'མགོ་',
+               'གྱ་',   'གཡག་',  'འརྦ་',  'ཚོས་',
+               'ལྷོངས་', 'མངར་',  'སྔས་',  'རྙོངས་',
+               'བརྙེས་', 'རྒྱས་',   'སྐྱོངས་', 'བསྐྱོངས་',
+               'གྲྭ་',   'སྤྲེའུ་',   'སྤྲེའུའི་', 'འདྲ་',
+               'འབྱ་',  'འགྲ་',   'འགྱང་', 'འཁྲ་',
+               'འཁྱིག་', 'འཀྱགས་', 'འཕྲེ་',  'འཕྱགས་',
+               'ཨ་',   'ཨོ་',    'ཨའམ་', 'ཨབ་',
+               'བསྭ་',  'བཧ་',   'གྲྭ་', )
 
     def test_sanskrit(self):
         t = Translator()
@@ -57,7 +56,7 @@ class wylieTest(unittest.TestCase):
 class BytecodeTest(unittest.TestCase):
 
     correct = [ 'U+0F56', 'U+0F66', 'U+0F90', 'U+0FB1',
-                'U+0F7C', 'U+0F44', 'U+0F66' ]
+            'U+0F7C', 'U+0F44', 'U+0F66' ]
 
     def test_bytecode(self):
         t = Translator()
@@ -68,3 +67,20 @@ class BytecodeTest(unittest.TestCase):
         t = Translator()
         bytecodes = t.getBytecodes('skyong')
         self.assertFalse(bytecodes == self.correct)
+
+class SanskritGenerationTest(unittest.TestCase):
+
+    t = Translator()
+    s = Syllable('')
+
+    def test_hung(self):
+        uni = '\u0f67' + '\u0f75' + '\u0f83'
+        self.s.wylie = 'hūṃ'
+        self.t.analyze(self.s)
+        self.assertTrue(self.s.uni == uni)
+
+    def test_tva(self):
+        uni = '\u0f4f' + '\u0fad'
+        self.s.wylie = 'tva'
+        self.t.analyze(self.s)
+        self.assertTrue(self.s.uni == uni)
