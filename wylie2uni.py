@@ -77,7 +77,7 @@ class Translator(object):
     def getVowelIndex(self, wylieLetters, isSanskrit=False):
         vowelList = []
         if isSanskrit:
-            vowelList = tables.SW_VOWELS + tables.W_ROOTLETTERS[-1]
+            vowelList = tables.SW_VOWELS + (tables.W_ROOTLETTERS[-1], )
         else:
             vowelList = self.allVowels
         for i, char in enumerate(wylieLetters):
@@ -214,7 +214,8 @@ class Translator(object):
             syllable.isSanskrit = not self.analyzeWylie(syllable)
         if syllable.isSanskrit:
             self.analyzeSanskrit(syllable)
-        self.generateWylieUnicode(syllable)
+        else:
+            self.generateWylieUnicode(syllable)
 
     def analyzeWylie(self, syllable):
         if self.invalidWylieString(syllable):
@@ -239,13 +240,15 @@ class Translator(object):
         vowelPosition = self.getVowelIndex(wylieLetters, True)
         if vowelPosition < 0:
             return False
-        self.generateSanskrit(syllable, wylieLetters)
+        self.generateSanskritUnicode(syllable, wylieLetters)
         return True
 
     def generateSanskritUnicode(self, syllable, wylieLetters):
-        stack = [wylieLetters[0]]
-        for i in range(1, len(wylieLetters) - 1):
-            if wylieLetters[i] in tables.SU_VOWELS + tables.W_ROOTLETTERS[-1]:
+        stack = [self.toUnicode(wylieLetters[0], True)]
+        for i in range(1, len(wylieLetters)):
+            if wylieLetters[i] == tables.W_ROOTLETTERS[-1]:
+                continue
+            if wylieLetters[i] in tables.SW_VOWELS + (tables.W_ROOTLETTERS[-1],):
                 stack.append(self.toUnicode(wylieLetters[i], True))
             else:
                 stack.append(self.toSubjoinedUnicode(wylieLetters[i], True))
@@ -278,7 +281,7 @@ class Translator(object):
            is partitioned.'''
         alphabet = []
         if syllable.isSanskrit:
-            alphabet = tables.SW_ROOTLETTERS + tables.SW_VOWELS
+            alphabet = tables.SW_ROOTLETTERS + tables.SW_VOWELS + (tables.W_ROOTLETTERS[-1], )
         else:
             alphabet = tables.W_ROOTLETTERS + tables.W_VOWELS
         wylieLetters = []
@@ -343,8 +346,7 @@ class Translator(object):
 
     def getBytecodes(self, wylieString):
         syllable = Syllable(wylieString)
-        self.analyzeWylie(syllable)
-        self.generateWylieUnicode(syllable)
+        self.analyze(syllable)
         bytecodes = []
         for uni in syllable.uni:
             bytecodes.append('U+{0:04X}'.format(ord(uni)))
