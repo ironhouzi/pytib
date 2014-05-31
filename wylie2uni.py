@@ -24,12 +24,12 @@ class Translator(object):
     '''
 
     def __init__(self):
-        wTable = tables.W_ROOTLETTERS + tables.W_VOWELS
-        uTable = tables.U_ROOTLETTERS + tables.U_VOWELS
+        wTable = (tables.W_ROOTLETTERS + tables.W_VOWELS)
+        uTable = (tables.U_ROOTLETTERS + tables.U_VOWELS)
         self.wylieToUnicode = dict(zip(wTable, uTable))
         self.validSuperjoinedList = dict(zip(tables.SUPER, tables.SUPER_RULES))
         self.validSubjoinedList = dict(zip(tables.SUB, tables.SUB_RULES))
-        self.allVowels = tables.W_VOWELS + [tables.W_ROOTLETTERS[-1]]
+        self.allVowels = (tables.W_VOWELS + (tables.W_ROOTLETTERS[-1],))
         self.errorVal = str(encode(urandom(8), 'hex'))[2:-1]
 
     def toUnicode(self, wylieSyllable):
