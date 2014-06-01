@@ -244,6 +244,9 @@ class Translator(object):
         return True
 
     def generateSanskritUnicode(self, syllable, wylieLetters):
+        if syllable.wylie == tables.U_OM:
+            syllable.uni = tables.S_OM
+            return
         stack = [self.toUnicode(wylieLetters[0], True)]
         for i in range(1, len(wylieLetters)):
             if wylieLetters[i] == tables.W_ROOTLETTERS[-1]:
