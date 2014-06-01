@@ -102,3 +102,15 @@ class SanskritGenerationTest(unittest.TestCase):
         self.s.wylie = 'bighnān'
         self.t.analyze(self.s)
         self.assertEqual(self.s.uni, uni)
+
+    def test_ah(self):
+        uni = '\u0f68' + '\u0f71' + '\u0f7f'
+        self.s.wylie = 'āḥ'
+        self.t.analyze(self.s)
+        self.assertEqual(self.s.uni, uni)
+
+    def test_mandal(self):
+        uni = '\u0f58' + '\u0f53' + '\u0f9c' + '\u0f63'
+        self.s.wylie = 'manḍal'
+        self.t.analyze(self.s)
+        self.assertEqual(self.s.uni, uni)
