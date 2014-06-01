@@ -34,14 +34,18 @@ SU_ROOTLETTERS = (
         U_ROOTLETTERS[4], U_ROOTLETTERS[5], U_ROOTLETTERS[6], '\u0f5c', U_ROOTLETTERS[7],
         '\u0f4a', '\u0f4b', '\u0f4c', '\u0f4d', '\u0f4e',
         U_ROOTLETTERS[8], U_ROOTLETTERS[9], U_ROOTLETTERS[10], '\u0f52', U_ROOTLETTERS[11],
-        U_ROOTLETTERS[12], U_ROOTLETTERS[13], U_ROOTLETTERS[14], '\u0fa7', U_ROOTLETTERS[15],
+        U_ROOTLETTERS[12], U_ROOTLETTERS[13], U_ROOTLETTERS[14], '\u0f57', U_ROOTLETTERS[15],
         U_ROOTLETTERS[23], U_ROOTLETTERS[24], U_ROOTLETTERS[25], U_ROOTLETTERS[19], U_ROOTLETTERS[26],
         '\u0f65', U_ROOTLETTERS[27], U_ROOTLETTERS[28], '\u0f69', )
 
-TSHEG     = '\u0f0b'
-SPACE     = '\u00a0'
-SHAD      = '\u0f0d'
-NYIS_SHAD = '\u0f0e'
+U_OM        = 'oṃ'
+
+S_TSHEG     = '\u0f0b'
+S_SPACE     = '\u00a0'
+S_SHAD      = '\u0f0d'
+S_NYIS_SHAD = '\u0f0e'
+S_SNA_LDAN  = '\u0f83'
+S_OM        = '\u0f00'
 
 W_VOWELS = ('i', 'u', 'e', 'o', )
 
@@ -57,11 +61,11 @@ SU_VOWELS = (
         '\u0f71', U_VOWELS[0], '\u0f73', U_VOWELS[1],
         '\u0f75', U_VOWELS[2], '\u0f7b', U_VOWELS[3],
         '\u0f7d', '\u0f76',    '\u0f77', '\u0f78',
-        '\u0f79', '\u0f83',    '\u0f7f', )
+        '\u0f79', '\u0f7e',    '\u0f7f', )
 
 W_SYMBOLS = ('/', '//', )
 
-U_SYMBOLS = (SHAD, NYIS_SHAD, )
+U_SYMBOLS = (S_SHAD, S_NYIS_SHAD, )
 
 # ['r', 'l', 's']
 SUPER = (W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27], )
@@ -156,6 +160,8 @@ SUBOFFSET = 0x50
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
 
+# TODO improve rule string litterals system agnostic, by referrencing to
+#      main rootletters or vowels
 S_RULES_4 = ('phyw', )
 
 S_RULES_3 = ('ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye', 'n.y', )
@@ -166,3 +172,7 @@ S_RULES_2 = ('gh', 'dh', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr', 'hy', 'ty',
 S_BASIC_RULES = S_RULES_4 + S_RULES_3 + S_RULES_2
 
 S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb', )
+
+S_DONT_STACK = ('phaṭ',)
+
+S_USE_SNA_LDAN = ('hūṃ', )
