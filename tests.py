@@ -13,7 +13,7 @@ class sankritTest(unittest.TestCase):
         s = Syllable('')
         for d in self.defFile:
             s.wylie = d.strip()
-            self.assertEqual(t.isSanskrit(s) or \
+            self.assertTrue(t.isSanskrit(s) or \
                     not t.analyzeWylie(s))
 
     def tearDown(self):
@@ -66,7 +66,7 @@ class BytecodeTest(unittest.TestCase):
     def test_bytecodeError(self):
         t = Translator()
         bytecodes = t.getBytecodes('skyong')
-        self.assertFalse(bytecodes, self.correct)
+        self.assertNotEqual(bytecodes, self.correct)
 
 class SanskritGenerationTest(unittest.TestCase):
 
@@ -98,7 +98,7 @@ class SanskritGenerationTest(unittest.TestCase):
         self.assertEqual(self.s.uni, uni)
 
     def test_bighnan(self):
-        uni = '\u0f56' + '\u0f72' + '\u0f93' + '\u0fa3'  + '\u0f71' + '\u0fa3'
+        uni = '\u0f56' + '\u0f72' + '\u0f43' + '\u0fa3' + '\u0f71' + '\u0f53'
         self.s.wylie = 'bighnān'
         self.t.analyze(self.s)
         self.assertEqual(self.s.uni, uni)
