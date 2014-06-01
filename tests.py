@@ -13,7 +13,7 @@ class sankritTest(unittest.TestCase):
         s = Syllable('')
         for d in self.defFile:
             s.wylie = d.strip()
-            self.assertTrue(t.isSanskrit(s) or \
+            self.assertEqual(t.isSanskrit(s) or \
                     not t.analyzeWylie(s))
 
     def tearDown(self):
@@ -50,7 +50,7 @@ class wylieTest(unittest.TestCase):
             t.analyzeWylie(s)
             t.generateWylieUnicode(s)
             s.tsheg()
-            self.assertTrue(s.uni == self.u_defs[i])
+            self.assertEqual(s.uni, self.u_defs[i])
 
 
 class BytecodeTest(unittest.TestCase):
@@ -61,12 +61,12 @@ class BytecodeTest(unittest.TestCase):
     def test_bytecode(self):
         t = Translator()
         bytecodes = t.getBytecodes('bskyongs')
-        self.assertTrue(bytecodes == self.correct)
+        self.assertEqual(bytecodes, self.correct)
 
     def test_bytecodeError(self):
         t = Translator()
         bytecodes = t.getBytecodes('skyong')
-        self.assertFalse(bytecodes == self.correct)
+        self.assertFalse(bytecodes, self.correct)
 
 class SanskritGenerationTest(unittest.TestCase):
 
@@ -77,10 +77,28 @@ class SanskritGenerationTest(unittest.TestCase):
         uni = '\u0f67' + '\u0f75' + '\u0f83'
         self.s.wylie = 'hūṃ'
         self.t.analyze(self.s)
-        self.assertTrue(self.s.uni == uni)
+        self.assertEqual(self.s.uni, uni)
 
     def test_tva(self):
         uni = '\u0f4f' + '\u0fad'
         self.s.wylie = 'tva'
         self.t.analyze(self.s)
-        self.assertTrue(self.s.uni == uni)
+        self.assertEqual(self.s.uni, uni)
+
+    def test_om(self):
+        uni = '\u0f00'
+        self.s.wylie = 'oṃ'
+        self.t.analyze(self.s)
+        self.assertEqual(self.s.uni, uni)
+
+    def test_phat(self):
+        uni = '\u0f55' + '\u0f4a'
+        self.s.wylie = 'phaṭ'
+        self.t.analyze(self.s)
+        self.assertEqual(self.s.uni, uni)
+
+    def test_bighnan(self):
+        uni = '\u0f56' + '\u0f72' + '\u0f93' + '\u0fa3'  + '\u0f71' + '\u0fa3'
+        self.s.wylie = 'bighnān'
+        self.t.analyze(self.s)
+        self.assertEqual(self.s.uni, uni)
