@@ -20,17 +20,18 @@ class sankritTest(unittest.TestCase):
         self.defFile.close()
 
 
+# Rough test. TODO: break up into individual tests.
 class wylieTest(unittest.TestCase):
 
-    w_defs = ('sangs',   'bre',     'rta',        'mgo',
-              'gya',     'g.yag',   '\'rba',      'tshos',
-              'lhongs',  'mngar',   'sngas',      'rnyongs',
-              'brnyes',  'rgyas',   'skyongs',    'bskyongs',
-              'grwa',    'spre\'u', 'spre\'u\'i', '\'dra',
-              '\'bya',   '\'gra',   '\'gyang',    '\'khra',
-              '\'khyig', '\'kyags', '\'phre',     '\'phyags',
-              'a',       'o',       'a\'am',      'ab',
-              'bswa',    'bha',     'grwa', )
+    w_defs = ( 'sangs',   'bre',     'rta',        'mgo',
+               'gya',     'g.yag',   '\'rba',      'tshos',
+               'lhongs',  'mngar',   'sngas',      'rnyongs',
+               'brnyes',  'rgyas',   'skyongs',    'bskyongs',
+               'grwa',    'spre\'u', 'spre\'u\'i', '\'dra',
+               '\'bya',   '\'gra',   '\'gyang',    '\'khra',
+               '\'khyig', '\'kyags', '\'phre',     '\'phyags',
+               'a',       'o',       'a\'am',      'ab',
+               'bswa',    'bha',     'grwa', )
 
     u_defs = ( 'སངས་', 'བྲེ་',    'རྟ་',   'མགོ་',
                'གྱ་',   'གཡག་',  'འརྦ་',  'ཚོས་',
@@ -73,44 +74,41 @@ class SanskritGenerationTest(unittest.TestCase):
     t = Translator()
     s = Syllable('')
 
+    def analyzeAndCheck(self, uni):
+        self.t.analyze(self.s)
+        self.assertEqual(self.s.uni, uni)
+
     def test_hung(self):
         uni = '\u0f67' + '\u0f75' + '\u0f83'
         self.s.wylie = 'hūṃ'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
 
     def test_tva(self):
         uni = '\u0f4f' + '\u0fad'
         self.s.wylie = 'tva'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
 
     def test_om(self):
         uni = '\u0f00'
         self.s.wylie = 'oṃ'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
 
     def test_phat(self):
         uni = '\u0f55' + '\u0f4a'
         self.s.wylie = 'phaṭ'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
 
     def test_bighnan(self):
         uni = '\u0f56' + '\u0f72' + '\u0f43' + '\u0fa3' + '\u0f71' + '\u0f53'
         self.s.wylie = 'bighnān'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
 
     def test_ah(self):
         uni = '\u0f68' + '\u0f71' + '\u0f7f'
         self.s.wylie = 'āḥ'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
 
     def test_mandal(self):
         uni = '\u0f58' + '\u0f53' + '\u0f9c' + '\u0f63'
         self.s.wylie = 'manḍal'
-        self.t.analyze(self.s)
-        self.assertEqual(self.s.uni, uni)
+        self.analyzeAndCheck(uni)
