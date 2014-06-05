@@ -7,18 +7,18 @@
 import tables
 from codecs import encode
 from os import urandom
-from sys import argv
 
 
 class Translator(object):
-    '''Translates wylie into Tibetan Unicode
-    Contain methods for analyzing and validifying a Syllable object.
+    '''Translates wylie and International Alphabet of Sanskrit Transliteration
+    (IAST) into Tibetan Unicode (U+0F00 - U+0FFF).
+    The Translator class analyzes and validifies a Syllable object.
     --------------
     Wylie analysis
     --------------
-    This analysis is ran after the initial Sanskrit check.The syllable is
+    This analysis is done after the initial Sanskrit check.The syllable is
     checked against the defined rules and if the wylie analysis returns False,
-    the syllable will be defined as Sanskrit.
+    the syllable will be defined to be Sanskrit.
     --------------
     Basic steps for the syllable computation:
         0. Perform initial Sanskrit check.
@@ -108,32 +108,31 @@ class Translator(object):
 
     # element index correlates to the syllable's vowel position
     analyzeBaseCase = (None,
-                       (lambda self, wylieLetters : \
-                               wylieLetters[0] in tables.W_ROOTLETTERS and \
-                               wylieLetters[1] in self.allWylieVowels),
-                       (lambda self, wylieLetters : \
-                               wylieLetters[0] == tables.PREFIX_GA or \
-                               wylieLetters[0] in tables.PREFIXES and \
-                               wylieLetters[1] in tables.W_ROOTLETTERS),
-                       (lambda self, wylieLetters : \
-                               wylieLetters[0] in tables.SUPER and \
-                               wylieLetters[1] in tables.W_ROOTLETTERS and \
-                               wylieLetters[2] in tables.SUB),
-                       (lambda self, wylieLetters : \
-                               wylieLetters[0] in tables.PREFIXES and \
-                               wylieLetters[1] in tables.SUPER and \
-                               wylieLetters[2] in tables.W_ROOTLETTERS and \
-                               wylieLetters[3] in tables.SUB)
-                      )
+                       (lambda self, wylieLetters:
+                           wylieLetters[0] in tables.W_ROOTLETTERS and
+                           wylieLetters[1] in self.allWylieVowels),
+                       (lambda self, wylieLetters:
+                           wylieLetters[0] == tables.PREFIX_GA or
+                           wylieLetters[0] in tables.PREFIXES and
+                           wylieLetters[1] in tables.W_ROOTLETTERS),
+                       (lambda self, wylieLetters:
+                           wylieLetters[0] in tables.SUPER and
+                           wylieLetters[1] in tables.W_ROOTLETTERS and
+                           wylieLetters[2] in tables.SUB),
+                       (lambda self, wylieLetters:
+                           wylieLetters[0] in tables.PREFIXES and
+                           wylieLetters[1] in tables.SUPER and
+                           wylieLetters[2] in tables.W_ROOTLETTERS and
+                           wylieLetters[3] in tables.SUB))
 
     def vowelAtFirstPosition(self, syllable, wylieLetters):
         if not wylieLetters[0] in self.allWylieVowels:
             return False
         if wylieLetters[0] in self.allWylieVowels:
             if wylieLetters[0] != self.wylie_vowel_a:
-            # For single letter vowels w/o the 'a'. Prepends the vowel with
-            # the 'a' character, to get correct unicode.
-            # TODO  Move to generateWylieUnicode().
+                # For single letter vowels w/o the 'a'. Prepends the vowel with
+                # the 'a' character, to get correct unicode.
+                # TODO  Move to generateWylieUnicode().
                 syllable.wylie = ''.join([self.wylie_vowel_a, wylieLetters[0]])
                 self.modSyllableStructure(syllable, 'root', self.wylie_vowel_a)
             else:
@@ -205,7 +204,7 @@ class Translator(object):
     def invalidWylieString(self, syllable):
         if not syllable.wylie.startswith(tables.PREFIX_GA):
             for c in syllable.wylie:
-                if not c in tables.W_ROOTLETTERS + tables.W_VOWELS:
+                if c not in tables.W_ROOTLETTERS + tables.W_VOWELS:
                     return True
         return False
 
@@ -252,7 +251,7 @@ class Translator(object):
 
     def isHung(self, syllable, letter):
         return letter == tables.SW_VOWELS[-2] and \
-                    syllable.wylie in tables.S_USE_SNA_LDAN
+            syllable.wylie in tables.S_USE_SNA_LDAN
 
     def generateSanskritUnicode(self, syllable, wylieLetters):
         if self.handleOm(syllable):
@@ -284,38 +283,41 @@ class Translator(object):
     def isIrregular(self, vowelPosition, wylieLetters):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
         return wylieLetters[vowelPosition-1] == tables.W_ROOTLETTERS[19] \
-                and wylieLetters[vowelPosition-2] == tables.W_ROOTLETTERS[24]
+            and wylieLetters[vowelPosition-2] == tables.W_ROOTLETTERS[24]
 
     def findSuffixes(self, syllable, vowelPosition, wylieLetters):
-    # TODO: Iterator for POSTVOWEL.next *if* that doesn't impede performance
-    # TODO: Fix ugliness in this method!
+        # TODO: Iterator for POSTVOWEL.next *if* that doesn't harm performance
+        # TODO: Fix ugliness in this method!
         j = 0
         for i in range(vowelPosition+1, len(wylieLetters)):
             wylieChar = wylieLetters[i]
             if wylieChar:
                 syllableComponent = tables.POSTVOWEL[j]
-                if j < 2 and not wylieChar in self.allWylieVowels and \
-                        not wylieChar in self.validSuffix[syllableComponent]:
+                if j < 2 and wylieChar not in self.allWylieVowels \
+                        and wylieChar not in self.validSuffix[syllableComponent]:
                     return False
                 self.modSyllableStructure(syllable, syllableComponent, wylieChar)
                 j += 1
         return True
 
     def partitionToWylie(self, syllable):
-        '''Generates a list of wylie characters, from which the wylie string
-           is composed of.
-           Test if the i last roman letters in the wylie string matches a
-           valid wylie character and continue until the entire wylie string
-           is partitioned.'''
+        '''Generates a list of wylie/IAST letters, from which the syllable.wylie
+           string is composed of.
+           Checks if the roman character(s) at the end of the wylie/IAST string
+           forms a valid wylie letter and continues backwards through the wylie/
+           IAST string, until the entire wylie string is partitioned.'''
         alphabet = []
+        romanCharacterMax = 3
         if syllable.isSanskrit:
-            alphabet = tables.SW_ROOTLETTERS + tables.SW_VOWELS + (tables.W_ROOTLETTERS[-1], )
+            alphabet = tables.SW_ROOTLETTERS + tables.SW_VOWELS + \
+               (tables.W_ROOTLETTERS[-1],)
+            romanCharacterMax = 2
         else:
             alphabet = tables.W_ROOTLETTERS + tables.W_VOWELS
         wylieLetters = []
         wylieSyllable = syllable.wylie
         while len(wylieSyllable) != 0:
-            for i in range(3, 0, -1):
+            for i in range(romanCharacterMax, 0, -1):
                 part = wylieSyllable[:i]
                 if part in alphabet or part == tables.PREFIX_GA:
                     wylieLetters.append(part)
@@ -336,7 +338,7 @@ class Translator(object):
 
     def needsSubjoin(self, syllable, component):
         return component == 'subjoined' or component == 'secondsub' \
-                or (component == 'root' \
+            or (component == 'root'
                 and self.getCharacterFor(syllable, 'super'))
 
     def generateWylieUnicode(self, syllable):
@@ -381,6 +383,15 @@ class Translator(object):
 
 
 class Syllable(object):
+    '''Used to represent a part of a word written in Tibetan wylie, or in the
+    case of a Tibetan transliteration of Sanskrit, it is represented as
+    International Alphabet of Sanskrit Transliteration (IAST). This information
+    is stored in Syllable.wylie.
+    Syllable.uni holds the equivalent string in Tibetan Unicode (U+0F00-U+0FFF).
+    If a Translator has performed its analysis on the Syllable object and found
+    the contents in Syllable.wylie to be valid wylie, the result of the analysis
+    is stored in self.structure (prefix, root letter, suffix, etc).
+    '''
     def __init__(self, wylieString):
         self.wylie = wylieString
         self.uni = ''

@@ -1,46 +1,51 @@
 # -*- coding: utf-8 -*-
+# TODO remove utf8 requirement for this file
 
 # Wylie/latin consonants
 W_ROOTLETTERS = (
-        'k',  'kh',  'g',  'ng',
-        'c',  'ch',  'j',  'ny',
-        't',  'th',  'd',  'n',
-        'p',  'ph',  'b',  'm',
-        'ts', 'tsh', 'dz', 'w',
-        'zh', 'z',   '\'', 'y',
-        'r',  'l',   'sh', 's',
-        'h',  'a', )
+    'k',  'kh',  'g',  'ng',
+    'c',  'ch',  'j',  'ny',
+    't',  'th',  'd',  'n',
+    'p',  'ph',  'b',  'm',
+    'ts', 'tsh', 'dz', 'w',
+    'zh', 'z',   '\'', 'y',
+    'r',  'l',   'sh', 's',
+    'h',  'a', )
 
 # Tibetan Unicode consonants
 U_ROOTLETTERS = (
-        '\u0f40', '\u0f41', '\u0f42', '\u0f44',
-        '\u0f45', '\u0f46', '\u0f47', '\u0f49',
-        '\u0f4f', '\u0f50', '\u0f51', '\u0f53',
-        '\u0f54', '\u0f55', '\u0f56', '\u0f58',
-        '\u0f59', '\u0f5a', '\u0f5b', '\u0f5d',
-        '\u0f5e', '\u0f5f', '\u0f60', '\u0f61',
-        '\u0f62', '\u0f63', '\u0f64', '\u0f66',
-        '\u0f67', '\u0f68', )
+    '\u0f40', '\u0f41', '\u0f42', '\u0f44',
+    '\u0f45', '\u0f46', '\u0f47', '\u0f49',
+    '\u0f4f', '\u0f50', '\u0f51', '\u0f53',
+    '\u0f54', '\u0f55', '\u0f56', '\u0f58',
+    '\u0f59', '\u0f5a', '\u0f5b', '\u0f5d',
+    '\u0f5e', '\u0f5f', '\u0f60', '\u0f61',
+    '\u0f62', '\u0f63', '\u0f64', '\u0f66',
+    '\u0f67', '\u0f68', )
 
 # Latin consonants for transliteration of sanskrit (IAST)
 SW_ROOTLETTERS = (
-        W_ROOTLETTERS[0], W_ROOTLETTERS[1], W_ROOTLETTERS[2], 'gh', 'ṅ',
-        W_ROOTLETTERS[4], W_ROOTLETTERS[5], W_ROOTLETTERS[6], 'jh', 'ñ',
-        'ṭ', 'ṭh', 'ḍ', 'ḍh', 'ṇ',
-        W_ROOTLETTERS[8], W_ROOTLETTERS[9], W_ROOTLETTERS[10], 'dh', W_ROOTLETTERS[11],
-        W_ROOTLETTERS[12], W_ROOTLETTERS[13], W_ROOTLETTERS[14], 'bh', W_ROOTLETTERS[15],
-        W_ROOTLETTERS[23], W_ROOTLETTERS[24], W_ROOTLETTERS[25], 'v',   'ś',
-        'ṣ', W_ROOTLETTERS[27], W_ROOTLETTERS[28],  'kṣ', )
+    W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],  'gh',
+    'ṅ',               W_ROOTLETTERS[4],  W_ROOTLETTERS[5],  W_ROOTLETTERS[6],
+    'jh',              'ñ',               'ṭ',               'ṭh',
+    'ḍ',               'ḍh',              'ṇ',               W_ROOTLETTERS[8],
+    W_ROOTLETTERS[9],  W_ROOTLETTERS[10], 'dh',              W_ROOTLETTERS[11],
+    W_ROOTLETTERS[12], W_ROOTLETTERS[13], W_ROOTLETTERS[14], 'bh',
+    W_ROOTLETTERS[15], W_ROOTLETTERS[23], W_ROOTLETTERS[24], W_ROOTLETTERS[25],
+    'v',               'ś',               'ṣ',               W_ROOTLETTERS[27],
+    W_ROOTLETTERS[28], 'kṣ', )
 
 # Tibetan Unicode consonants for Tibetan transliteration of Sanskrit
 SU_ROOTLETTERS = (
-        U_ROOTLETTERS[0], U_ROOTLETTERS[1], U_ROOTLETTERS[2], '\u0f43', U_ROOTLETTERS[3],
-        U_ROOTLETTERS[4], U_ROOTLETTERS[5], U_ROOTLETTERS[6], '\u0f5c', U_ROOTLETTERS[7],
-        '\u0f4a', '\u0f4b', '\u0f4c', '\u0f4d', '\u0f4e',
-        U_ROOTLETTERS[8], U_ROOTLETTERS[9], U_ROOTLETTERS[10], '\u0f52', U_ROOTLETTERS[11],
-        U_ROOTLETTERS[12], U_ROOTLETTERS[13], U_ROOTLETTERS[14], '\u0f57', U_ROOTLETTERS[15],
-        U_ROOTLETTERS[23], U_ROOTLETTERS[24], U_ROOTLETTERS[25], U_ROOTLETTERS[19], U_ROOTLETTERS[26],
-        '\u0f65', U_ROOTLETTERS[27], U_ROOTLETTERS[28], '\u0f69', )
+    U_ROOTLETTERS[0],  U_ROOTLETTERS[1],  U_ROOTLETTERS[2],  '\u0f43',
+    U_ROOTLETTERS[3],  U_ROOTLETTERS[4],  U_ROOTLETTERS[5],  U_ROOTLETTERS[6],
+    '\u0f5c',          U_ROOTLETTERS[7],  '\u0f4a',          '\u0f4b',
+    '\u0f4c',          '\u0f4d',          '\u0f4e',          U_ROOTLETTERS[8],
+    U_ROOTLETTERS[9],  U_ROOTLETTERS[10], '\u0f52',          U_ROOTLETTERS[11],
+    U_ROOTLETTERS[12], U_ROOTLETTERS[13], U_ROOTLETTERS[14], '\u0f57',
+    U_ROOTLETTERS[15], U_ROOTLETTERS[23], '\u0f6a', U_ROOTLETTERS[25],
+    U_ROOTLETTERS[19], U_ROOTLETTERS[26], '\u0f65',          U_ROOTLETTERS[27],
+    U_ROOTLETTERS[28], '\u0f69', )
 
 # Wylie/latin vowels
 W_VOWELS = ('i', 'u', 'e', 'o', )
@@ -50,26 +55,26 @@ U_VOWELS = ('\u0f72', '\u0f74', '\u0f7a', '\u0f7c', )
 
 # Latin vowels for transliteration of sanskrit (IAST)
 SW_VOWELS = (
-        'a',  'ā',  W_VOWELS[0], 'ī',  W_VOWELS[1],
-        'ū',  W_VOWELS[2], 'ai', W_VOWELS[3],
-        'au', 'ṛ',         'ṝ',  'ḷ',
-        'ḹ',  'ṃ',         'ḥ', )
+    'a',         'ā',  W_VOWELS[0], 'ī',
+    W_VOWELS[1], 'ū',  W_VOWELS[2], 'ai',
+    W_VOWELS[3], 'au', 'ṛ',         'ṝ',
+    'ḷ',         'ḹ',  'ṃ',         'ḥ', )
 
 # Tibetan Unicode vowels for Tibetan transliteration of Sanskrit
 SU_VOWELS = (
-        '\u0f68', '\u0f71', U_VOWELS[0], '\u0f73', U_VOWELS[1],
-        '\u0f75', U_VOWELS[2], '\u0f7b', U_VOWELS[3],
-        '\u0f7d', '\u0f76',    '\u0f77', '\u0f78',
-        '\u0f79', '\u0f7e',    '\u0f7f', )
+    '\u0f68',    '\u0f71', U_VOWELS[0], '\u0f73',
+    U_VOWELS[1], '\u0f75', U_VOWELS[2], '\u0f7b',
+    U_VOWELS[3], '\u0f7d', '\u0f76',    '\u0f77',
+    '\u0f78',    '\u0f79', '\u0f7e',    '\u0f7f', )
 
-U_OM        = 'oṃ'
+U_OM = 'oṃ'
 
-S_TSHEG     = '\u0f0b'
-S_SPACE     = '\u00a0'
-S_SHAD      = '\u0f0d'
+S_TSHEG = '\u0f0b'
+S_SPACE = '\u00a0'
+S_SHAD = '\u0f0d'
 S_NYIS_SHAD = '\u0f0e'
-S_SNA_LDAN  = '\u0f83'
-S_OM        = '\u0f00'
+S_SNA_LDAN = '\u0f83'
+S_OM = '\u0f00'
 
 W_SYMBOLS = ('/', '//', )
 
@@ -141,7 +146,8 @@ LATA_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[14],
                     W_ROOTLETTERS[24], W_ROOTLETTERS[27], W_ROOTLETTERS[21], )
 
 # Wylie characters that take the 'wa' character as its subjoined letter.
-# ['k', 'kh', 'g', 'c', 'ny', 't', 'd', 'ts', 'tsh', 'zh', 'z', 'r', 'l', 'sh', 's', 'h']
+# ['k', 'kh', 'g', 'c', 'ny', 't', 'd', 'ts', 'tsh', 'zh', 'z', 'r', 'l', 'sh',
+#  's', 'h']
 WAZUR_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],
                      W_ROOTLETTERS[4],  W_ROOTLETTERS[7],  W_ROOTLETTERS[8],
                      W_ROOTLETTERS[10], W_ROOTLETTERS[16], W_ROOTLETTERS[17],
