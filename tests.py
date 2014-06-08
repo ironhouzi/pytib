@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from wylie2uni import *
+from wylie2uni import Translator
+from wylie2uni import Syllable
+
 
 class sankritTest(unittest.TestCase):
 
@@ -13,8 +15,7 @@ class sankritTest(unittest.TestCase):
         s = Syllable('')
         for d in self.defFile:
             s.wylie = d.strip()
-            self.assertTrue(t.isSanskrit(s) or \
-                    not t.analyzeWylie(s))
+            self.assertTrue(t.isSanskrit(s) or not t.analyzeWylie(s))
 
     def tearDown(self):
         self.defFile.close()
@@ -23,25 +24,25 @@ class sankritTest(unittest.TestCase):
 # Rough test. TODO: break up into individual tests.
 class wylieTest(unittest.TestCase):
 
-    w_defs = ( 'sangs',   'bre',     'rta',        'mgo',
-               'gya',     'g.yag',   '\'rba',      'tshos',
-               'lhongs',  'mngar',   'sngas',      'rnyongs',
-               'brnyes',  'rgyas',   'skyongs',    'bskyongs',
-               'grwa',    'spre\'u', 'spre\'u\'i', '\'dra',
-               '\'bya',   '\'gra',   '\'gyang',    '\'khra',
-               '\'khyig', '\'kyags', '\'phre',     '\'phyags',
-               'a',       'o',       'a\'am',      'ab',
-               'bswa',    'bha',     'grwa', )
+    w_defs = ('sangs',   'bre',     'rta',        'mgo',
+              'gya',     'g.yag',   '\'rba',      'tshos',
+              'lhongs',  'mngar',   'sngas',      'rnyongs',
+              'brnyes',  'rgyas',   'skyongs',    'bskyongs',
+              'grwa',    'spre\'u', 'spre\'u\'i', '\'dra',
+              '\'bya',   '\'gra',   '\'gyang',    '\'khra',
+              '\'khyig', '\'kyags', '\'phre',     '\'phyags',
+              'a',       'o',       'a\'am',      'ab',
+              'bswa',    'bha',     'grwa', )
 
-    u_defs = ( 'སངས་', 'བྲེ་',    'རྟ་',   'མགོ་',
-               'གྱ་',   'གཡག་',  'འརྦ་',  'ཚོས་',
-               'ལྷོངས་', 'མངར་',  'སྔས་',  'རྙོངས་',
-               'བརྙེས་', 'རྒྱས་',   'སྐྱོངས་', 'བསྐྱོངས་',
-               'གྲྭ་',   'སྤྲེའུ་',   'སྤྲེའུའི་', 'འདྲ་',
-               'འབྱ་',  'འགྲ་',   'འགྱང་', 'འཁྲ་',
-               'འཁྱིག་', 'འཀྱགས་', 'འཕྲེ་',  'འཕྱགས་',
-               'ཨ་',   'ཨོ་',    'ཨའམ་', 'ཨབ་',
-               'བསྭ་',  'བཧ་',   'གྲྭ་', )
+    u_defs = ('སངས་', 'བྲེ་',    'རྟ་',   'མགོ་',
+              'གྱ་',   'གཡག་',  'འརྦ་',  'ཚོས་',
+              'ལྷོངས་', 'མངར་',  'སྔས་',  'རྙོངས་',
+              'བརྙེས་', 'རྒྱས་',   'སྐྱོངས་', 'བསྐྱོངས་',
+              'གྲྭ་',   'སྤྲེའུ་',   'སྤྲེའུའི་', 'འདྲ་',
+              'འབྱ་',  'འགྲ་',   'འགྱང་', 'འཁྲ་',
+              'འཁྱིག་', 'འཀྱགས་', 'འཕྲེ་',  'འཕྱགས་',
+              'ཨ་',   'ཨོ་',    'ཨའམ་', 'ཨབ་',
+              'བསྭ་',  'བཧ་',   'གྲྭ་', )
 
     def test_sanskrit(self):
         t = Translator()
@@ -56,8 +57,8 @@ class wylieTest(unittest.TestCase):
 
 class BytecodeTest(unittest.TestCase):
 
-    correct = [ 'U+0F56', 'U+0F66', 'U+0F90', 'U+0FB1',
-            'U+0F7C', 'U+0F44', 'U+0F66' ]
+    correct = ['U+0F56', 'U+0F66', 'U+0F90', 'U+0FB1',
+               'U+0F7C', 'U+0F44', 'U+0F66']
 
     def test_bytecode(self):
         t = Translator()
@@ -69,6 +70,7 @@ class BytecodeTest(unittest.TestCase):
         bytecodes = t.getBytecodes('skyong')
         self.assertNotEqual(bytecodes, self.correct)
 
+
 class SanskritGenerationTest(unittest.TestCase):
 
     t = Translator()
@@ -78,11 +80,13 @@ class SanskritGenerationTest(unittest.TestCase):
         self.t.analyze(self.s)
         self.assertEqual(self.s.uni, uni)
 
+    # TODO: find counter case
     def test_hung(self):
         uni = '\u0f67' + '\u0f75' + '\u0f83'
         self.s.wylie = 'hūṃ'
         self.analyzeAndCheck(uni)
 
+    # TODO: find counter case
     def test_tva(self):
         uni = '\u0f4f' + '\u0fad'
         self.s.wylie = 'tva'
@@ -93,6 +97,7 @@ class SanskritGenerationTest(unittest.TestCase):
         self.s.wylie = 'oṃ'
         self.analyzeAndCheck(uni)
 
+    # TODO: find counter case
     def test_phat(self):
         uni = '\u0f55' + '\u0f4a'
         self.s.wylie = 'phaṭ'
@@ -123,4 +128,10 @@ class SanskritGenerationTest(unittest.TestCase):
     def test_vajra(self):
         uni = '\u0F56' + '\u0F5B' + '\u0FB2'
         self.s.wylie = 'vajra'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_badzra(self):
+        uni = '\u0F56' + '\u0F5B' + '\u0FB2'
+        self.s.wylie = 'badzra'
         self.analyzeAndCheck(uni)
