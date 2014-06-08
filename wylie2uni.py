@@ -253,6 +253,18 @@ class Translator(object):
         return letter == tables.SW_VOWELS[-2] and \
             syllable.wylie in tables.S_USE_SNA_LDAN
 
+    def dzBeforeRa(self, letters, position):
+        return letters[position] is tables.SW_ROOTLETTERS[7] and \
+            len(letters) > position+1 and \
+            letters[position+1] is tables.SW_ROOTLETTERS[26]
+
+    def vaAfterRa(self, letters, position):
+        return letters[position] is tables.SW_ROOTLETTERS[28] and \
+            position > 0 and letters[position-1] is tables.SW_ROOTLETTERS[26]
+
+    def startsWithVa(self, letters):
+        return letters[0] is tables.SW_ROOTLETTERS[28]
+
     def generateSanskritUnicode(self, syllable, wylieLetters):
         if self.handleOm(syllable):
             return
@@ -262,6 +274,8 @@ class Translator(object):
         if wylieLetters[0] in self.allSanskritVowels:
             stack = [tables.U_ROOTLETTERS[-1]]
             startIndex = 0
+        elif self.startsWithVa(wylieLetters):
+            stack = [self.toUnicode(tables.W_ROOTLETTERS[14], True)]
         else:
             stack = [self.toUnicode(wylieLetters[0], True)]
         for i in range(startIndex, len(wylieLetters)):
@@ -272,6 +286,13 @@ class Translator(object):
             elif wylieLetters[i] in tables.SW_VOWELS:
                 stack.append(self.toUnicode(wylieLetters[i], True))
                 newColumn = True
+            elif self.vaAfterRa(wylieLetters, i):
+                stack.append(self.toSubjoinedUnicode(tables.W_ROOTLETTERS[14],
+                                                     False))
+                newColumn = False
+            elif self.dzBeforeRa(wylieLetters, i):
+                stack.append(self.toUnicode(tables.W_ROOTLETTERS[18], False))
+                newColumn = False
             elif newColumn or syllable.wylie in tables.S_DONT_STACK:
                 stack.append(self.toUnicode(wylieLetters[i], True))
                 newColumn = False
@@ -376,8 +397,11 @@ class Translator(object):
     def getBytecodes(self, wylieString):
         syllable = Syllable(wylieString)
         self.analyze(syllable)
+        return self.unicodeStringToCodes(syllable.uni)
+
+    def unicodeStringToCodes(self, unicodeString):
         bytecodes = []
-        for uni in syllable.uni:
+        for uni in unicodeString:
             bytecodes.append('U+{0:04X}'.format(ord(uni)))
         return bytecodes
 

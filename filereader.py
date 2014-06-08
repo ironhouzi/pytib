@@ -7,7 +7,7 @@ from sys import exit
 
 def main():
     if len(argv) < 1:
-        print("Usage: filereader.py <file> <include original file in output>")
+        print("Usage: filereader.py <file> <include original file in output?>")
         exit()
     t = wylie2uni.Translator()
     s = wylie2uni.Syllable('')
@@ -27,8 +27,8 @@ def main():
             if d in tables.W_SYMBOLS:
                 stdout.write(symbolLookup[d])
                 continue
-            if d == 'vajra':
-                continue
+            # if d == 'vajra':
+            #     continue
             s.wylie = d
             t.analyze(s)
             s.tsheg()

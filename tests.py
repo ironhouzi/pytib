@@ -112,3 +112,15 @@ class SanskritGenerationTest(unittest.TestCase):
         uni = '\u0f58' + '\u0f53' + '\u0f9c' + '\u0f63'
         self.s.wylie = 'manḍal'
         self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_sarva(self):
+        uni = '\u0F66' + '\u0F62' + '\u0FA6'
+        self.s.wylie = 'sarva'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_vajra(self):
+        uni = '\u0F56' + '\u0F5B' + '\u0FB2'
+        self.s.wylie = 'vajra'
+        self.analyzeAndCheck(uni)
