@@ -134,4 +134,11 @@ class SanskritGenerationTest(unittest.TestCase):
     def test_badzra(self):
         uni = '\u0F56' + '\u0F5B' + '\u0FB2'
         self.s.wylie = 'badzra'
+        self.t.analyze(self.s)
+        self.assertNotEqual(self.s.uni, uni)
+
+    # TODO: find counter case
+    def test_tthddhnaa(self):
+        uni = '\u0f4a' + '\u0f9b' + '\u0f9c' + '\u0f9d' + '\u0f9e' + '\u0f71'
+        self.s.wylie = 'ṭṭhḍḍhṇā'
         self.analyzeAndCheck(uni)

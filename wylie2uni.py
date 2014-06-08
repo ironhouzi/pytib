@@ -221,6 +221,8 @@ class Translator(object):
         if self.invalidWylieString(syllable):
             return False
         wylieLetters = self.partitionToWylie(syllable)
+        if wylieLetters is None:
+            return False
         syllable.clear()
         if len(wylieLetters) == 1:
             self.singleWylieLetter(syllable, wylieLetters)
@@ -234,6 +236,8 @@ class Translator(object):
 
     def analyzeSanskrit(self, syllable):
         wylieLetters = self.partitionToWylie(syllable)
+        if wylieLetters is None:
+            return False
         syllable.clear()
         if len(wylieLetters) == 1:
             self.singleWylieLetter(syllable, wylieLetters)
@@ -331,7 +335,7 @@ class Translator(object):
         romanCharacterMax = 3
         if syllable.isSanskrit:
             alphabet = tables.SW_ROOTLETTERS + tables.SW_VOWELS + \
-               (tables.W_ROOTLETTERS[-1],)
+                (tables.W_ROOTLETTERS[-1],)
             romanCharacterMax = 2
         else:
             alphabet = tables.W_ROOTLETTERS + tables.W_VOWELS
@@ -340,9 +344,13 @@ class Translator(object):
         while len(wylieSyllable) != 0:
             for i in range(romanCharacterMax, 0, -1):
                 part = wylieSyllable[:i]
+                if part == '':
+                    break
                 if part in alphabet or part == tables.PREFIX_GA:
                     wylieLetters.append(part)
                     wylieSyllable = wylieSyllable[len(part):]
+                elif i == 1 and part not in alphabet:
+                    return None
         return wylieLetters
 
     def validSuperscribe(self, headLetter, rootLetter):
@@ -382,6 +390,13 @@ class Translator(object):
     def isPrefix(self, char):
         return char in tables.PREFIXES
 
+    def hasAtleastNVowels(self, syllable, n):
+        vowels = (c for c in list(syllable.wylie) if c in self.allWylieVowels)
+        for i, unused in enumerate(vowels):
+            if i == n - 1:
+                return True
+        return False
+
     def isSanskrit(self, syllable):
         string = syllable.wylie
         # Check if what could potentially be valid wylie, is actually Sanskrit
@@ -392,7 +407,8 @@ class Translator(object):
         for substring in matches:
             if string.startswith(substring):
                 return True
-        return 'ai' in string or 'au' in string
+        return 'ai' in string or 'au' in string or \
+            self.hasAtleastNVowels(syllable, 2)
 
     def getBytecodes(self, wylieString):
         syllable = Syllable(wylieString)
