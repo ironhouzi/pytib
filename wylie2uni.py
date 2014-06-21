@@ -49,7 +49,8 @@ class Translator(object):
         self.validSuperjoinedList = dict(zip(tables.SUPER, tables.SUPER_RULES))
         self.validSubjoinedList = dict(zip(tables.SUB, tables.SUB_RULES))
         self.allWylieVowels = (tables.W_VOWELS + (tables.W_ROOTLETTERS[-1],))
-        self.allSanskritVowels = (tables.SW_VOWELS + (tables.W_ROOTLETTERS[-1],))
+        self.allSanskritVowels = (tables.SW_VOWELS +
+                                  (tables.W_ROOTLETTERS[-1],))
         self.errorVal = str(encode(urandom(8), 'hex'))[2:-1]
         sTable = (tables.SUFFIXES, tables.SUFFIX2S)
         self.validSuffix = dict(zip(tables.POSTVOWEL, sTable))
@@ -321,19 +322,24 @@ class Translator(object):
             wylieChar = wylieLetters[i]
             if wylieChar:
                 syllableComponent = tables.POSTVOWEL[j]
-                if j < 2 and wylieChar not in self.allWylieVowels \
-                        and wylieChar not in self.validSuffix[syllableComponent]:
+                if j < 2  \
+                        and wylieChar not in self.allWylieVowels \
+                        and wylieChar not in \
+                        self.validSuffix[syllableComponent]:
                     return False
-                self.modSyllableStructure(syllable, syllableComponent, wylieChar)
+                self.modSyllableStructure(syllable,
+                                          syllableComponent,
+                                          wylieChar)
                 j += 1
         return True
 
     def partitionToWylie(self, syllable):
-        '''Generates a list of wylie/IAST letters, from which the syllable.wylie
-           string is composed of.
-           Checks if the roman character(s) at the end of the wylie/IAST string
-           forms a valid wylie letter and continues backwards through the wylie/
-           IAST string, until the entire wylie string is partitioned.'''
+        '''Generates a list of wylie/IAST letters, from which the
+        syllable.wylie string is composed of.
+        Checks if the roman character(s)
+        at the end of the wylie/IAST string forms a valid wylie letter and
+        continues backwards through the wylie/ IAST string, until the entire
+        wylie string is partitioned.'''
         alphabet = []
         romanCharacterMax = 3
         if syllable.isSanskrit:
@@ -383,7 +389,9 @@ class Translator(object):
                 # char == 'g.' ?
                 if char == tables.PREFIX_GA:
                     char = tables.W_ROOTLETTERS[2]
-                    self.modSyllableStructure(syllable, syllableComponent, char)
+                    self.modSyllableStructure(syllable,
+                                              syllableComponent,
+                                              char)
                 if self.needsSubjoin(syllable, syllableComponent):
                     newString.append(self.toSubjoinedUnicode(char))
                 else:
@@ -432,12 +440,14 @@ class Syllable(object):
     '''Used to represent a part of a word written in Tibetan wylie, or in the
     case of a Tibetan transliteration of Sanskrit, it is represented as
     International Alphabet of Sanskrit Transliteration (IAST). This information
-    is stored in Syllable.wylie.
-    Syllable.uni holds the equivalent string in Tibetan Unicode (U+0F00-U+0FFF).
-    If a Translator has performed its analysis on the Syllable object and found
-    the contents in Syllable.wylie to be valid wylie, the result of the analysis
-    is stored in self.structure (prefix, root letter, suffix, etc).
-    '''
+    is stored in Syllable.wylie.  Syllable.uni holds the equivalent string in
+    Tibetan Unicode (U+0F00-U+0FFF).  If a Translator has performed its
+    analysis on the Syllable object and found the contents in Syllable.wylie to
+    be valid wylie, the result of the analysis is stored in self.structure
+    (prefix, root letter, suffix, etc).'''
+
+    # TODO: implement constraint for length of self.wylie
+
     def __init__(self, wylieString):
         self.wylie = wylieString
         self.uni = ''
