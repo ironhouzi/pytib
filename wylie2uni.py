@@ -106,7 +106,7 @@ class Translator(object):
                 and not self.validSuperscribe(wylieLetters[1], wylieLetters[2]) \
                 and self.validSubscribe(wylieLetters[1], wylieLetters[2])
 
-    # element index correlates to the syllable's vowel position
+    # tuple index correlates to the syllable's vowel position
     analyzeBaseCase = (None,
                        (lambda self, wylieLetters:
                            wylieLetters[0] in tables.W_ROOTLETTERS and
@@ -269,41 +269,44 @@ class Translator(object):
     def startsWithVa(self, letters):
         return letters[0] is tables.SW_ROOTLETTERS[28]
 
-    def generateSanskritUnicode(self, syllable, wylieLetters):
+    def generateSanskritUnicode(self, syllable, sanskritString):
         if self.handleOm(syllable):
             return
-        newColumn = False
-        stack = []
+        stackEnd = False
+        unicodeString = []
         startIndex = 1
-        if wylieLetters[0] in self.allSanskritVowels:
-            stack = [tables.U_ROOTLETTERS[-1]]
+        litteral_ba = tables.W_ROOTLETTERS[14]
+        if sanskritString[0] in self.allSanskritVowels:
+            unicodeString = [tables.U_ROOTLETTERS[-1]]
             startIndex = 0
-        elif self.startsWithVa(wylieLetters):
-            stack = [self.toUnicode(tables.W_ROOTLETTERS[14], True)]
+        elif self.startsWithVa(sanskritString):
+            unicodeString = [self.toUnicode(litteral_ba, True)]
         else:
-            stack = [self.toUnicode(wylieLetters[0], True)]
-        for i in range(startIndex, len(wylieLetters)):
-            if wylieLetters[i] is self.wylie_vowel_a:
-                newColumn = True
-            elif self.isHung(syllable, wylieLetters[i]):
-                stack.append(tables.S_SNA_LDAN)
-            elif wylieLetters[i] in tables.SW_VOWELS:
-                stack.append(self.toUnicode(wylieLetters[i], True))
-                newColumn = True
-            elif self.vaAfterRa(wylieLetters, i):
-                stack.append(self.toSubjoinedUnicode(tables.W_ROOTLETTERS[14],
-                                                     False))
-                newColumn = False
-            elif self.dzBeforeRa(wylieLetters, i):
-                stack.append(self.toUnicode(tables.W_ROOTLETTERS[18], False))
-                newColumn = False
-            elif newColumn or syllable.wylie in tables.S_DONT_STACK:
-                stack.append(self.toUnicode(wylieLetters[i], True))
-                newColumn = False
+            unicodeString = [self.toUnicode(sanskritString[0], True)]
+        for i in range(startIndex, len(sanskritString)):
+            if sanskritString[i] is self.wylie_vowel_a:
+                stackEnd = True
+            elif self.isHung(syllable, sanskritString[i]):
+                unicodeString.append(tables.S_SNA_LDAN)
+            elif sanskritString[i] in tables.SW_VOWELS:
+                unicodeString.append(self.toUnicode(sanskritString[i], True))
+                stackEnd = True
+            elif self.vaAfterRa(sanskritString, i):
+                unicodeString.append(self.toSubjoinedUnicode(litteral_ba,
+                                                             False))
+                stackEnd = False
+            elif self.dzBeforeRa(sanskritString, i):
+                litteral_dza = tables.W_ROOTLETTERS[18]
+                unicodeString.append(self.toUnicode(litteral_dza, False))
+                stackEnd = False
+            elif stackEnd or syllable.wylie in tables.S_DONT_STACK:
+                unicodeString.append(self.toUnicode(sanskritString[i], True))
+                stackEnd = False
             else:
-                stack.append(self.toSubjoinedUnicode(wylieLetters[i], True))
-                newColumn = False
-        syllable.uni = ''.join(stack)
+                unicodeString.append(self.toSubjoinedUnicode(sanskritString[i],
+                                                             True))
+                stackEnd = False
+        syllable.uni = ''.join(unicodeString)
 
     def isIrregular(self, vowelPosition, wylieLetters):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
@@ -390,12 +393,15 @@ class Translator(object):
     def isPrefix(self, char):
         return char in tables.PREFIXES
 
-    def hasAtleastNVowels(self, syllable, n):
-        vowels = (c for c in list(syllable.wylie) if c in self.allWylieVowels)
+    def hasAtleastNVowels(self, string, n):
+        vowels = (c for c in list(string) if c in self.allWylieVowels)
         for i, unused in enumerate(vowels):
             if i == n - 1:
                 return True
         return False
+
+    def hasNoAChung(self, string):
+        return tables.W_ROOTLETTERS[22] not in string
 
     def isSanskrit(self, syllable):
         string = syllable.wylie
@@ -408,7 +414,7 @@ class Translator(object):
             if string.startswith(substring):
                 return True
         return 'ai' in string or 'au' in string or \
-            self.hasAtleastNVowels(syllable, 2)
+            self.hasAtleastNVowels(string, 2) and self.hasNoAChung(string)
 
     def getBytecodes(self, wylieString):
         syllable = Syllable(wylieString)
