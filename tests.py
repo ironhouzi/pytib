@@ -32,7 +32,7 @@ class wylieTest(unittest.TestCase):
               '\'bya',   '\'gra',   '\'gyang',    '\'khra',
               '\'khyig', '\'kyags', '\'phre',     '\'phyags',
               'a',       'o',       'a\'am',      'ab',
-              'bswa',    'bha',     'grwa', )
+              'bswa',    'grwa', )
 
     u_defs = ('སངས་', 'བྲེ་',    'རྟ་',   'མགོ་',
               'གྱ་',   'གཡག་',  'འརྦ་',  'ཚོས་',
@@ -42,15 +42,14 @@ class wylieTest(unittest.TestCase):
               'འབྱ་',  'འགྲ་',   'འགྱང་', 'འཁྲ་',
               'འཁྱིག་', 'འཀྱགས་', 'འཕྲེ་',  'འཕྱགས་',
               'ཨ་',   'ཨོ་',    'ཨའམ་', 'ཨབ་',
-              'བསྭ་',  'བཧ་',   'གྲྭ་', )
+              'བསྭ་',  'གྲྭ་', )
 
-    def test_sanskrit(self):
+    def test_assorted(self):
         t = Translator()
         s = Syllable('')
         for i, d in enumerate(self.w_defs):
             s.wylie = d
-            t.analyzeWylie(s)
-            t.generateWylieUnicode(s)
+            t.analyze(s)
             s.tsheg()
             self.assertEqual(s.uni, self.u_defs[i])
 
@@ -138,7 +137,38 @@ class SanskritGenerationTest(unittest.TestCase):
         self.assertNotEqual(self.s.uni, uni)
 
     # TODO: find counter case
+    def test_hksmlvryam(self):
+        uni = '\u0f67' + '\u0fb9' + '\u0fa8' + '\u0fb3' + '\u0fba' + \
+            '\u0fbc' + '\u0fbb' + '\u0f83' + '\u0f0b'
+        self.s.wylie = 'hkṣmlvryaṃ'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
     def test_tthddhnaa(self):
         uni = '\u0f4a' + '\u0f9b' + '\u0f9c' + '\u0f9d' + '\u0f9e' + '\u0f71'
         self.s.wylie = 'ṭṭhḍḍhṇā'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_shunyata(self):
+        uni = '\u0f64' + '\u0f75' + '\u0f53' + '\u0fb1' + '\u0f4f' + '\u0f71'
+        self.s.wylie = 'śūnyatā'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_kyai(self):
+        uni = '\u0f40' + '\u0fb1' + '\u0f7b'
+        self.s.wylie = 'kyai'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_lakshmyai(self):
+        uni = '\u0f63' + '\u0f69' + '\u0fa8' + '\u0fb1' + '\u0f7b'
+        self.s.wylie = 'lakṣmyai'
+        self.analyzeAndCheck(uni)
+
+    # TODO: find counter case
+    def test_akshye(self):
+        uni = '\u0f68' + '\u0f69' + '\u0fb1' + '\u0f7a'
+        self.s.wylie = 'akṣye'
         self.analyzeAndCheck(uni)

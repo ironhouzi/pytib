@@ -256,7 +256,7 @@ class Translator(object):
 
     def isHung(self, syllable, letter):
         return letter == tables.SW_VOWELS[-2] and \
-            syllable.wylie in tables.S_USE_SNA_LDAN
+            syllable.wylie in tables.SNA_LDAN_CASES
 
     def dzBeforeRa(self, letters, position):
         return letters[position] is tables.SW_ROOTLETTERS[7] and \
@@ -270,42 +270,68 @@ class Translator(object):
     def startsWithVa(self, letters):
         return letters[0] is tables.SW_ROOTLETTERS[28]
 
-    def generateSanskritUnicode(self, syllable, sanskritString):
+    def isRegularYa(self, letters, position):
+        return letters[position] is tables.SW_ROOTLETTERS[25]
+
+    def isRegularRa(self, letters, position):
+        return letters[position] is tables.SW_ROOTLETTERS[26]
+
+    def isYaOrRa(self, letter):
+        return letter is tables.SW_ROOTLETTERS[25] or \
+            letter is tables.SW_ROOTLETTERS[26]
+
+    def handleYaOrRa(self, letters, position):
+        if position >= len(letters)-2:
+            pass
+        else:
+            lookup = self.sanskritWylieToUnicode
+            letter = letters[position]
+            return chr(ord(lookup[str(letter)]) + tables.STACKED_YA_RA_OFFSET)
+
+    def generateSanskritUnicode(self, syllable, letters):
+        '''
+        letters is a list of sanskrit letters, the result of
+        partitionToWylie().
+        '''
         if self.handleOm(syllable):
             return
         stackEnd = False
         unicodeString = []
         startIndex = 1
         litteral_ba = tables.W_ROOTLETTERS[14]
-        if sanskritString[0] in self.allSanskritVowels:
+        if letters[0] in self.allSanskritVowels:
             unicodeString = [tables.U_ROOTLETTERS[-1]]
             startIndex = 0
-        elif self.startsWithVa(sanskritString):
+        elif self.startsWithVa(letters):
             unicodeString = [self.toUnicode(litteral_ba, True)]
         else:
-            unicodeString = [self.toUnicode(sanskritString[0], True)]
-        for i in range(startIndex, len(sanskritString)):
-            if sanskritString[i] is self.wylie_vowel_a:
+            unicodeString = [self.toUnicode(letters[0], True)]
+        for i in range(startIndex, len(letters)):
+            if letters[i] is self.wylie_vowel_a:
                 stackEnd = True
-            elif self.isHung(syllable, sanskritString[i]):
+            elif self.isHung(syllable, letters[i]):
                 unicodeString.append(tables.S_SNA_LDAN)
-            elif sanskritString[i] in tables.SW_VOWELS:
-                unicodeString.append(self.toUnicode(sanskritString[i], True))
+            elif letters[i] in tables.SW_VOWELS:
+                unicodeString.append(self.toUnicode(letters[i], True))
                 stackEnd = True
-            elif self.vaAfterRa(sanskritString, i):
+            elif self.vaAfterRa(letters, i):
                 unicodeString.append(self.toSubjoinedUnicode(litteral_ba,
                                                              False))
                 stackEnd = False
-            elif self.dzBeforeRa(sanskritString, i):
-                litteral_dza = tables.W_ROOTLETTERS[18]
-                unicodeString.append(self.toUnicode(litteral_dza, False))
-                stackEnd = False
+            # elif self.dzBeforeRa(letters, i):
+            #     litteral_dza = tables.W_ROOTLETTERS[18]
+            #     unicodeString.append(self.toUnicode(litteral_dza, False))
+            #     stackEnd = False
             elif stackEnd or syllable.wylie in tables.S_DONT_STACK:
-                unicodeString.append(self.toUnicode(sanskritString[i], True))
+                unicodeString.append(self.toUnicode(letters[i], True))
+                stackEnd = False
+            elif self.isYaOrRa(letters[i]):
+                result = self.handleYaOrRa(letters, i)
+                if result:
+                    unicodeString.append(result)
                 stackEnd = False
             else:
-                unicodeString.append(self.toSubjoinedUnicode(sanskritString[i],
-                                                             True))
+                unicodeString.append(self.toSubjoinedUnicode(letters[i], True))
                 stackEnd = False
         syllable.uni = ''.join(unicodeString)
 

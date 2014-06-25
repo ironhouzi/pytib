@@ -24,6 +24,7 @@ U_ROOTLETTERS = (
     '\u0f67', '\u0f68', )
 
 # Latin consonants for transliteration of sanskrit (IAST)
+# TODO: replace char litterals with codepoints.
 SW_ROOTLETTERS = (
     W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],  'gh',
     'ṅ',               W_ROOTLETTERS[4],  W_ROOTLETTERS[5],  W_ROOTLETTERS[6],
@@ -54,6 +55,7 @@ W_VOWELS = ('i', 'u', 'e', 'o', )
 U_VOWELS = ('\u0f72', '\u0f74', '\u0f7a', '\u0f7c', )
 
 # Latin vowels for transliteration of sanskrit (IAST)
+# TODO: replace char litterals with codepoints.
 SW_VOWELS = (
     'a',         'ā',  W_VOWELS[0], 'ī',
     W_VOWELS[1], 'ū',  W_VOWELS[2], 'ai',
@@ -67,7 +69,10 @@ SU_VOWELS = (
     U_VOWELS[3], '\u0f7d', '\u0f76',    '\u0f77',
     '\u0f78',    '\u0f79', '\u0f7e',    '\u0f7f', )
 
+# TODO: replace char litterals with codepoints.
 U_OM = 'oṃ'
+U_STACKED_YA = '\u0fbb'
+U_STACKED_RA = '\u0fbc'
 
 S_TSHEG = '\u0f0b'
 S_SPACE = '\u00a0'
@@ -182,6 +187,7 @@ POSTVOWEL = ('suffix',
 SYLLSTRUCT = PREVOWEL + POSTVOWEL
 
 SUBOFFSET = 0x50
+STACKED_YA_RA_OFFSET = SUBOFFSET + 0x0a
 
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
@@ -190,6 +196,7 @@ SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
 #      main rootletters or vowels
 S_RULES_4 = ('phyw', )
 
+# TODO: n.y case needed??
 S_RULES_3 = ('ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye', 'n.y', )
 
 S_RULES_2 = ('gh', 'dh', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr', 'hy', 'ty',
@@ -199,6 +206,58 @@ S_BASIC_RULES = S_RULES_4 + S_RULES_3 + S_RULES_2
 
 S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb', )
 
-S_DONT_STACK = ('phaṭ',)
+S_DONT_STACK = ('phaṭ', )
 
-S_USE_SNA_LDAN = ('hūṃ', )
+SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', )
+
+SW_YATA_CASES = (
+    ('k', 'y'),
+    ('d', 'y'),
+    ('b', 'y'),
+    ('m', 'y'),
+    ('k', 'y', 'ai'),
+    ('c', 'y', 'ai'),
+    ('ph', 'y', 'v'),
+    ('t', 'y', '$'),
+    ('ś', 'y', '$'),
+    ('h', 'y', '$'),
+    ('kṣ', 'y', '$'),
+    ('s', 'y', '$'), )
+
+SW_RATA_CASES = (
+    ('k', 'r'),
+    ('g', 'r'),
+    ('d', 'r'),
+    ('n', 'r'),
+    ('p', 'r'),
+    ('ph', 'r'),
+    ('b', 'r'),
+    ('m', 'r'),
+    ('dz', 'r'),
+    ('k', 'r', 'i'),
+    ('kh', 'r'),
+    ('t', 'r', '$'),
+    ('th', 'r', '$'),
+    ('bh', 'r', '$'),
+    ('s', 'r', '$'), )
+
+SW_WAZUR_CASES = (
+    ('j', 'v'),
+    ('ph', 'y', 'v'),
+    ('y', 'v'),
+    ('ṭ', 'v', '$'),
+    ('ḍ', 'v', '$'),
+    ('t', 'v', '$'),
+    ('l', 'v'),
+    ('h', 'v'),
+    ('d', 'v', '$'),
+    ('dh', 'v', '$'),
+    ('ś', 'v', '$'),
+    ('s', 'v', '$'),
+    ('t', 'r', 'v', '$'), )
+
+SW_AMBIGOUS = ('ts', 'tsh', 'dz', 'w', 'ny', 'ng', 'sh', )
+
+SW_UNIQUE = (3, 4, 8, 9, 10, 11, 12, 13, 14, 18, 23, 28, 29, 30, 33, )
+
+# TODO: find solution for the ww/wv ambiguity
