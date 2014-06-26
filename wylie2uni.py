@@ -340,23 +340,20 @@ class Translator(object):
         return wylieLetters[vowelPosition-1] == tables.W_ROOTLETTERS[19] \
             and wylieLetters[vowelPosition-2] == tables.W_ROOTLETTERS[24]
 
+    def invalidSuffix(self, component, wylieChar):
+        return component in tables.POSTVOWEL[:2] \
+            and wylieChar not in self.allWylieVowels \
+            and wylieChar not in self.validSuffix[component]
+
     def findSuffixes(self, syllable, vowelPosition, wylieLetters):
-        # TODO: Iterator for POSTVOWEL.next *if* that doesn't harm performance
-        # TODO: Fix ugliness in this method!
-        j = 0
-        for i in range(vowelPosition+1, len(wylieLetters)):
-            wylieChar = wylieLetters[i]
-            if wylieChar:
-                syllableComponent = tables.POSTVOWEL[j]
-                if j < 2  \
-                        and wylieChar not in self.allWylieVowels \
-                        and wylieChar not in \
-                        self.validSuffix[syllableComponent]:
-                    return False
-                self.modSyllableStructure(syllable,
-                                          syllableComponent,
-                                          wylieChar)
-                j += 1
+        components = iter(tables.POSTVOWEL)
+        for wylieChar in wylieLetters[vowelPosition+1:]:
+            syllableComponent = next(components)
+            if self.invalidSuffix(syllableComponent, wylieChar):
+                return False
+            self.modSyllableStructure(syllable,
+                                      syllableComponent,
+                                      wylieChar)
         return True
 
     def partitionToWylie(self, syllable):
