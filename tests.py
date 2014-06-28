@@ -139,7 +139,7 @@ class SanskritGenerationTest(unittest.TestCase):
     # TODO: find counter case
     def test_hksmlvryam(self):
         uni = '\u0f67' + '\u0fb9' + '\u0fa8' + '\u0fb3' + '\u0fba' + \
-            '\u0fbc' + '\u0fbb' + '\u0f83' + '\u0f0b'
+            '\u0fbc' + '\u0fbb' + '\u0f83'
         self.s.wylie = 'hkṣmlvryaṃ'
         self.analyzeAndCheck(uni)
 

@@ -90,9 +90,9 @@ U_SYMBOLS = (S_SHAD, S_NYIS_SHAD, )
 SUPER = (W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27], )
 
 # Valid characters for subjoined wylie
-# ['y', 'r', 'l', 'w']
-SUB = (W_ROOTLETTERS[23], W_ROOTLETTERS[24],
-       W_ROOTLETTERS[25], W_ROOTLETTERS[19], )
+# ['w', 'y', 'r', 'l']
+SUB = (W_ROOTLETTERS[19], W_ROOTLETTERS[23], W_ROOTLETTERS[24],
+       W_ROOTLETTERS[25], )
 
 # Valid characters for wylie prefixes
 # ['g', 'd', 'b', 'm', '\'']
@@ -187,7 +187,10 @@ POSTVOWEL = ('suffix',
 SYLLSTRUCT = PREVOWEL + POSTVOWEL
 
 SUBOFFSET = 0x50
-STACKED_YA_RA_OFFSET = SUBOFFSET + 0x0a
+STACK = {
+    'v': '\u0fba',
+    'y': '\u0fbb',
+    'r': '\u0fbc'}
 
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
