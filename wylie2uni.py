@@ -254,7 +254,7 @@ class Translator(object):
         if wylieLetters is None:
             return False
 
-        syllable.clear()
+        syllable.clearUnicode()
 
         if len(wylieLetters) == 1:
             self.singleWylieLetter(syllable, wylieLetters)
@@ -295,8 +295,7 @@ class Translator(object):
         if wylieLetters is None:
             return False
 
-        # TODO signify importance of this line
-        syllable.clear()
+        syllable.clearUnicode()
 
         if len(wylieLetters) == 1:
             self.singleWylieLetter(syllable, wylieLetters)
@@ -341,7 +340,7 @@ class Translator(object):
         if letters.index(letter) < len(letters)-2:
             return tables.STACK[letter]
 
-        for regex in tables.SW_REGEX:
+        for regex in tables.SW_REGEX[letter]:
             r = re.compile(regex)
 
             if r.search(''.join(letters)):
@@ -361,6 +360,7 @@ class Translator(object):
         unicodeString = []
         litteral_va = tables.SW_ROOTLETTERS[28]
         litteral_ba = tables.W_ROOTLETTERS[14]
+        litteral_rv = tables.SW_ROOTLETTERS[26] + tables.SW_ROOTLETTERS[28]
 
         for stack in letterStacks:
             if stack[0] in self.explicitSanskritVowels:
@@ -371,15 +371,18 @@ class Translator(object):
             else:
                 unicodeString.append(self.toUnicode(stack[0], True))
 
-            stack = stack[1:]
+            shortStack = stack[1:]
 
-            for letter in stack:
+            for letter in shortStack:
                 if letter is self.wylie_vowel_a:
                     continue
                 elif self.isSnaLdan(syllable, letter):
                     unicodeString.append(tables.S_SNA_LDAN)
                 elif letter in tables.SW_VOWELS:
                     unicodeString.append(self.toUnicode(letter, True))
+                elif ''.join(stack[:2]) == litteral_rv:
+                    letter = litteral_ba
+                    unicodeString.append(self.toSubjoinedUnicode(letter, True))
                 elif self.potentialSubjoin(letter):
                     unicodeResult = self.handleSanskritSubjoin(letter, stack)
                     unicodeString.append(unicodeResult)
@@ -561,7 +564,7 @@ class Syllable(object):
     def tsheg(self):
         self.uni = ''.join([self.uni, tables.S_TSHEG])
 
-    def clear(self):
+    def clearUnicode(self):
         self.uni = ''
 
         for s in tables.SYLLSTRUCT:

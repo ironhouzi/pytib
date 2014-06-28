@@ -165,8 +165,8 @@ PREFIX_GA = ''.join([W_ROOTLETTERS[2], '.'])
 
 SUPER_RULES = (RAGO_ROOTLETTERS, LAGO_ROOTLETTERS, SAGO_ROOTLETTERS, )
 
-SUB_RULES = (YATA_ROOTLETTERS, RATA_ROOTLETTERS,
-             LATA_ROOTLETTERS, WAZUR_ROOTLETTERS, )
+SUB_RULES = (WAZUR_ROOTLETTERS, YATA_ROOTLETTERS, RATA_ROOTLETTERS,
+             LATA_ROOTLETTERS, )
 
 
 # Syllable objects have the following structure. The individual elements are
@@ -215,22 +215,23 @@ SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', )
 
 SW_YATA_REGEX = (
     # ya followed by one or two vowels and preceded by kṣ, t, ś, s, h
-    (r'(kṣ|t|ś|s|h)y({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
-    (r'(k|c)yai'),
-    (r'phyv'),
-    (r'(k|d|b|m)y'), )
+    ('(kṣ|t|ś|s|h)y({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    ('(k|c)yai'),
+    ('phyv'),
+    # TODO: handle n.y
+    ('(k|d|b|m|n)y'), )
 
 SW_RATA_REGEX = (
     # ra followed by one or two vowels and preceded by t, th, bh, s
-    (r'(t|th|bh|s)r({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
-    (r'kri'),
-    (r'(kh|k|d|b|m|g|n|p|ph|j)r'), )
+    ('(t|th|bh|s)r({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    ('kri'),
+    ('(kh|k|d|b|m|g|n|p|ph|j)r'), )
 
 SW_WAZUR_REGEX = (
     # va followed by one or two vowels and preceded by t, ḍ, d, dh, ś, s, tr
-    (r'(t|ḍ|d|dh|ś|s|tr)v({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
-    (r'phyv'),
-    (r'(y|j|l|h)v'), )
+    ('(t|ḍ|d|dh|ś|s|tr)v({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    ('phyv'),
+    ('(y|j|l|h)v'), )
 
 SW_REGEX = {
     SW_ROOTLETTERS[28]: SW_WAZUR_REGEX,
