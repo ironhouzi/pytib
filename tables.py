@@ -39,7 +39,7 @@ SW_ROOTLETTERS = (
 # Tibetan Unicode consonants for Tibetan transliteration of Sanskrit
 SU_ROOTLETTERS = (
     U_ROOTLETTERS[0],  U_ROOTLETTERS[1],  U_ROOTLETTERS[2],  '\u0f43',
-    U_ROOTLETTERS[3],  U_ROOTLETTERS[4],  U_ROOTLETTERS[5],  U_ROOTLETTERS[6],
+    U_ROOTLETTERS[3],  U_ROOTLETTERS[4],  U_ROOTLETTERS[5],  U_ROOTLETTERS[18],
     '\u0f5c',          U_ROOTLETTERS[7],  '\u0f4a',          '\u0f4b',
     '\u0f4c',          '\u0f4d',          '\u0f4e',          U_ROOTLETTERS[8],
     U_ROOTLETTERS[9],  U_ROOTLETTERS[10], '\u0f52',          U_ROOTLETTERS[11],
@@ -187,10 +187,12 @@ POSTVOWEL = ('suffix',
 SYLLSTRUCT = PREVOWEL + POSTVOWEL
 
 SUBOFFSET = 0x50
+
+# Normal stacking without subjoining for: 'va', 'ya', 'ra'
 STACK = {
-    'v': '\u0fba',
-    'y': '\u0fbb',
-    'r': '\u0fbc'}
+    SW_ROOTLETTERS[28]: '\u0fba',
+    SW_ROOTLETTERS[25]: '\u0fbb',
+    SW_ROOTLETTERS[26]: '\u0fbc'}
 
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
@@ -211,51 +213,29 @@ S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb', )
 
 SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', )
 
-SW_YATA_CASES = (
-    ('kṣy$'),
-    ('ty$'),
-    ('śy$'),
-    ('hy$'),
-    ('sy$'),
-    ('kyai'),
-    ('cyai'),
-    ('phyv'),
-    ('ky'),
-    ('dy'),
-    ('by'),
-    ('my'), )
+SW_YATA_REGEX = (
+    # ya followed by one or two vowels and preceded by kṣ, t, ś, s, h
+    (r'(kṣ|t|ś|s|h)y({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    (r'(k|c)yai'),
+    (r'phyv'),
+    (r'(k|d|b|m)y'), )
 
-SW_RATA_CASES = (
-    ('tr$'),
-    ('thr$'),
-    ('bhr$'),
-    ('sr$'),
-    ('kri'),
-    ('khr'),
-    ('kr'),
-    ('gr'),
-    ('dr'),
-    ('nr'),
-    ('pr'),
-    ('phr'),
-    ('br'),
-    ('mr'),
-    ('jr'), )
+SW_RATA_REGEX = (
+    # ra followed by one or two vowels and preceded by t, th, bh, s
+    (r'(t|th|bh|s)r({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    (r'kri'),
+    (r'(kh|k|d|b|m|g|n|p|ph|j)r'), )
 
-SW_WAZUR_CASES = (
-    ('ṭv$'),
-    ('ḍv$'),
-    ('tv$'),
-    ('dv$'),
-    ('dhv$'),
-    ('śv$'),
-    ('sv$'),
-    ('trv$'),
-    ('phyv'),
-    ('yv'),
-    ('jv'),
-    ('lv'),
-    ('hv'), )
+SW_WAZUR_REGEX = (
+    # va followed by one or two vowels and preceded by t, ḍ, d, dh, ś, s, tr
+    (r'(t|ḍ|d|dh|ś|s|tr)v({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    (r'phyv'),
+    (r'(y|j|l|h)v'), )
+
+SW_REGEX = {
+    SW_ROOTLETTERS[28]: SW_WAZUR_REGEX,
+    SW_ROOTLETTERS[25]: SW_YATA_REGEX,
+    SW_ROOTLETTERS[26]: SW_RATA_REGEX}
 
 SW_AMBIGOUS = ('ts', 'tsh', 'dz', 'w', 'ny', 'ng', 'sh', )
 

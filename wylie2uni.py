@@ -5,6 +5,7 @@
 '''
 
 import tables
+import re
 from codecs import encode
 from os import urandom
 
@@ -340,8 +341,13 @@ class Translator(object):
         if letters.index(letter) < len(letters)-2:
             return tables.STACK[letter]
 
-        lookup = self.sanskritWylieToUnicode
-        
+        for regex in tables.SW_REGEX:
+            r = re.compile(regex)
+
+            if r.search(''.join(letters)):
+                return self.toSubjoinedUnicode(letter, True)
+
+        return tables.STACK[letter]
 
     def generateSanskritUnicode(self, syllable, letterStacks):
         '''
