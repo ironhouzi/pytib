@@ -209,18 +209,16 @@ S_BASIC_RULES = S_RULES_4 + S_RULES_3 + S_RULES_2
 
 S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb', )
 
-S_DONT_STACK = ('phaṭ', )
-
 SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', )
 
 SW_YATA_CASES = (
-    ('kyai'),
-    ('cyai'),
     ('kṣy$'),
     ('ty$'),
     ('śy$'),
     ('hy$'),
     ('sy$'),
+    ('kyai'),
+    ('cyai'),
     ('phyv'),
     ('ky'),
     ('dy'),
@@ -228,11 +226,12 @@ SW_YATA_CASES = (
     ('my'), )
 
 SW_RATA_CASES = (
-    ('kri'),
     ('tr$'),
     ('thr$'),
     ('bhr$'),
     ('sr$'),
+    ('kri'),
+    ('khr'),
     ('kr'),
     ('gr'),
     ('dr'),
@@ -241,15 +240,9 @@ SW_RATA_CASES = (
     ('phr'),
     ('br'),
     ('mr'),
-    ('jr'),
-    ('khr'), )
+    ('jr'), )
 
 SW_WAZUR_CASES = (
-    ('jv'),
-    ('lv'),
-    ('hv'),
-    ('phyv'),
-    ('yv'),
     ('ṭv$'),
     ('ḍv$'),
     ('tv$'),
@@ -257,7 +250,12 @@ SW_WAZUR_CASES = (
     ('dhv$'),
     ('śv$'),
     ('sv$'),
-    ('trv$'), )
+    ('trv$'),
+    ('phyv'),
+    ('yv'),
+    ('jv'),
+    ('lv'),
+    ('hv'), )
 
 SW_AMBIGOUS = ('ts', 'tsh', 'dz', 'w', 'ny', 'ng', 'sh', )
 

@@ -22,7 +22,7 @@ class Translator(object):
     --------------
     Basic steps for the syllable computation:
         0. Perform initial Sanskrit check.
-        1. Partition into a list of wylie letters: the Syllable.wylie string.
+        1. Partition into a list of wylie letters, the Syllable.wylie string.
         2. Find the vowel position in the list.
         3. Define the syllable components (prefix, superscribed, etc.) for all
             letters before the vowel.
@@ -337,12 +337,11 @@ class Translator(object):
             letter is tables.SW_ROOTLETTERS[28]
 
     def handleSanskritSubjoin(self, letter, letters):
-        # if letters.index(letter) >= len(letters)-2:
-            # pass
-        # else:
-        #     lookup = self.sanskritWylieToUnicode
+        if letters.index(letter) < len(letters)-2:
+            return tables.STACK[letter]
 
-        return tables.STACK[letter]
+        lookup = self.sanskritWylieToUnicode
+        
 
     def generateSanskritUnicode(self, syllable, letterStacks):
         '''
@@ -374,8 +373,6 @@ class Translator(object):
                 elif self.isSnaLdan(syllable, letter):
                     unicodeString.append(tables.S_SNA_LDAN)
                 elif letter in tables.SW_VOWELS:
-                    unicodeString.append(self.toUnicode(letter, True))
-                elif syllable.wylie in tables.S_DONT_STACK:
                     unicodeString.append(self.toUnicode(letter, True))
                 elif self.potentialSubjoin(letter):
                     unicodeResult = self.handleSanskritSubjoin(letter, stack)
