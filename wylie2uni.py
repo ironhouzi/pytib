@@ -179,7 +179,7 @@ class Translator(object):
         self.modSyllableStructure(syllable, 'vowel', wylieLetters[2])
 
     def vowelAtFourthPosition(self, syllable, wylieLetters):
-        if self.isIrregular(3, wylieLetters):
+        if self.isIrregularSubjoin(3, wylieLetters):
             self.modSyllableStructure(syllable, 'root',      wylieLetters[0])
             self.modSyllableStructure(syllable, 'subjoined', wylieLetters[1])
             self.modSyllableStructure(syllable, 'secondsub', wylieLetters[2])
@@ -321,16 +321,7 @@ class Translator(object):
         return letter == tables.SW_VOWELS[-2] and \
             syllable.wylie in tables.SNA_LDAN_CASES
 
-    def dzBeforeRa(self, letters, position):
-        return letters[position] is tables.SW_ROOTLETTERS[7] and \
-            len(letters) > position+1 and \
-            letters[position+1] is tables.SW_ROOTLETTERS[26]
-
-    # def vaAfterRa(self, letters, position):
-    #     return letters[position] is tables.SW_ROOTLETTERS[28] and \
-    #         position > 0 and letters[position-1] is tables.SW_ROOTLETTERS[26]
-
-    def potentialSubjoin(self, letter):
+    def potentialSanskritSubjoin(self, letter):
         '''Is letter 'y', 'r' or 'v' ?'''
         return letter is tables.SW_ROOTLETTERS[25] or \
             letter is tables.SW_ROOTLETTERS[26] or \
@@ -349,10 +340,8 @@ class Translator(object):
         return tables.STACK[letter]
 
     def generateSanskritUnicode(self, syllable, letterStacks):
-        '''
-        letters is a list of sanskrit letters, the result of
-        partitionToWylie().
-        '''
+        ''' letters is a list of sanskrit letters, the result of
+        partitionToWylie().  '''
 
         if self.handleOm(syllable):
             return
@@ -364,16 +353,16 @@ class Translator(object):
 
         for stack in letterStacks:
             if stack[0] in self.explicitSanskritVowels:
-                unicodeString.append(tables.U_ROOTLETTERS[-1])
+                unicodeString.append(self.toUnicode(self.wylie_vowel_a, True))
                 unicodeString.append(self.toUnicode(stack[0], True))
             elif stack[0] is litteral_va:
                 unicodeString.append(self.toUnicode(litteral_ba, True))
             else:
                 unicodeString.append(self.toUnicode(stack[0], True))
 
-            shortStack = stack[1:]
+            stackedLetters = stack[1:]
 
-            for letter in shortStack:
+            for letter in stackedLetters:
                 if letter is self.wylie_vowel_a:
                     continue
                 elif self.isSnaLdan(syllable, letter):
@@ -383,7 +372,7 @@ class Translator(object):
                 elif ''.join(stack[:2]) == litteral_rv:
                     letter = litteral_ba
                     unicodeString.append(self.toSubjoinedUnicode(letter, True))
-                elif self.potentialSubjoin(letter):
+                elif self.potentialSanskritSubjoin(letter):
                     unicodeResult = self.handleSanskritSubjoin(letter, stack)
                     unicodeString.append(unicodeResult)
                 else:
@@ -391,7 +380,7 @@ class Translator(object):
 
         syllable.uni = ''.join(unicodeString)
 
-    def isIrregular(self, vowelPosition, wylieLetters):
+    def isIrregularSubjoin(self, vowelPosition, wylieLetters):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
 
         return wylieLetters[vowelPosition-1] == tables.W_ROOTLETTERS[19] \
@@ -419,10 +408,9 @@ class Translator(object):
     def partitionToWylie(self, syllable):
         '''Generates a list of wylie/IAST letters, from which the
         syllable.wylie string is composed of.
-        Checks if the roman character(s)
-        at the end of the wylie/IAST string forms a valid wylie letter and
-        continues backwards through the wylie/ IAST string, until the entire
-        wylie string is partitioned.'''
+        Checks if the roman character(s) at the end of the wylie/IAST string
+        forms a valid wylie letter and continues backwards through the
+        wylie/IAST string, until the entire wylie string is partitioned.'''
 
         alphabet = []
         romanCharacterMax = 3
