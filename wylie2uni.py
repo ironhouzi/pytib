@@ -145,16 +145,7 @@ class Translator(object):
         if not wylieLetters[0] in self.allWylieVowels:
             return False
 
-        if wylieLetters[0] in self.allWylieVowels:
-            if wylieLetters[0] != self.wylie_vowel_a:
-                # For single letter vowels w/o the 'a'. Prepends the vowel with
-                # the 'a' character, to get correct unicode.
-                # TODO  Move to generateWylieUnicode().
-                syllable.wylie = ''.join([self.wylie_vowel_a, wylieLetters[0]])
-                self.modSyllableStructure(syllable, 'root', self.wylie_vowel_a)
-            else:
-                self.modSyllableStructure(syllable, 'root', wylieLetters[0])
-            self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
+        self.modSyllableStructure(syllable, 'root', wylieLetters[0])
 
     def vowelAtSecondPosition(self, syllable, wylieLetters):
         if not self.analyzeBaseCase[1](self, wylieLetters):
@@ -217,15 +208,6 @@ class Translator(object):
         vowelAtFourthPosition,
         vowelAtFifthPosition)
 
-    def singleWylieLetter(self, syllable, wylieLetters):
-        self.modSyllableStructure(syllable, 'root', wylieLetters[0])
-
-        if wylieLetters[0] in self.allWylieVowels:
-            self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
-        else:
-            self.modSyllableStructure(syllable, 'root', self.wylie_vowel_a)
-            self.modSyllableStructure(syllable, 'vowel', wylieLetters[0])
-
     def invalidWylieString(self, syllable):
         if not syllable.wylie.startswith(tables.PREFIX_GA):
             for c in syllable.wylie:
@@ -255,9 +237,6 @@ class Translator(object):
             return False
 
         syllable.clearUnicode()
-
-        if len(wylieLetters) == 1:
-            self.singleWylieLetter(syllable, wylieLetters)
 
         vowelPosition = self.getVowelIndices(wylieLetters)
 
@@ -460,24 +439,30 @@ class Translator(object):
         for syllableComponent in tables.SYLLSTRUCT:
             char = self.getCharacterFor(syllable, syllableComponent)
 
-            if char == self.wylie_vowel_a and syllableComponent != 'root':
+            if not char:
                 continue
 
             newString = [syllable.uni]
 
-            if char:
-                # char == 'g.' ?
-                if char == tables.PREFIX_GA:
-                    char = tables.W_ROOTLETTERS[2]
-                    self.modSyllableStructure(syllable,
-                                              syllableComponent,
-                                              char)
-                if self.needsSubjoin(syllable, syllableComponent):
-                    newString.append(self.toSubjoinedUnicode(char))
-                else:
-                    newString.append(self.toUnicode(char))
+            if char == self.wylie_vowel_a and syllableComponent != 'root':
+                continue
 
-                syllable.uni = ''.join(newString)
+            if char in tables.W_VOWELS and syllableComponent == 'root':
+                newString.append(self.toUnicode(self.wylie_vowel_a))
+
+            # char == 'g.' ?
+            if char == tables.PREFIX_GA:
+                char = tables.W_ROOTLETTERS[2]
+                self.modSyllableStructure(syllable,
+                                          syllableComponent,
+                                          char)
+
+            if self.needsSubjoin(syllable, syllableComponent):
+                newString.append(self.toSubjoinedUnicode(char))
+            else:
+                newString.append(self.toUnicode(char))
+
+            syllable.uni = ''.join(newString)
 
     def isPrefix(self, char):
         return char in tables.PREFIXES
