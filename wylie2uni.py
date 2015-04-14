@@ -8,6 +8,8 @@ import tables
 from codecs import encode
 from os import urandom
 
+# TODO: Handle case where syllable ends with '/' or '//'
+
 
 class Translator(object):
     '''Translates wylie and International Alphabet of Sanskrit Transliteration
