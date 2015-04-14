@@ -208,7 +208,7 @@ S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb', )
 
 S_DONT_STACK = ('phaṭ', )
 
-SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', )
+SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', 'ddhaṃ',)
 
 SW_YATA_CASES = (
     ('k', 'y'),
