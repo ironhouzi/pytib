@@ -59,7 +59,6 @@ class Translator(object):
         self.wylie_vowel_a = tables.W_ROOTLETTERS[-1]
 
     def toUnicode(self, wylieSyllable, isSanskrit=False):
-        lookup = None
         if isSanskrit:
             lookup = self.sanskritWylieToUnicode
         else:
@@ -462,7 +461,6 @@ class Translator(object):
         for uni in unicodeString:
             bytecodes.append('U+{0:04X}'.format(ord(uni)))
         return bytecodes
-
 
 class Syllable(object):
     '''Used to represent a part of a word written in Tibetan wylie, or in the
