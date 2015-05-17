@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from wylie2uni import Translator
-from wylie2uni import Syllable
+from pytib.wylie2uni import Translator
+from pytib.wylie2uni import Syllable
 
 
 class sankritTest(unittest.TestCase):

@@ -1,7 +1,7 @@
 from sys import argv, stdout, stdin, exit
 import click
-import wylie2uni
-import tables
+from pytib.wylie2uni import Translator, Syllable
+from pytib.tables import W_SYMBOLS, U_SYMBOLS, S_TSHEG
 
 @click.command()
 @click.option('--filename', '-f', help='Specify file to read', type=click.File(), nargs=1, default='-')
@@ -12,6 +12,7 @@ def pytib(filename, wyliestring, include, codepoints):
     """ Docstring
     WYLIESTRING can be either a string litteral or a file passed via STDIN or with the -f parameter.
     """
+
     def handle(content):
         syllable.wylie = content.strip()
         translator.analyze(syllable)
@@ -22,9 +23,9 @@ def pytib(filename, wyliestring, include, codepoints):
         translator.analyze(syllable)
         return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
-    translator = wylie2uni.Translator()
-    syllable = wylie2uni.Syllable()
-    symbolLookup = dict(zip(tables.W_SYMBOLS, tables.U_SYMBOLS))
+    translator = Translator()
+    syllable = Syllable()
+    symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
 
     content = wyliestring if wyliestring else filename.read().rstrip()
 
@@ -36,7 +37,7 @@ def pytib(filename, wyliestring, include, codepoints):
     if include:
         print(content)
 
-    print(tables.S_TSHEG.join(result))
+    print(S_TSHEG.join(result))
 
 if __name__ == '__main__':
     pytib()
