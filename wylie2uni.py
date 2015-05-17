@@ -474,7 +474,7 @@ class Syllable(object):
 
     # TODO: implement constraint for length of self.wylie
 
-    def __init__(self, wylieString):
+    def __init__(self, wylieString=''):
         self.wylie = wylieString
         self.uni = ''
         self.structure = dict((key, '') for key in tables.SYLLSTRUCT)

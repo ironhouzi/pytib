@@ -7,8 +7,11 @@ import tables
 @click.option('--filename', '-f', help='Specify file to read', type=click.File(), nargs=1, default='-')
 @click.option('--include', '-i', help='Include input in printout', is_flag=True)
 @click.option('--codepoints', '-c', help='Print Unicode values', is_flag=True)
-@click.argument('string', required=False)
-def pytib(filename, string, include, codepoints):
+@click.argument('wyliestring', required=False)
+def pytib(filename, wyliestring, include, codepoints):
+    """ Docstring
+    WYLIESTRING can be either a string litteral or a file passed via STDIN or with the -f parameter.
+    """
     def handle(content):
         syllable.wylie = content.strip()
         translator.analyze(syllable)
@@ -20,10 +23,10 @@ def pytib(filename, string, include, codepoints):
         return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
     translator = wylie2uni.Translator()
-    syllable = wylie2uni.Syllable('')
+    syllable = wylie2uni.Syllable()
     symbolLookup = dict(zip(tables.W_SYMBOLS, tables.U_SYMBOLS))
 
-    content = string if string else filename.read().rstrip()
+    content = wyliestring if wyliestring else filename.read().rstrip()
 
     if codepoints:
         result = [codepoint(word) for word in content.split()]
