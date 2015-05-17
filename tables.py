@@ -39,7 +39,7 @@ SW_ROOTLETTERS = (
 # Tibetan Unicode consonants for Tibetan transliteration of Sanskrit
 SU_ROOTLETTERS = (
     U_ROOTLETTERS[0],  U_ROOTLETTERS[1],  U_ROOTLETTERS[2],  '\u0f43',
-    U_ROOTLETTERS[3],  U_ROOTLETTERS[4],  U_ROOTLETTERS[5],  U_ROOTLETTERS[6],
+    U_ROOTLETTERS[3],  U_ROOTLETTERS[4],  U_ROOTLETTERS[5],  U_ROOTLETTERS[18],
     '\u0f5c',          U_ROOTLETTERS[7],  '\u0f4a',          '\u0f4b',
     '\u0f4c',          '\u0f4d',          '\u0f4e',          U_ROOTLETTERS[8],
     U_ROOTLETTERS[9],  U_ROOTLETTERS[10], '\u0f52',          U_ROOTLETTERS[11],
@@ -90,9 +90,9 @@ U_SYMBOLS = (S_SHAD, S_NYIS_SHAD, )
 SUPER = (W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27], )
 
 # Valid characters for subjoined wylie
-# ['y', 'r', 'l', 'w']
-SUB = (W_ROOTLETTERS[23], W_ROOTLETTERS[24],
-       W_ROOTLETTERS[25], W_ROOTLETTERS[19], )
+# ['w', 'y', 'r', 'l']
+SUB = (W_ROOTLETTERS[19], W_ROOTLETTERS[23], W_ROOTLETTERS[24],
+       W_ROOTLETTERS[25], )
 
 # Valid characters for wylie prefixes
 # ['g', 'd', 'b', 'm', '\'']
@@ -165,8 +165,8 @@ PREFIX_GA = ''.join([W_ROOTLETTERS[2], '.'])
 
 SUPER_RULES = (RAGO_ROOTLETTERS, LAGO_ROOTLETTERS, SAGO_ROOTLETTERS, )
 
-SUB_RULES = (YATA_ROOTLETTERS, RATA_ROOTLETTERS,
-             LATA_ROOTLETTERS, WAZUR_ROOTLETTERS, )
+SUB_RULES = (WAZUR_ROOTLETTERS, YATA_ROOTLETTERS, RATA_ROOTLETTERS,
+             LATA_ROOTLETTERS, )
 
 
 # Syllable objects have the following structure. The individual elements are
@@ -187,7 +187,12 @@ POSTVOWEL = ('suffix',
 SYLLSTRUCT = PREVOWEL + POSTVOWEL
 
 SUBOFFSET = 0x50
-STACKED_YA_RA_OFFSET = SUBOFFSET + 0x0a
+
+# Normal stacking without subjoining for: 'va', 'ya', 'ra'
+STACK = {
+    SW_ROOTLETTERS[28]: '\u0fba',
+    SW_ROOTLETTERS[25]: '\u0fbb',
+    SW_ROOTLETTERS[26]: '\u0fbc'}
 
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
@@ -210,51 +215,30 @@ S_DONT_STACK = ('phaṭ', )
 
 SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', 'ddhaṃ', )
 
-SW_YATA_CASES = (
-    ('k', 'y'),
-    ('d', 'y'),
-    ('b', 'y'),
-    ('m', 'y'),
-    ('k', 'y', 'ai'),
-    ('c', 'y', 'ai'),
-    ('ph', 'y', 'v'),
-    ('t', 'y', '$'),
-    ('ś', 'y', '$'),
-    ('h', 'y', '$'),
-    ('kṣ', 'y', '$'),
-    ('s', 'y', '$'), )
+SW_YATA_REGEX = (
+    # ya followed by one or two vowels and preceded by kṣ, t, ś, s, h
+    ('(kṣ|t|ś|s|h)y({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    ('(k|c)yai'),
+    ('phyv'),
+    # TODO: handle n.y
+    ('(k|d|b|m|n)y'), )
 
-SW_RATA_CASES = (
-    ('k', 'r'),
-    ('g', 'r'),
-    ('d', 'r'),
-    ('n', 'r'),
-    ('p', 'r'),
-    ('ph', 'r'),
-    ('b', 'r'),
-    ('m', 'r'),
-    ('dz', 'r'),
-    ('k', 'r', 'i'),
-    ('kh', 'r'),
-    ('t', 'r', '$'),
-    ('th', 'r', '$'),
-    ('bh', 'r', '$'),
-    ('s', 'r', '$'), )
+SW_RATA_REGEX = (
+    # ra followed by one or two vowels and preceded by t, th, bh, s
+    ('(t|th|bh|s)r({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    ('kri'),
+    ('(kh|k|d|b|m|g|n|p|ph|j)r'), )
 
-SW_WAZUR_CASES = (
-    ('j', 'v'),
-    ('ph', 'y', 'v'),
-    ('y', 'v'),
-    ('ṭ', 'v', '$'),
-    ('ḍ', 'v', '$'),
-    ('t', 'v', '$'),
-    ('l', 'v'),
-    ('h', 'v'),
-    ('d', 'v', '$'),
-    ('dh', 'v', '$'),
-    ('ś', 'v', '$'),
-    ('s', 'v', '$'),
-    ('t', 'r', 'v', '$'), )
+SW_WAZUR_REGEX = (
+    # va followed by one or two vowels and preceded by t, ḍ, d, dh, ś, s, tr
+    ('(t|ḍ|d|dh|ś|s|tr)v({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
+    ('phyv'),
+    ('(y|j|l|h)v'), )
+
+SW_REGEX = {
+    SW_ROOTLETTERS[28]: SW_WAZUR_REGEX,
+    SW_ROOTLETTERS[25]: SW_YATA_REGEX,
+    SW_ROOTLETTERS[26]: SW_RATA_REGEX}
 
 SW_AMBIGOUS = ('ts', 'tsh', 'dz', 'w', 'ny', 'ng', 'sh', )
 
