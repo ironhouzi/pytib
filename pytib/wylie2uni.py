@@ -262,6 +262,7 @@ class Translator(object):
         syllable.clearUnicode()
 
         if len(wylieLetters) == 1:
+            # TODO: fix missing method!
             self.singleWylieLetter(syllable, wylieLetters)
 
         vowelIndices = self.getVowelIndices(wylieLetters, True)

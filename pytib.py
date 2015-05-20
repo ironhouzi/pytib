@@ -14,7 +14,10 @@ def pytib(filename, wyliestring, include, codepoints):
     """
 
     def handle(content):
-        syllable.wylie = content.strip()
+        if content in W_SYMBOLS:
+            return symbolLookup[content]
+
+        syllable.wylie = content
         translator.analyze(syllable)
         return syllable.uni
 
@@ -27,17 +30,22 @@ def pytib(filename, wyliestring, include, codepoints):
     syllable = Syllable()
     symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
 
-    content = wyliestring if wyliestring else filename.read().rstrip()
+    content = wyliestring if wyliestring else filename.read()
 
     if codepoints:
-        result = [codepoint(word) for word in content.split()]
+        content = content.split('\n')
+        result = [codepoint(word) for line in content for word in line.split()]
     else:
-        result = [handle(word) for word in content.split()]
+        lines = [line.split() for line in content.rstrip().split('\n')]
+        tib_lines = [list(map(handle, line)) for line in lines]
+        shads = [line.pop() if line[-1] in U_SYMBOLS else '' for line in tib_lines]
+        translated_lines = [S_TSHEG.join(words) for words in tib_lines]
+        result = '\n'.join(''.join(line) for line in zip(translated_lines, shads))
 
     if include:
         print(content)
 
-    print(S_TSHEG.join(result))
+    print(result)
 
 if __name__ == '__main__':
     pytib()
