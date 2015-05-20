@@ -1,7 +1,7 @@
 from sys import argv, stdout, stdin, exit
 import click
 from pytib.wylie2uni import Translator, Syllable
-from pytib.tables import W_SYMBOLS, U_SYMBOLS, S_TSHEG
+from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG
 
 @click.command()
 @click.option('--filename', '-f', help='Specify file to read', type=click.File(), nargs=1, default='-')
@@ -27,6 +27,9 @@ def pytib(filename, wyliestring, include, codepoints):
         translator.analyze(syllable)
         return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
+    def not_tibetan(word):
+        return word in U_SYMBOLS or 0xf00 < ord(word[0]) > 0x0fff
+
     translator = Translator()
     syllable = Syllable()
     symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
@@ -37,10 +40,10 @@ def pytib(filename, wyliestring, include, codepoints):
         content = content.split('\n')
         result = [codepoint(word) for line in content for word in line.split()]
     else:
-        lines = [line.split() for line in content.rstrip().split('\n')]
+        lines = [line.split() for line in content.rstrip().splitlines()]
         tib_lines = [list(map(handle, line)) for line in lines]
-        shads = [line.pop() if line[-1] in U_SYMBOLS else '' for line in tib_lines]
-        translated_lines = [S_TSHEG.join(words) for words in tib_lines]
+        shads = [words.pop() if not_tibetan(words[-1]) else '' for words in tib_lines]
+        translated_lines = [TSHEG.join(words) for words in tib_lines]
         result = '\n'.join(''.join(line) for line in zip(translated_lines, shads))
 
     if include:
