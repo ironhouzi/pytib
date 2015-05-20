@@ -17,9 +17,10 @@ def pytib(filename, wyliestring, include, codepoints):
         if content in W_SYMBOLS:
             return symbolLookup[content]
 
+        syllable.uni = ''
         syllable.wylie = content
         translator.analyze(syllable)
-        return syllable.uni
+        return syllable.uni if syllable.uni else syllable.wylie
 
     def codepoint(content):
         syllable.wylie = content.strip()
