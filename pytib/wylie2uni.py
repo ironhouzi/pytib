@@ -521,7 +521,7 @@ class Syllable(object):
         return self.wylie
 
     def tsheg(self):
-        self.uni = ''.join([self.uni, S_TSHEG])
+        self.uni = ''.join([self.uni, TSHEG])
 
     def clearUnicode(self):
         self.uni = ''

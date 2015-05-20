@@ -74,7 +74,7 @@ U_OM = 'oṃ'
 U_STACKED_YA = '\u0fbb'
 U_STACKED_RA = '\u0fbc'
 
-S_TSHEG = '\u0f0b'
+TSHEG = '\u0f0b'
 S_SPACE = '\u00a0'
 S_SHAD = '\u0f0d'
 S_NYIS_SHAD = '\u0f0e'
