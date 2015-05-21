@@ -1,27 +1,34 @@
 from sys import argv, stdout, stdin, exit
 import click
+import logging
 from pytib.wylie2uni import Translator, Syllable
 from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG, W_VOWELS
+
 
 @click.command()
 @click.option('--filename', '-f', help='Specify file to read', type=click.File(), nargs=1, default='-')
 @click.option('--include', '-i', help='Include input in printout', is_flag=True)
 @click.option('--codepoints', '-c', help='Print Unicode values', is_flag=True)
-@click.option('--schol', '-s', help='Use polyglotta translitteration', is_flag=True)
+@click.option('--schol', '-s', help='Use polyglotta transliteration', is_flag=True)
 @click.argument('wyliestring', required=False)
 def pytib(filename, wyliestring, include, codepoints, schol):
     """ Docstring
-    WYLIESTRING can be either a string litteral or a file passed via STDIN or with the -f parameter.
+    WYLIESTRING can be either a string literal or a file passed via STDIN or with the -f parameter.
     """
 
     def handle(content):
         if content in W_SYMBOLS:
             return symbolLookup[content]
 
-        syllable.uni = ''
+        syllable.clearUnicode()
         syllable.wylie = content
         translator.analyze(syllable)
-        return syllable.uni if syllable.uni else syllable.wylie
+
+        if syllable.uni:
+            return syllable.uni 
+        else:
+            logging.warning("Could not parse: %s", syllable.wylie)
+            return syllable.wylie
 
     def codepoint(content):
         syllable.wylie = content.strip()
@@ -32,22 +39,10 @@ def pytib(filename, wyliestring, include, codepoints, schol):
         return word in U_SYMBOLS or 0xf00 < ord(word[0]) > 0x0fff
 
     if schol:
-        # Schol/latin consonants
-        table = (
-            'k',  'kh',  'g',  'ṅ',
-            'c',  'ch',  'j',  'ñ',
-            't',  'th',  'd',  'n',
-            'p',  'ph',  'b',  'm',
-            'ts', 'tsh', 'dz', 'v',
-            'ź',  'z',   '\’',  'y',
-            'r',  'l',   'ś',  's',
-            'h',  'a', )
-        translator = Translator(latin_table=(table + W_VOWELS))
         global W_SYMBOLS
         W_SYMBOLS = ('|', '||', )
-    else:
-        translator = Translator()
 
+    translator = Translator()
     syllable = Syllable()
     symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
 

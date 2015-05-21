@@ -12,7 +12,7 @@ class sankritTest(unittest.TestCase):
 
     def test_sanskrit(self):
         t = Translator()
-        s = Syllable('')
+        s = Syllable()
         for d in self.defFile:
             s.wylie = d.strip()
             self.assertTrue(t.isSanskrit(s) or not t.analyzeWylie(s))
@@ -46,7 +46,7 @@ class wylieTest(unittest.TestCase):
 
     def test_assorted(self):
         t = Translator()
-        s = Syllable('')
+        s = Syllable()
         for i, d in enumerate(self.w_defs):
             s.wylie = d
             t.analyze(s)
@@ -109,6 +109,11 @@ class SanskritGenerationTest(unittest.TestCase):
     def test_mandal(self):
         uni = '\u0f58' + '\u0f53' + '\u0f9c' + '\u0f63'
         wylie = 'manḍal'
+        self.analyzeAndCheck(uni, wylie)
+
+    def test_sanskrit_tib_genitive(self):
+        uni = '\u0F64' + '\u0F71' + '\u0F40' + '\u0FB1' + '\u0F60' + '\u0F72'
+        wylie = "śākya'i"
         self.analyzeAndCheck(uni, wylie)
 
     # TODO: find counter case

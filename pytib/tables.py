@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 # TODO remove utf8 requirement for this file
 
-# Wylie/latin consonants
+# Schol/latin consonants
 W_ROOTLETTERS = (
     'k',  'kh',  'g',  'ṅ',
     'c',  'ch',  'j',  'ñ',
     't',  'th',  'd',  'n',
     'p',  'ph',  'b',  'm',
     'ts', 'tsh', 'dz', 'v',
-    'ź',  'z',   '\’', 'y',
+    'ź',  'z',   '’', 'y',
     'r',  'l',   'ś',  's',
     'h',  'a', )
+
+# # Wylie/latin consonants
 # W_ROOTLETTERS = (
 #     'k',  'kh',  'g',  'ng',
 #     'c',  'ch',  'j',  'ny',
@@ -248,6 +250,9 @@ SW_REGEX = {
     SW_ROOTLETTERS[28]: SW_WAZUR_REGEX,
     SW_ROOTLETTERS[25]: SW_YATA_REGEX,
     SW_ROOTLETTERS[26]: SW_RATA_REGEX}
+
+S_ACHUNG = W_ROOTLETTERS[22]
+U_ACHUNG = U_ROOTLETTERS[22]
 
 SW_AMBIGOUS = ('ts', 'tsh', 'dz', 'w', 'ny', 'ng', 'sh', )
 
