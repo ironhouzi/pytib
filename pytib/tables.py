@@ -3,14 +3,23 @@
 
 # Wylie/latin consonants
 W_ROOTLETTERS = (
-    'k',  'kh',  'g',  'ng',
-    'c',  'ch',  'j',  'ny',
+    'k',  'kh',  'g',  'ṅ',
+    'c',  'ch',  'j',  'ñ',
     't',  'th',  'd',  'n',
     'p',  'ph',  'b',  'm',
-    'ts', 'tsh', 'dz', 'w',
-    'zh', 'z',   '\'', 'y',
-    'r',  'l',   'sh', 's',
+    'ts', 'tsh', 'dz', 'v',
+    'ź',  'z',   '\’', 'y',
+    'r',  'l',   'ś',  's',
     'h',  'a', )
+# W_ROOTLETTERS = (
+#     'k',  'kh',  'g',  'ng',
+#     'c',  'ch',  'j',  'ny',
+#     't',  'th',  'd',  'n',
+#     'p',  'ph',  'b',  'm',
+#     'ts', 'tsh', 'dz', 'w',
+#     'zh', 'z',   '\'', 'y',
+#     'r',  'l',   'sh', 's',
+#     'h',  'a', )
 
 # Tibetan Unicode consonants
 U_ROOTLETTERS = (
@@ -26,15 +35,15 @@ U_ROOTLETTERS = (
 # Latin consonants for transliteration of sanskrit (IAST)
 # TODO: replace char litterals with codepoints.
 SW_ROOTLETTERS = (
-    W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],  'gh',
-    'ṅ',               W_ROOTLETTERS[4],  W_ROOTLETTERS[5],  W_ROOTLETTERS[6],
-    'jh',              'ñ',               'ṭ',               'ṭh',
-    'ḍ',               'ḍh',              'ṇ',               W_ROOTLETTERS[8],
-    W_ROOTLETTERS[9],  W_ROOTLETTERS[10], 'dh',              W_ROOTLETTERS[11],
-    W_ROOTLETTERS[12], W_ROOTLETTERS[13], W_ROOTLETTERS[14], 'bh',
-    W_ROOTLETTERS[15], W_ROOTLETTERS[23], W_ROOTLETTERS[24], W_ROOTLETTERS[25],
-    'v',               'ś',               'ṣ',               W_ROOTLETTERS[27],
-    W_ROOTLETTERS[28], 'kṣ', )
+    'k',  'kh', 'g',  'gh',
+    'ṅ',  'c',  'ch', 'j',
+    'jh', 'ñ',  'ṭ',  'ṭh',
+    'ḍ',  'ḍh', 'ṇ',  't',
+    'th', 'd',  'dh', 'n',
+    'p',  'ph', 'b',  'bh',
+    'm',  'y',  'r',  'l',
+    'v',  'ś',  'ṣ',  's',
+    'h', 'kṣ', )
 
 # Tibetan Unicode consonants for Tibetan transliteration of Sanskrit
 SU_ROOTLETTERS = (

@@ -6,8 +6,11 @@
 
 from pytib.tables import *
 import re
+import logging
 from codecs import encode
 from os import urandom
+
+logging.basicConfig(filename='wylie2uni.log', level=logging.DEBUG)
 
 # TODO: Handle case where syllable ends with '/' or '//'
 
@@ -42,13 +45,14 @@ class Translator(object):
     will be classified as Sanskrit if analyzeWylie() returns False.
     '''
 
-    def __init__(self):
-        wTable = (W_ROOTLETTERS + W_VOWELS)
-        uTable = (U_ROOTLETTERS + U_VOWELS)
-        swTable = (SW_ROOTLETTERS + SW_VOWELS)
-        suTable = (SU_ROOTLETTERS + SU_VOWELS)
-        self.wylieToUnicode = dict(zip(wTable, uTable))
-        self.sanskritWylieToUnicode = dict(zip(swTable, suTable))
+    def __init__(self,
+                 latin_table=(W_ROOTLETTERS + W_VOWELS),
+                 latin_sanskrit_table=(SW_ROOTLETTERS + SW_VOWELS)):
+
+        u_table = (U_ROOTLETTERS + U_VOWELS)
+        su_table = (SU_ROOTLETTERS + SU_VOWELS)
+        self.wylieToUnicode = dict(zip(latin_table, u_table))
+        self.sanskritWylieToUnicode = dict(zip(latin_sanskrit_table, su_table))
         self.validSuperjoinedList = dict(zip(SUPER, SUPER_RULES))
         self.validSubjoinedList = dict(zip(SUB, SUB_RULES))
         self.allWylieVowels = (W_VOWELS + (W_ROOTLETTERS[-1],))
@@ -206,7 +210,7 @@ class Translator(object):
 
         if not syllable.isSanskrit:
             syllable.isSanskrit = not self.analyzeWylie(syllable)
-
+# TODO: cleanup logic
         if syllable.isSanskrit:
             self.analyzeSanskrit(syllable)
         else:
@@ -229,6 +233,12 @@ class Translator(object):
             return False
 
         vowelPosition = vowelPosition[0]
+
+        if vowelPosition >= len(self.analyzeSyllable):
+            logging.warning("Oversized vowel position: %d for «%s»",
+                            vowelPosition, syllable.wylie)
+            return False
+
         res = self.analyzeSyllable[vowelPosition](self, syllable, wylieLetters)
 
         if res == self.errorVal:
@@ -263,7 +273,8 @@ class Translator(object):
 
         if len(wylieLetters) == 1:
             # TODO: fix missing method!
-            self.singleWylieLetter(syllable, wylieLetters)
+            return False
+            # self.singleWylieLetter(syllable, wylieLetters)
 
         vowelIndices = self.getVowelIndices(wylieLetters, True)
 
@@ -377,12 +388,9 @@ class Translator(object):
         forms a valid wylie letter and continues backwards through the
         wylie/IAST string, until the entire wylie string is partitioned.'''
 
-        alphabet = []
-        romanCharacterMax = 3
 
         if syllable.isSanskrit:
             alphabet = SW_ROOTLETTERS + SW_VOWELS
-            romanCharacterMax = 2
         else:
             alphabet = W_ROOTLETTERS + W_VOWELS
 
@@ -390,7 +398,7 @@ class Translator(object):
         wylieSyllable = syllable.wylie
 
         while len(wylieSyllable) != 0:
-            for i in range(romanCharacterMax, 0, -1):
+            for i in range(max(map(len, alphabet)), 0, -1):
                 part = wylieSyllable[:i]
 
                 if part == '':
