@@ -5,22 +5,6 @@ from pytib.wylie2uni import Translator
 from pytib.wylie2uni import Syllable
 
 
-class sankritTest(unittest.TestCase):
-
-    def setUp(self):
-        self.defFile = open('resources/sanskrit_sample', 'r')
-
-    def test_sanskrit(self):
-        t = Translator()
-        s = Syllable()
-        for d in self.defFile:
-            s.wylie = d.strip()
-            self.assertTrue(t.isSanskrit(s) or not t.analyzeWylie(s))
-
-    def tearDown(self):
-        self.defFile.close()
-
-
 # Rough test. TODO: break up into individual tests.
 class wylieTest(unittest.TestCase):
 

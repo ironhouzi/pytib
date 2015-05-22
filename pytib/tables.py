@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 # TODO remove utf8 requirement for this file
 
-# Schol/latin consonants
-W_ROOTLETTERS = (
-    'k',  'kh',  'g',  'ṅ',
-    'c',  'ch',  'j',  'ñ',
-    't',  'th',  'd',  'n',
-    'p',  'ph',  'b',  'm',
-    'ts', 'tsh', 'dz', 'v',
-    'ź',  'z',   '’', 'y',
-    'r',  'l',   'ś',  's',
-    'h',  'a', )
-
-# # Wylie/latin consonants
+# # Schol/latin consonants
 # W_ROOTLETTERS = (
-#     'k',  'kh',  'g',  'ng',
-#     'c',  'ch',  'j',  'ny',
+#     'k',  'kh',  'g',  'ṅ',
+#     'c',  'ch',  'j',  'ñ',
 #     't',  'th',  'd',  'n',
 #     'p',  'ph',  'b',  'm',
-#     'ts', 'tsh', 'dz', 'w',
-#     'zh', 'z',   '\'', 'y',
-#     'r',  'l',   'sh', 's',
+#     'ts', 'tsh', 'dz', 'v',
+#     'ź',  'z',   '’', 'y',
+#     'r',  'l',   'ś',  's',
 #     'h',  'a', )
+
+# Wylie/latin consonants
+W_ROOTLETTERS = (
+    'k',  'kh',  'g',  'ng',
+    'c',  'ch',  'j',  'ny',
+    't',  'th',  'd',  'n',
+    'p',  'ph',  'b',  'm',
+    'ts', 'tsh', 'dz', 'w',
+    'zh', 'z',   '\'', 'y',
+    'r',  'l',   'sh', 's',
+    'h',  'a', )
 
 # Tibetan Unicode consonants
 U_ROOTLETTERS = (
@@ -207,20 +207,6 @@ STACK = {
 
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
-
-# TODO improve rule string litterals system agnostic, by referrencing to
-#      main rootletters or vowels
-S_RULES_4 = ('phyw', )
-
-# TODO: n.y case needed??
-S_RULES_3 = ('ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye', 'n.y', )
-
-S_RULES_2 = ('gh', 'dh', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr', 'hy', 'ty',
-             'tv', 'tw', 'tz', 'bh', 'ss', )
-
-S_BASIC_RULES = S_RULES_4 + S_RULES_3 + S_RULES_2
-
-S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb', )
 
 S_DONT_STACK = ('phaṭ', )
 
