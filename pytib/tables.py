@@ -96,89 +96,68 @@ W_SYMBOLS = ('/', '//', )
 
 U_SYMBOLS = (S_SHAD, S_NYIS_SHAD, )
 
+def get_chars(indices, alphabet):
+    return tuple([alphabet[index] for index in indices])
+
+def defs(index_groups, char_indices, rootletters):
+    group = get_chars(char_indices, rootletters)
+    rules = tuple([get_chars(indices, rootletters) for indices in index_groups])
+    valid_list = dict(zip(group, rules))
+    return (group, valid_list,)
+
+def suffix_rules(rootletters):
+    suffixes = get_chars(SUFFIXES_I, rootletters)
+    sec_suffixes = get_chars(SUFFIX2S_I, rootletters)
+    return dict(zip(POSTVOWEL, (suffixes, sec_suffixes)))
+
 # Valid characters for superjoined wylie
 # ['r', 'l', 's']
-SUPER = (W_ROOTLETTERS[24], W_ROOTLETTERS[25], W_ROOTLETTERS[27], )
+SUPER_INDICES = (24, 25, 27, )
 
 # Valid characters for subjoined wylie
 # ['w', 'y', 'r', 'l']
-SUB = (W_ROOTLETTERS[19], W_ROOTLETTERS[23], W_ROOTLETTERS[24],
-       W_ROOTLETTERS[25], )
+SUB_INDICES = (19, 23, 24, 25, )
 
 # Valid characters for wylie prefixes
 # ['g', 'd', 'b', 'm', '\'']
-PREFIXES = (W_ROOTLETTERS[2],  W_ROOTLETTERS[10], W_ROOTLETTERS[14],
-            W_ROOTLETTERS[15], W_ROOTLETTERS[22], )
+PREFIXES_I = (2,  10, 14, 15, 22, )
 
 # Valid characters for wylie suffixes
 # ['g', 'ng', 'd', 'n', 'b', 'm', '\'', 'r', 'l', 's']
-SUFFIXES = (W_ROOTLETTERS[2],  W_ROOTLETTERS[3],  W_ROOTLETTERS[10],
-            W_ROOTLETTERS[11], W_ROOTLETTERS[14], W_ROOTLETTERS[15],
-            W_ROOTLETTERS[22], W_ROOTLETTERS[24], W_ROOTLETTERS[25],
-            W_ROOTLETTERS[27], )
+SUFFIXES_I = (2,  3,  10, 11, 14, 15, 22, 24, 25, 27, )
 
 # Valid characters for wylie second suffixes
 # ['s' 'd']
-SUFFIX2S = (W_ROOTLETTERS[27], W_ROOTLETTERS[10], )
+SUFFIX2S_I = (27, 10, )
 
 # Wylie characters that take the 'ra' character as its superjoined letter.
 #  ['k', 'g', 'ng', 'j', 'ny', 't', 'd', 'n', 'b',  'm', 'ts', 'dz']
-RAGO_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[3],
-                    W_ROOTLETTERS[6],  W_ROOTLETTERS[7],  W_ROOTLETTERS[8],
-                    W_ROOTLETTERS[10], W_ROOTLETTERS[11], W_ROOTLETTERS[14],
-                    W_ROOTLETTERS[15], W_ROOTLETTERS[16], W_ROOTLETTERS[18], )
+RAGO_INDICES = (0,  2,  3, 6,  7,  8, 10, 11, 14, 15, 16, 18, )
 
 # Wylie characters that take the 'la' character as its superjoined letter.
 #  ['k', 'g', 'ng', 'c', 'j', 't', 'd', 'p',  'b', 'h']
-LAGO_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[3],
-                    W_ROOTLETTERS[4],  W_ROOTLETTERS[6],  W_ROOTLETTERS[8],
-                    W_ROOTLETTERS[10], W_ROOTLETTERS[12], W_ROOTLETTERS[14],
-                    W_ROOTLETTERS[28], )
+LAGO_INDICES = (0,  2,  3, 4,  6,  8, 10, 12, 14, 28, )
 
 # Wylie characters that take the 'sa' character as its superjoined letter.
 #  ['k', 'g', 'ng', 'ny', 't', 'd', 'n', 'p',  'b',  'm', 'ts']
-SAGO_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[3],
-                    W_ROOTLETTERS[7],  W_ROOTLETTERS[8],  W_ROOTLETTERS[10],
-                    W_ROOTLETTERS[11], W_ROOTLETTERS[12], W_ROOTLETTERS[14],
-                    W_ROOTLETTERS[15], W_ROOTLETTERS[16], )
+SAGO_INDICES = (0,  2,  3, 7,  8,  10, 11, 12, 14, 15, 16, )
 
 # Wylie characters that take the 'ya' character as its subjoined letter.
 #  ['k', 'kh', 'g', 'p', 'ph', 'b', 'm', 'h']
-YATA_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],
-                    W_ROOTLETTERS[12], W_ROOTLETTERS[13], W_ROOTLETTERS[14],
-                    W_ROOTLETTERS[15], W_ROOTLETTERS[28], )
+YATA_INDICES = (0,  1,  2, 12, 13, 14, 15, 28, )
 
 # Wylie characters that take the 'ra' character as its subjoined letter.
 #  ['k', 'kh', 'g', 't', 'th', 'd', 'n', 'p', 'ph', 'b', 'm',  's', 'h']
-RATA_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],
-                    W_ROOTLETTERS[8],  W_ROOTLETTERS[9],  W_ROOTLETTERS[10],
-                    W_ROOTLETTERS[11], W_ROOTLETTERS[12], W_ROOTLETTERS[13],
-                    W_ROOTLETTERS[14], W_ROOTLETTERS[15], W_ROOTLETTERS[27],
-                    W_ROOTLETTERS[28], )
+RATA_INDICES = (0,  1,  2, 8,  9,  10, 11, 12, 13, 14, 15, 27, 28, )
 
 # Wylie characters that take the 'la' character as its subjoined letter.
 #  ['k', 'g', 'b', 'r', 's', 'z']
-LATA_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[2],  W_ROOTLETTERS[14],
-                    W_ROOTLETTERS[24], W_ROOTLETTERS[27], W_ROOTLETTERS[21], )
+LATA_INDICES = (0,  2,  14, 24, 27, 21, )
 
 # Wylie characters that take the 'wa' character as its subjoined letter.
 # ['k', 'kh', 'g', 'c', 'ny', 't', 'd', 'ts', 'tsh', 'zh', 'z', 'r', 'l', 'sh',
 #  's', 'h']
-WAZUR_ROOTLETTERS = (W_ROOTLETTERS[0],  W_ROOTLETTERS[1],  W_ROOTLETTERS[2],
-                     W_ROOTLETTERS[4],  W_ROOTLETTERS[7],  W_ROOTLETTERS[8],
-                     W_ROOTLETTERS[10], W_ROOTLETTERS[16], W_ROOTLETTERS[17],
-                     W_ROOTLETTERS[20], W_ROOTLETTERS[21], W_ROOTLETTERS[24],
-                     W_ROOTLETTERS[25], W_ROOTLETTERS[26], W_ROOTLETTERS[27],
-                     W_ROOTLETTERS[28], )
-
-# 'g.' to define a W_ROOTLETTERS[2] prefix with a 'ya' root letter.
-PREFIX_GA = ''.join([W_ROOTLETTERS[2], '.'])
-
-SUPER_RULES = (RAGO_ROOTLETTERS, LAGO_ROOTLETTERS, SAGO_ROOTLETTERS, )
-
-SUB_RULES = (WAZUR_ROOTLETTERS, YATA_ROOTLETTERS, RATA_ROOTLETTERS,
-             LATA_ROOTLETTERS, )
-
+WAZUR_INDICES = (0,  1,  2, 4,  7,  8, 10, 16, 17, 20, 21, 24, 25, 26, 27, 28, )
 
 # Syllable objects have the following structure. The individual elements are
 # referred to as 'components', or 'syllable components'.
