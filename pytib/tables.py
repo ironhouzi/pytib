@@ -1,17 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO remove utf8 requirement for this file
 
-# # Schol/latin consonants
-# W_ROOTLETTERS = (
-#     'k',  'kh',  'g',  'ṅ',
-#     'c',  'ch',  'j',  'ñ',
-#     't',  'th',  'd',  'n',
-#     'p',  'ph',  'b',  'm',
-#     'ts', 'tsh', 'dz', 'v',
-#     'ź',  'z',   '’', 'y',
-#     'r',  'l',   'ś',  's',
-#     'h',  'a', )
-
 # Wylie/latin consonants
 W_ROOTLETTERS = (
     'k',  'kh',  'g',  'ng',
