@@ -44,21 +44,35 @@ class Translator(object):
     will be classified as Sanskrit if analyzeWylie() returns False.
     '''
 
-    def __init__(self):
-        self.latin_table = (W_ROOTLETTERS + W_VOWELS)
-        self.latin_sanskrit_table = (SW_ROOTLETTERS + SW_VOWELS + (S_ACHUNG,))
+    def __init__(self, consonants=W_ROOTLETTERS, ga_prefix_marker='.'):
+        self.consonants=consonants
+        self.latin_table = (consonants + W_VOWELS)
+        table = (SW_ROOTLETTERS + SW_VOWELS + (consonants[ACHUNG_INDEX],))
+        self.latin_sanskrit_table = table
         u_table = (U_ROOTLETTERS + U_VOWELS)
         su_table = (SU_ROOTLETTERS + SU_VOWELS + (U_ACHUNG,))
 
         self.tibetan = dict(zip(self.latin_table, u_table))
         self.sanskrit = dict(zip(self.latin_sanskrit_table, su_table))
-        self.validSuperjoinedList = dict(zip(SUPER, SUPER_RULES))
-        self.validSubjoinedList = dict(zip(SUB, SUB_RULES))
-        self.validSuffix = dict(zip(POSTVOWEL, (SUFFIXES, SUFFIX2S)))
+        # self.validSuperjoinedList = dict(zip(SUPER, SUPER_RULES))
+        # self.validSubjoinedList = dict(zip(SUB, SUB_RULES))
+        # self.validSuffix = dict(zip(POSTVOWEL, (SUFFIXES, SUFFIX2S)))
 
-        self.allWylieVowels = (W_VOWELS + (W_ROOTLETTERS[-1],))
+        # self.allWylieVowels = (W_VOWELS + (W_ROOTLETTERS[-1],))
+        s = (RAGO_INDICES, LAGO_INDICES, SAGO_INDICES,)
+        self.superjoin, self.validSuperjoin = defs(s, SUPER_INDICES, consonants)
+
+        s = (WAZUR_INDICES, YATA_INDICES, RATA_INDICES, LATA_INDICES, )
+        self.sub, self.validSubjoinedList = defs(s, SUB_INDICES, consonants)
+
+        self.validSuffix = suffix_rules(consonants)
+        self.prefixes = get_chars(PREFIXES_I, consonants)
+
+        self.allWylieVowels = (W_VOWELS + (consonants[-1],))
         self.explicitSanskritVowels = SW_VOWELS[1:]
-        self.wylie_vowel_a = W_ROOTLETTERS[-1]
+        self.wylie_vowel_a = consonants[-1]
+        self.ga_prefix = ''.join([consonants[2], ga_prefix_marker])
+
         self.latin_set = set(self.latin_table)
         self.sanskrit_set = set(self.latin_sanskrit_table)
         self.max_tib_char_len = max(map(len, self.latin_table))
@@ -116,81 +130,81 @@ class Translator(object):
     analyzeBaseCase = (
         None,
         (lambda self, wylieLetters:
-         wylieLetters[0] in W_ROOTLETTERS and
+         wylieLetters[0] in self.consonants and
          wylieLetters[1] in self.allWylieVowels),
-        (lambda _, wylieLetters:
-         wylieLetters[0] == PREFIX_GA or
-         wylieLetters[0] in PREFIXES and
-         wylieLetters[1] in W_ROOTLETTERS),
-        (lambda _, wylieLetters:
-         wylieLetters[0] in SUPER and
-         wylieLetters[1] in W_ROOTLETTERS and
-         wylieLetters[2] in SUB),
-        (lambda _, wylieLetters:
-         wylieLetters[0] in PREFIXES and
-         wylieLetters[1] in SUPER and
-         wylieLetters[2] in W_ROOTLETTERS and
-         wylieLetters[3] in SUB))
+        (lambda self, wylieLetters:
+         wylieLetters[0] == self.ga_prefix or
+         wylieLetters[0] in self.prefixes and
+         wylieLetters[1] in self.consonants),
+        (lambda self, wylieLetters:
+         wylieLetters[0] in self.superjoin and
+         wylieLetters[1] in self.consonants and
+         wylieLetters[2] in self.sub),
+        (lambda self, wylieLetters:
+         wylieLetters[0] in self.prefixes and
+         wylieLetters[1] in self.superjoin and
+         wylieLetters[2] in self.consonants and
+         wylieLetters[3] in self.sub))
 
     def vowelAtFirstPosition(self, syllable, wylieLetters):
         if not wylieLetters[0] in self.allWylieVowels:
             return False
 
-        self.modSyllableStructure(syllable, 'root', wylieLetters[0])
+        syllable.structure['root'] = wylieLetters[0]
 
     def vowelAtSecondPosition(self, syllable, wylieLetters):
         if not self.analyzeBaseCase[1](self, wylieLetters):
             return ERROR
 
-        self.modSyllableStructure(syllable, 'root', wylieLetters[0])
-        self.modSyllableStructure(syllable, 'vowel', wylieLetters[1])
+        syllable.structure['root'] = wylieLetters[0]
+        syllable.structure['vowel'] = wylieLetters[1]
 
     def vowelAtThirdPosition(self, syllable, wylieLetters):
         if self.isSubscribed(wylieLetters, 2):
-            self.modSyllableStructure(syllable, 'root',      wylieLetters[0])
-            self.modSyllableStructure(syllable, 'subjoined', wylieLetters[1])
+            syllable.structure['root'] = wylieLetters[0]
+            syllable.structure['subjoined'] = wylieLetters[1]
         elif self.isSuperscribed(wylieLetters, 2):
-            self.modSyllableStructure(syllable, 'super', wylieLetters[0])
-            self.modSyllableStructure(syllable, 'root',  wylieLetters[1])
+            syllable.structure['super'] = wylieLetters[0]
+            syllable.structure['root'] = wylieLetters[1]
         elif self.analyzeBaseCase[2](self, wylieLetters):
-            self.modSyllableStructure(syllable, 'prefix', wylieLetters[0])
-            self.modSyllableStructure(syllable, 'root',   wylieLetters[1])
+            syllable.structure['prefix'] = wylieLetters[0]
+            syllable.structure['root'] = wylieLetters[1]
         else:
             return ERROR
 
-        self.modSyllableStructure(syllable, 'vowel', wylieLetters[2])
+        syllable.structure['vowel'] = wylieLetters[2]
 
     def vowelAtFourthPosition(self, syllable, wylieLetters):
         if self.isIrregularSubjoin(3, wylieLetters):
-            self.modSyllableStructure(syllable, 'root',      wylieLetters[0])
-            self.modSyllableStructure(syllable, 'subjoined', wylieLetters[1])
-            self.modSyllableStructure(syllable, 'secondsub', wylieLetters[2])
+            syllable.structure['root'] = wylieLetters[0]
+            syllable.structure['subjoined'] = wylieLetters[1]
+            syllable.structure['secondsub'] = wylieLetters[2]
         elif self.isSuperscribed(wylieLetters, 3):
-            self.modSyllableStructure(syllable, 'prefix', wylieLetters[0])
-            self.modSyllableStructure(syllable, 'super',  wylieLetters[1])
-            self.modSyllableStructure(syllable, 'root',   wylieLetters[2])
+            syllable.structure['prefix'] = wylieLetters[0]
+            syllable.structure['super'] = wylieLetters[1]
+            syllable.structure['root'] = wylieLetters[2]
         elif self.isSubscribed(wylieLetters, 3):
-            self.modSyllableStructure(syllable, 'prefix',    wylieLetters[0])
-            self.modSyllableStructure(syllable, 'root',      wylieLetters[1])
-            self.modSyllableStructure(syllable, 'subjoined', wylieLetters[2])
+            syllable.structure['prefix'] = wylieLetters[0]
+            syllable.structure['root'] = wylieLetters[1]
+            syllable.structure['subjoined'] = wylieLetters[2]
         elif self.analyzeBaseCase[3](self, wylieLetters):
-            self.modSyllableStructure(syllable, 'super',     wylieLetters[0])
-            self.modSyllableStructure(syllable, 'root',      wylieLetters[1])
-            self.modSyllableStructure(syllable, 'subjoined', wylieLetters[2])
+            syllable.structure['super'] = wylieLetters[0]
+            syllable.structure['root'] = wylieLetters[1]
+            syllable.structure['subjoined'] = wylieLetters[2]
         else:
             return ERROR
 
-        self.modSyllableStructure(syllable, 'vowel', wylieLetters[3])
+        syllable.structure['vowel'] = wylieLetters[3]
 
     def vowelAtFifthPosition(self, syllable, wylieLetters):
         if not self.analyzeBaseCase[4](self, wylieLetters):
             return ERROR
 
-        self.modSyllableStructure(syllable, 'prefix',    wylieLetters[0])
-        self.modSyllableStructure(syllable, 'super',     wylieLetters[1])
-        self.modSyllableStructure(syllable, 'root',      wylieLetters[2])
-        self.modSyllableStructure(syllable, 'subjoined', wylieLetters[3])
-        self.modSyllableStructure(syllable, 'vowel', wylieLetters[4])
+        syllable.structure['prefix'] = wylieLetters[0]
+        syllable.structure['super'] = wylieLetters[1]
+        syllable.structure['root'] = wylieLetters[2]
+        syllable.structure['subjoined'] = wylieLetters[3]
+        syllable.structure['vowel'] = wylieLetters[4]
 
     analyzeSyllable = (
         vowelAtFirstPosition,
@@ -200,9 +214,9 @@ class Translator(object):
         vowelAtFifthPosition)
 
     def invalidWylieString(self, syllable):
-        if not syllable.wylie.startswith(PREFIX_GA):
+        if not syllable.wylie.startswith(self.ga_prefix):
             for c in syllable.wylie:
-                if c not in W_ROOTLETTERS + W_VOWELS:
+                if c not in self.latin_set:
                     return True
 
         return False
@@ -212,7 +226,7 @@ class Translator(object):
 
         if not syllable.isSanskrit:
             syllable.isSanskrit = not self.analyzeWylie(syllable)
-# TODO: cleanup logic
+        # TODO: cleanup logic
         if syllable.isSanskrit:
             self.analyzeSanskrit(syllable)
         else:
@@ -326,7 +340,7 @@ class Translator(object):
 
         unicodeString = []
         litteral_va = SW_ROOTLETTERS[28]
-        litteral_ba = W_ROOTLETTERS[14]
+        litteral_ba = self.consonants[14]
         litteral_rv = SW_ROOTLETTERS[26] + SW_ROOTLETTERS[28]
 
         for stack in letterStacks:
@@ -361,8 +375,8 @@ class Translator(object):
     def isIrregularSubjoin(self, vowelPosition, wylieLetters):
         '''Checks if the syllable has both 'w' and 'r' as subscribed letters'''
 
-        return wylieLetters[vowelPosition-1] == W_ROOTLETTERS[19] \
-            and wylieLetters[vowelPosition-2] == W_ROOTLETTERS[24]
+        return wylieLetters[vowelPosition-1] == self.consonants[19] \
+            and wylieLetters[vowelPosition-2] == self.consonants[24]
 
     def invalidSuffix(self, component, wylieChar):
         return component in POSTVOWEL[:2] \
@@ -378,9 +392,7 @@ class Translator(object):
             if self.invalidSuffix(syllableComponent, wylieChar):
                 return False
 
-            self.modSyllableStructure(syllable,
-                                      syllableComponent,
-                                      wylieChar)
+            syllable.structure[syllableComponent] = wylieChar
         return True
 
     def partitionToWylie(self, syllable):
@@ -408,9 +420,9 @@ class Translator(object):
                 if part == '':
                     break
 
-                if part == PREFIX_GA or part in alphabet:
+                if part == self.ga_prefix or part in alphabet:
                     wylieLetters.append(part)
-                    wylieSyllable = wylieSyllable[len(part):]
+                    wylieSyllable = wylieSyllable[i:]
 
                 elif i == 1 and part not in alphabet:
                     return None
@@ -418,13 +430,13 @@ class Translator(object):
         return wylieLetters
 
     def validSuperscribe(self, headLetter, rootLetter):
-        if headLetter not in SUPER:
+        if headLetter not in self.superjoin:
             return False
         else:
-            return rootLetter in self.validSuperjoinedList[headLetter]
+            return rootLetter in self.validSuperjoin[headLetter]
 
     def validSubscribe(self, rootLetter, subjoinedLetter):
-        if subjoinedLetter not in SUB:
+        if subjoinedLetter not in self.sub:
             return False
         else:
             return rootLetter in self.validSubjoinedList[subjoinedLetter]
@@ -432,11 +444,11 @@ class Translator(object):
     def needsSubjoin(self, syllable, component):
         return component == 'subjoined' or component == 'secondsub' \
             or (component == 'root'
-                and self.getCharacterFor(syllable, 'super'))
+                and syllable.structure['super'])
 
     def generateWylieUnicode(self, syllable):
         for syllableComponent in SYLLSTRUCT:
-            char = self.getCharacterFor(syllable, syllableComponent)
+            char = syllable.structure[syllableComponent]
 
             if not char:
                 continue
@@ -450,11 +462,9 @@ class Translator(object):
                 newString.append(self.toUnicode(self.wylie_vowel_a))
 
             # char == 'g.' ?
-            if char == PREFIX_GA:
-                char = W_ROOTLETTERS[2]
-                self.modSyllableStructure(syllable,
-                                          syllableComponent,
-                                          char)
+            if char == self.ga_prefix:
+                char = self.consonants[2]
+                syllable.structure[syllableComponent] = char
 
             if self.needsSubjoin(syllable, syllableComponent):
                 newString.append(self.toSubjoinedUnicode(char))
@@ -464,7 +474,7 @@ class Translator(object):
             syllable.uni = ''.join(newString)
 
     def isPrefix(self, char):
-        return char in PREFIXES
+        return char in self.prefixes
 
     def hasAtleastNVowels(self, string, n):
         vowels = (c for c in list(string) if c in self.allWylieVowels)
@@ -476,7 +486,7 @@ class Translator(object):
         return False
 
     def hasNoAChung(self, string):
-        return W_ROOTLETTERS[22] not in string
+        return self.consonants[ACHUNG_INDEX] not in string
 
     def isSanskrit(self, syllable):
         string = syllable.wylie

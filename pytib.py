@@ -25,7 +25,7 @@ def pytib(filename, wyliestring, include, codepoints, schol):
         translator.analyze(syllable)
 
         if syllable.uni:
-            return syllable.uni 
+            return syllable.uni
         else:
             logging.warning("Could not parse: %s", syllable.wylie)
             return syllable.wylie
@@ -39,10 +39,21 @@ def pytib(filename, wyliestring, include, codepoints, schol):
         return word in U_SYMBOLS or 0xf00 < ord(word[0]) > 0x0fff
 
     if schol:
+        # Schol/latin consonants
+        W_ROOTLETTERS = (
+            'k',  'kh',  'g',  'ṅ',
+            'c',  'ch',  'j',  'ñ',
+            't',  'th',  'd',  'n',
+            'p',  'ph',  'b',  'm',
+            'ts', 'tsh', 'dz', 'v',
+            'ź',  'z',   '’', 'y',
+            'r',  'l',   'ś',  's',
+            'h',  'a', )
+
         global W_SYMBOLS
         W_SYMBOLS = ('|', '||', )
 
-    translator = Translator()
+    translator = Translator(W_ROOTLETTERS, '-')
     syllable = Syllable()
     symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
 
