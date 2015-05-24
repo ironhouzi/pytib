@@ -7,6 +7,7 @@
 from pytib.tables import *
 import re
 import logging
+from pytib.partition import partition, generateWylieUnicode
 
 logging.basicConfig(filename='wylie2uni.log', level=logging.DEBUG)
 ERROR = -1
@@ -217,7 +218,8 @@ class Translator(object):
         if syllable.isSanskrit:
             self.analyzeSanskrit(syllable)
         else:
-            self.generateWylieUnicode(syllable)
+            # self.generateWylieUnicode(syllable)
+            generateWylieUnicode(self, syllable)
 
     def analyzeWylie(self, syllable):
         if self.invalidWylieString(syllable):
@@ -399,24 +401,26 @@ class Translator(object):
             if self.consonants[17] not in syllable.wylie:
                 max_char_len -= 1
 
-        wylieLetters = []
-        wylieSyllable = syllable.wylie
+        return partition(syllable.wylie, max_char_len, alphabet, self.ga_prefix)
 
-        while len(wylieSyllable) != 0:
-            for latin_tib_char_len in range(max_char_len, 0, -1):
-                part = wylieSyllable[:latin_tib_char_len]
+        # wylieLetters = []
+        # wylieSyllable = syllable.wylie
 
-                if part == '':
-                    break
+        # while len(wylieSyllable) != 0:
+        #     for latin_tib_char_len in range(max_char_len, 0, -1):
+        #         part = wylieSyllable[:latin_tib_char_len]
 
-                if part == self.ga_prefix or part in alphabet:
-                    wylieLetters.append(part)
-                    wylieSyllable = wylieSyllable[latin_tib_char_len:]
+        #         if part == '':
+        #             break
 
-                elif latin_tib_char_len == 1 and part not in alphabet:
-                    return None
+        #         if part == self.ga_prefix or part in alphabet:
+        #             wylieLetters.append(part)
+        #             wylieSyllable = wylieSyllable[latin_tib_char_len:]
 
-        return wylieLetters
+        #         elif latin_tib_char_len == 1 and part not in alphabet:
+        #             return None
+
+        # return wylieLetters
 
     def validSuperscribe(self, headLetter, rootLetter):
         if headLetter not in self.superjoin:
@@ -435,32 +439,32 @@ class Translator(object):
             or (component == 'root'
                 and syllable.structure['super'])
 
-    def generateWylieUnicode(self, syllable):
-        for syllableComponent in SYLLSTRUCT:
-            char = syllable.structure[syllableComponent]
+    # def generateWylieUnicode(self, syllable):
+    #     for syllableComponent in SYLLSTRUCT:
+    #         char = syllable.structure[syllableComponent]
 
-            if not char:
-                continue
+    #         if not char:
+    #             continue
 
-            if char == self.wylie_vowel_a and syllableComponent != 'root':
-                continue
+    #         if char == self.wylie_vowel_a and syllableComponent != 'root':
+    #             continue
 
-            newString = [syllable.uni]
+    #         newString = [syllable.uni]
 
-            if char in W_VOWELS and syllableComponent == 'root':
-                newString.append(self.toUnicode(self.wylie_vowel_a))
+    #         if char in W_VOWELS and syllableComponent == 'root':
+    #             newString.append(self.toUnicode(self.wylie_vowel_a))
 
-            # char == 'g.' ?
-            if char == self.ga_prefix:
-                char = self.consonants[2]
-                syllable.structure[syllableComponent] = char
+    #         # char == 'g.' ?
+    #         if char == self.ga_prefix:
+    #             char = self.consonants[2]
+    #             syllable.structure[syllableComponent] = char
 
-            if self.needsSubjoin(syllable, syllableComponent):
-                newString.append(self.toSubjoinedUnicode(char))
-            else:
-                newString.append(self.toUnicode(char))
+    #         if self.needsSubjoin(syllable, syllableComponent):
+    #             newString.append(self.toSubjoinedUnicode(char))
+    #         else:
+    #             newString.append(self.toUnicode(char))
 
-            syllable.uni = ''.join(newString)
+    #         syllable.uni = ''.join(newString)
 
     def isPrefix(self, char):
         return char in self.prefixes
