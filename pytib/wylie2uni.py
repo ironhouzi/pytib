@@ -212,7 +212,8 @@ class Translator(object):
 
         return False
 
-    def analyze(self, syllable):
+    def analyze(self, syllable, string):
+        syllable.wylie = string
         syllable.isSanskrit = not self.analyzeWylie(syllable)
 
         if syllable.isSanskrit:
@@ -470,9 +471,8 @@ class Translator(object):
 
         return self.consonants[22] not in string
 
-    def getBytecodes(self, wylieString):
-        syllable = Syllable(wylieString)
-        self.analyze(syllable)
+    def getBytecodes(self, syllable, wylieString):
+        self.analyze(syllable, wylieString)
         return self.unicodeStringToCodes(syllable.uni)
 
     def unicodeStringToCodes(self, unicodeString):

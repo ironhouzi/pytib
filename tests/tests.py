@@ -32,8 +32,7 @@ class wylieTest(unittest.TestCase):
         t = Translator()
         s = Syllable()
         for i, d in enumerate(self.w_defs):
-            s.wylie = d
-            t.analyze(s)
+            t.analyze(s, d)
             s.tsheg()
             self.assertEqual(s.uni, self.u_defs[i])
 
@@ -45,12 +44,14 @@ class BytecodeTest(unittest.TestCase):
 
     def test_bytecode(self):
         t = Translator()
-        bytecodes = t.getBytecodes('bskyongs')
+        syllable = Syllable()
+        bytecodes = t.getBytecodes(syllable, 'bskyongs')
         self.assertEqual(bytecodes, self.correct)
 
     def test_bytecodeError(self):
         t = Translator()
-        bytecodes = t.getBytecodes('skyong')
+        syllable = Syllable()
+        bytecodes = t.getBytecodes(syllable, 'skyong')
         self.assertNotEqual(bytecodes, self.correct)
 
 
@@ -59,8 +60,8 @@ class SanskritGenerationTest(unittest.TestCase):
     t = Translator()
 
     def analyzeAndCheck(self, uni, wylie):
-        s = Syllable(wylie)
-        self.t.analyze(s)
+        s = Syllable()
+        self.t.analyze(s, wylie)
         self.assertEqual(s.uni, uni)
 
     # TODO: find counter case
@@ -115,8 +116,8 @@ class SanskritGenerationTest(unittest.TestCase):
     # TODO: find counter case
     def test_badzra(self):
         uni = '\u0F56' + '\u0F5B' + '\u0FB2'
-        s = Syllable('badzra')
-        self.t.analyze(s)
+        s = Syllable()
+        self.t.analyze(s, 'badzra')
         self.assertNotEqual(s.uni, uni)
 
     # TODO: find counter case
