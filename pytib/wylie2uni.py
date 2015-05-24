@@ -7,7 +7,7 @@
 from pytib.tables import *
 import re
 import logging
-from pytib.partition import partition, generateWylieUnicode
+from pytib.partition import partition
 
 logging.basicConfig(filename='wylie2uni.log', level=logging.DEBUG)
 ERROR = -1
@@ -87,8 +87,8 @@ class Translator(object):
         vowelList = SW_VOWELS if isSanskrit else self.allWylieVowels
         result = []
 
-        for i, char in enumerate(wylieLetters):
-            if char in vowelList:
+        for i, character in enumerate(wylieLetters):
+            if character in vowelList:
 
                 # conjoin adjacent vowels
                 if wylieLetters[i-1] in vowelList and result:
@@ -218,8 +218,7 @@ class Translator(object):
         if syllable.isSanskrit:
             self.analyzeSanskrit(syllable)
         else:
-            # self.generateWylieUnicode(syllable)
-            generateWylieUnicode(self, syllable)
+            self.generateWylieUnicode(syllable)
 
     def analyzeWylie(self, syllable):
         if self.invalidWylieString(syllable):
@@ -439,35 +438,35 @@ class Translator(object):
             or (component == 'root'
                 and syllable.structure['super'])
 
-    # def generateWylieUnicode(self, syllable):
-    #     for syllableComponent in SYLLSTRUCT:
-    #         char = syllable.structure[syllableComponent]
+    def generateWylieUnicode(self, syllable):
+        for syllableComponent in SYLLSTRUCT:
+            character = syllable.structure[syllableComponent]
 
-    #         if not char:
-    #             continue
+            if not character:
+                continue
 
-    #         if char == self.wylie_vowel_a and syllableComponent != 'root':
-    #             continue
+            if character == self.wylie_vowel_a and syllableComponent != 'root':
+                continue
 
-    #         newString = [syllable.uni]
+            newString = [syllable.uni]
 
-    #         if char in W_VOWELS and syllableComponent == 'root':
-    #             newString.append(self.toUnicode(self.wylie_vowel_a))
+            if character in W_VOWELS and syllableComponent == 'root':
+                newString.append(self.toUnicode(self.wylie_vowel_a))
 
-    #         # char == 'g.' ?
-    #         if char == self.ga_prefix:
-    #             char = self.consonants[2]
-    #             syllable.structure[syllableComponent] = char
+            # character == 'g.' ?
+            if character == self.ga_prefix:
+                character = self.consonants[2]
+                syllable.structure[syllableComponent] = character
 
-    #         if self.needsSubjoin(syllable, syllableComponent):
-    #             newString.append(self.toSubjoinedUnicode(char))
-    #         else:
-    #             newString.append(self.toUnicode(char))
+            if self.needsSubjoin(syllable, syllableComponent):
+                newString.append(self.toSubjoinedUnicode(character))
+            else:
+                newString.append(self.toUnicode(character))
 
-    #         syllable.uni = ''.join(newString)
+            syllable.uni = ''.join(newString)
 
-    def isPrefix(self, char):
-        return char in self.prefixes
+    def isPrefix(self, character):
+        return character in self.prefixes
 
         return self.consonants[22] not in string
 
