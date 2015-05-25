@@ -20,7 +20,7 @@ def pytib(filename, wyliestring, include, codepoints, schol):
         if content in W_SYMBOLS:
             return symbolLookup[content]
 
-        syllable.clearUnicode()
+        syllable.clear()
         syllable.wylie = content
         translator.analyze(syllable)
 
@@ -29,11 +29,6 @@ def pytib(filename, wyliestring, include, codepoints, schol):
         else:
             logging.warning("Could not parse: %s", syllable.wylie)
             return syllable.wylie
-
-    def codepoint(content):
-        syllable.wylie = content.strip()
-        translator.analyze(syllable)
-        return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
     def not_tibetan(word):
         return word in U_SYMBOLS or 0xf00 < ord(word[0]) > 0x0fff
@@ -63,7 +58,8 @@ def pytib(filename, wyliestring, include, codepoints, schol):
 
     if codepoints:
         content = content.split('\n')
-        result = [codepoint(word) for line in content for word in line.split()]
+        result = [translator.bytecodes(syllable, word.strip())
+                  for line in content for word in line.split()]
     else:
         lines = [line.split() for line in content.rstrip().splitlines()]
         tib_lines = [list(map(handle, line)) for line in lines]

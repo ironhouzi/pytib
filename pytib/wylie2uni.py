@@ -241,7 +241,7 @@ class Translator(object):
         if wylieLetters is None:
             return False
 
-        syllable.clearUnicode()
+        syllable.clear()
 
         vowelPosition = self.getVowelIndices(wylieLetters)
 
@@ -285,7 +285,7 @@ class Translator(object):
         if wylieLetters is None:
             return False
 
-        syllable.clearUnicode()
+        syllable.clear()
 
         if len(wylieLetters) == 1:
             # TODO: fix missing method!
@@ -505,18 +505,10 @@ class Translator(object):
         return 'ai' in string or 'au' in string or \
             self.hasAtleastNVowels(string, 2) and self.hasNoAChung(string)
 
-    def getBytecodes(self, wylieString):
-        syllable = Syllable(wylieString)
+    def bytecodes(self, syllable, wylie_string):
+        syllable.wylie = wylie_string
         self.analyze(syllable)
-        return self.unicodeStringToCodes(syllable.uni)
-
-    def unicodeStringToCodes(self, unicodeString):
-        bytecodes = []
-
-        for uni in unicodeString:
-            bytecodes.append('U+{0:04X}'.format(ord(uni)))
-
-        return bytecodes
+        return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
 
 class Syllable(object):
@@ -546,7 +538,7 @@ class Syllable(object):
     def tsheg(self):
         self.uni = ''.join([self.uni, TSHEG])
 
-    def clearUnicode(self):
+    def clear(self):
         self.uni = ''
 
         for s in SYLLSTRUCT:
