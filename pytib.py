@@ -2,7 +2,7 @@ from sys import argv, stdout, stdin, exit
 import click
 import logging
 from pytib.wylie2uni import Translator, Syllable
-from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG, W_VOWELS
+from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG, W_VOWELS, W_ROOTLETTERS
 
 
 @click.command()
@@ -21,7 +21,8 @@ def pytib(filename, wyliestring, include, codepoints, schol):
             return symbolLookup[content]
 
         syllable.clearUnicode()
-        translator.analyze(syllable, content)
+        syllable.wylie = content
+        translator.analyze(syllable)
 
         if syllable.uni:
             return syllable.uni
@@ -29,9 +30,9 @@ def pytib(filename, wyliestring, include, codepoints, schol):
             logging.warning("Could not parse: %s", syllable.wylie)
             return syllable.wylie
 
-    # TODO: use Translator.getBytecodes
     def codepoint(content):
-        translator.analyze(syllable, content.strip())
+        syllable.wylie = content.strip()
+        translator.analyze(syllable)
         return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
     def not_tibetan(word):
@@ -39,7 +40,7 @@ def pytib(filename, wyliestring, include, codepoints, schol):
 
     if schol:
         # Schol/latin consonants
-        W_ROOTLETTERS = (
+        consonants = (
             'k',  'kh',  'g',  'ṅ',
             'c',  'ch',  'j',  'ñ',
             't',  'th',  'd',  'n',
@@ -51,8 +52,10 @@ def pytib(filename, wyliestring, include, codepoints, schol):
 
         global W_SYMBOLS
         W_SYMBOLS = ('|', '||', )
+    else:
+        consonants = W_ROOTLETTERS
 
-    translator = Translator(W_ROOTLETTERS, '-')
+    translator = Translator(consonants, '-')
     syllable = Syllable()
     symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
 

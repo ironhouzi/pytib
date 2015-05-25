@@ -7,7 +7,6 @@
 from pytib.tables import *
 import re
 import logging
-from pytib.partition import partition
 
 logging.basicConfig(filename='wylie2uni.log', level=logging.DEBUG)
 ERROR = -1
@@ -48,13 +47,18 @@ class Translator(object):
     def __init__(self, consonants=W_ROOTLETTERS, ga_prefix_marker='.'):
         self.consonants=consonants
         self.latin_table = (consonants + W_VOWELS)
-        self.latin_sanskrit_table = (SW_ROOTLETTERS + SW_VOWELS + (S_ACHUNG,))
+        table = (SW_ROOTLETTERS + SW_VOWELS + (consonants[ACHUNG_INDEX],))
+        self.latin_sanskrit_table = table
         u_table = (U_ROOTLETTERS + U_VOWELS)
         su_table = (SU_ROOTLETTERS + SU_VOWELS + (U_ACHUNG,))
 
         self.tibetan = dict(zip(self.latin_table, u_table))
         self.sanskrit = dict(zip(self.latin_sanskrit_table, su_table))
+        # self.validSuperjoinedList = dict(zip(SUPER, SUPER_RULES))
+        # self.validSubjoinedList = dict(zip(SUB, SUB_RULES))
+        # self.validSuffix = dict(zip(POSTVOWEL, (SUFFIXES, SUFFIX2S)))
 
+        # self.allWylieVowels = (W_VOWELS + (W_ROOTLETTERS[-1],))
         s = (RAGO_INDICES, LAGO_INDICES, SAGO_INDICES,)
         self.superjoin, self.validSuperjoin = defs(s, SUPER_INDICES, consonants)
 
@@ -71,7 +75,6 @@ class Translator(object):
 
         self.latin_set = set(self.latin_table)
         self.sanskrit_set = set(self.latin_sanskrit_table)
-
         self.max_tib_char_len = max(map(len, self.latin_table))
         self.max_sanskrit_char_len = max(map(len, self.latin_sanskrit_table))
 
@@ -83,12 +86,18 @@ class Translator(object):
         lookup = self.sanskrit if isSanskrit else self.tibetan
         return chr(ord(lookup[str(wylieSyllable)]) + SUBOFFSET)
 
+    def modSyllableStructure(self, syllable, component, wylieLetter):
+        syllable.structure[component] = wylieLetter
+
+    def getCharacterFor(self, syllable, syllableComponent):
+        return syllable.structure[syllableComponent]
+
     def getVowelIndices(self, wylieLetters, isSanskrit=False):
         vowelList = SW_VOWELS if isSanskrit else self.allWylieVowels
         result = []
 
-        for i, character in enumerate(wylieLetters):
-            if character in vowelList:
+        for i, char in enumerate(wylieLetters):
+            if char in vowelList:
 
                 # conjoin adjacent vowels
                 if wylieLetters[i-1] in vowelList and result:
@@ -212,10 +221,12 @@ class Translator(object):
 
         return False
 
-    def analyze(self, syllable, string):
-        syllable.wylie = string
-        syllable.isSanskrit = not self.analyzeWylie(syllable)
+    def analyze(self, syllable):
+        syllable.isSanskrit = self.isSanskrit(syllable)
 
+        if not syllable.isSanskrit:
+            syllable.isSanskrit = not self.analyzeWylie(syllable)
+        # TODO: cleanup logic
         if syllable.isSanskrit:
             self.analyzeSanskrit(syllable)
         else:
@@ -398,29 +409,25 @@ class Translator(object):
         else:
             alphabet = self.latin_set
             max_char_len = self.max_tib_char_len
-            if self.consonants[17] not in syllable.wylie:
-                max_char_len -= 1
 
-        return partition(syllable.wylie, max_char_len, alphabet, self.ga_prefix)
+        wylieLetters = []
+        wylieSyllable = syllable.wylie
 
-        # wylieLetters = []
-        # wylieSyllable = syllable.wylie
+        while len(wylieSyllable) != 0:
+            for i in range(max_char_len, 0, -1):
+                part = wylieSyllable[:i]
 
-        # while len(wylieSyllable) != 0:
-        #     for latin_tib_char_len in range(max_char_len, 0, -1):
-        #         part = wylieSyllable[:latin_tib_char_len]
+                if part == '':
+                    break
 
-        #         if part == '':
-        #             break
+                if part == self.ga_prefix or part in alphabet:
+                    wylieLetters.append(part)
+                    wylieSyllable = wylieSyllable[i:]
 
-        #         if part == self.ga_prefix or part in alphabet:
-        #             wylieLetters.append(part)
-        #             wylieSyllable = wylieSyllable[latin_tib_char_len:]
+                elif i == 1 and part not in alphabet:
+                    return None
 
-        #         elif latin_tib_char_len == 1 and part not in alphabet:
-        #             return None
-
-        # return wylieLetters
+        return wylieLetters
 
     def validSuperscribe(self, headLetter, rootLetter):
         if headLetter not in self.superjoin:
@@ -441,38 +448,66 @@ class Translator(object):
 
     def generateWylieUnicode(self, syllable):
         for syllableComponent in SYLLSTRUCT:
-            character = syllable.structure[syllableComponent]
+            char = syllable.structure[syllableComponent]
 
-            if not character:
-                continue
-
-            if character == self.wylie_vowel_a and syllableComponent != 'root':
+            if not char:
                 continue
 
             newString = [syllable.uni]
 
-            if character in W_VOWELS and syllableComponent == 'root':
+            if char == self.wylie_vowel_a and syllableComponent != 'root':
+                continue
+
+            if char in W_VOWELS and syllableComponent == 'root':
                 newString.append(self.toUnicode(self.wylie_vowel_a))
 
-            # character == 'g.' ?
-            if character == self.ga_prefix:
-                character = self.consonants[2]
-                syllable.structure[syllableComponent] = character
+            # char == 'g.' ?
+            if char == self.ga_prefix:
+                char = self.consonants[2]
+                syllable.structure[syllableComponent] = char
 
             if self.needsSubjoin(syllable, syllableComponent):
-                newString.append(self.toSubjoinedUnicode(character))
+                newString.append(self.toSubjoinedUnicode(char))
             else:
-                newString.append(self.toUnicode(character))
+                newString.append(self.toUnicode(char))
 
             syllable.uni = ''.join(newString)
 
-    def isPrefix(self, character):
-        return character in self.prefixes
+    def isPrefix(self, char):
+        return char in self.prefixes
 
-        return self.consonants[22] not in string
+    def hasAtleastNVowels(self, string, n):
+        vowels = (c for c in list(string) if c in self.allWylieVowels)
 
-    def getBytecodes(self, syllable, wylieString):
-        self.analyze(syllable, wylieString)
+        for i, unused in enumerate(vowels):
+            if i == n - 1:
+                return True
+
+        return False
+
+    def hasNoAChung(self, string):
+        return self.consonants[ACHUNG_INDEX] not in string
+
+    def isSanskrit(self, syllable):
+        string = syllable.wylie
+
+        # Check if what could potentially be valid wylie, is actually Sanskrit
+        if len(string) == 3 and string[0:2] in S_DOUBLE_CONSONANTS:
+            return True
+
+        # Check for clear case Sanskrit syllables to save time
+        matches = S_BASIC_RULES
+
+        for substring in matches:
+            if string.startswith(substring):
+                return True
+
+        return 'ai' in string or 'au' in string or \
+            self.hasAtleastNVowels(string, 2) and self.hasNoAChung(string)
+
+    def getBytecodes(self, wylieString):
+        syllable = Syllable(wylieString)
+        self.analyze(syllable)
         return self.unicodeStringToCodes(syllable.uni)
 
     def unicodeStringToCodes(self, unicodeString):
