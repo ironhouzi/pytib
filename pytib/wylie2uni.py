@@ -272,14 +272,9 @@ class Translator(object):
         if vowelIndices[-1] != len(wylieLetters):
             vowelIndices.append(len(wylieLetters))
 
-        vowelIndices = zip(vowelIndices, vowelIndices[1:])
-        letterStacks = []
+        vowelIndices = list(zip(vowelIndices, vowelIndices[1:]))
 
-        for p in vowelIndices:
-            letterStacks.append(wylieLetters[p[0]:p[1]])
-
-        # return [wylieLetters[p[0]:[1]] for p in vowelIndices]
-        return letterStacks
+        return [wylieLetters[p[0]:p[1]] for p in vowelIndices]
 
     def analyzeSanskrit(self, syllable):
         wylieLetters = self.partitionToWylie(syllable)
@@ -288,13 +283,6 @@ class Translator(object):
             return False
 
         syllable.clear()
-
-        if len(wylieLetters) == 1:
-            logging.debug(wylieLetters)
-            # TODO: fix missing method!
-            return False
-            # self.singleWylieLetter(syllable, wylieLetters)
-
         vowelIndices = self.getVowelIndices(wylieLetters, True)
 
         if not vowelIndices:

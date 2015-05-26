@@ -155,3 +155,13 @@ class SanskritGenerationTest(unittest.TestCase):
         uni = '\u0f68' + '\u0f69' + '\u0fb1' + '\u0f7a'
         wylie = 'akṣye'
         self.analyzeAndCheck(uni, wylie)
+
+    def test_ai(self):
+        uni = '\u0F68' + '\u0F7B'
+        wylie = 'ai'
+        self.analyzeAndCheck(uni, wylie)
+
+    def test_au(self):
+        uni = '\u0F68' + '\u0F7D'
+        wylie = 'au'
+        self.analyzeAndCheck(uni, wylie)
