@@ -39,19 +39,18 @@ class wylieTest(unittest.TestCase):
 
 class BytecodeTest(unittest.TestCase):
 
-    correct = ['U+0F56', 'U+0F66', 'U+0F90', 'U+0FB1',
-               'U+0F7C', 'U+0F44', 'U+0F66']
+    correct = "U+0F56, U+0F66, U+0F90, U+0FB1, U+0F7C, U+0F44, U+0F66"
 
     def test_bytecode(self):
         t = Translator()
         syllable = Syllable()
-        bytecodes = t.getBytecodes(syllable, 'bskyongs')
+        bytecodes = t.bytecodes(syllable, 'bskyongs')
         self.assertEqual(bytecodes, self.correct)
 
     def test_bytecodeError(self):
         t = Translator()
         syllable = Syllable()
-        bytecodes = t.getBytecodes(syllable, 'skyong')
+        bytecodes = t.bytecodes(syllable, 'skyong')
         self.assertNotEqual(bytecodes, self.correct)
 
 

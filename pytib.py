@@ -21,8 +21,7 @@ def pytib(filename, wyliestring, include, codepoints, schol):
             return symbolLookup[content]
 
         syllable.clear()
-        syllable.wylie = content
-        translator.analyze(syllable)
+        translator.analyze(syllable, content)
 
         if syllable.uni:
             return syllable.uni

@@ -221,7 +221,8 @@ class Translator(object):
 
         return False
 
-    def analyze(self, syllable):
+    def analyze(self, syllable, string):
+        syllable.wylie = string
         syllable.isSanskrit = self.isSanskrit(syllable)
 
         if not syllable.isSanskrit:
@@ -277,6 +278,7 @@ class Translator(object):
         for p in vowelIndices:
             letterStacks.append(wylieLetters[p[0]:p[1]])
 
+        # return [wylieLetters[p[0]:[1]] for p in vowelIndices]
         return letterStacks
 
     def analyzeSanskrit(self, syllable):
@@ -288,6 +290,7 @@ class Translator(object):
         syllable.clear()
 
         if len(wylieLetters) == 1:
+            logging.debug(wylieLetters)
             # TODO: fix missing method!
             return False
             # self.singleWylieLetter(syllable, wylieLetters)
@@ -506,8 +509,7 @@ class Translator(object):
             self.hasAtleastNVowels(string, 2) and self.hasNoAChung(string)
 
     def bytecodes(self, syllable, wylie_string):
-        syllable.wylie = wylie_string
-        self.analyze(syllable)
+        self.analyze(syllable, wylie_string)
         return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
 
 
