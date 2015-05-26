@@ -54,11 +54,7 @@ class Translator(object):
 
         self.tibetan = dict(zip(self.latin_table, u_table))
         self.sanskrit = dict(zip(self.latin_sanskrit_table, su_table))
-        # self.validSuperjoinedList = dict(zip(SUPER, SUPER_RULES))
-        # self.validSubjoinedList = dict(zip(SUB, SUB_RULES))
-        # self.validSuffix = dict(zip(POSTVOWEL, (SUFFIXES, SUFFIX2S)))
 
-        # self.allWylieVowels = (W_VOWELS + (W_ROOTLETTERS[-1],))
         s = (RAGO_INDICES, LAGO_INDICES, SAGO_INDICES,)
         self.superjoin, self.validSuperjoin = defs(s, SUPER_INDICES, consonants)
 
@@ -86,12 +82,7 @@ class Translator(object):
         lookup = self.sanskrit if isSanskrit else self.tibetan
         return chr(ord(lookup[str(wylieSyllable)]) + SUBOFFSET)
 
-    def modSyllableStructure(self, syllable, component, wylieLetter):
-        syllable.structure[component] = wylieLetter
-
-    def getCharacterFor(self, syllable, syllableComponent):
-        return syllable.structure[syllableComponent]
-
+    # TODO: pass vowel list as argument instead of a boolean
     def getVowelIndices(self, wylieLetters, isSanskrit=False):
         vowelList = SW_VOWELS if isSanskrit else self.allWylieVowels
         result = []
@@ -272,9 +263,9 @@ class Translator(object):
         if vowelIndices[-1] != len(wylieLetters):
             vowelIndices.append(len(wylieLetters))
 
-        vowelIndices = list(zip(vowelIndices, vowelIndices[1:]))
+        vowelIndices = zip(vowelIndices, vowelIndices[1:])
 
-        return [wylieLetters[p[0]:p[1]] for p in vowelIndices]
+        return [wylieLetters[i[0]:i[1]] for i in vowelIndices]
 
     def analyzeSanskrit(self, syllable):
         wylieLetters = self.partitionToWylie(syllable)
