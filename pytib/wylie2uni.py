@@ -412,16 +412,12 @@ class Translator(object):
         return wylieLetters
 
     def validSuperscribe(self, headLetter, rootLetter):
-        if headLetter not in self.superjoin:
-            return False
-        else:
-            return rootLetter in self.validSuperjoin[headLetter]
+        return  headLetter in self.superjoin and \
+            rootLetter in self.validSuperjoin[headLetter]
 
     def validSubscribe(self, rootLetter, subjoinedLetter):
-        if subjoinedLetter not in self.sub:
-            return False
-        else:
-            return rootLetter in self.validSubjoinedList[subjoinedLetter]
+        return  subjoinedLetter in self.sub \
+            and rootLetter in self.validSubjoinedList[subjoinedLetter]
 
     def needsSubjoin(self, syllable, component):
         return component == 'subjoined' or component == 'secondsub' \
