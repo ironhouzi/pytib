@@ -17,7 +17,7 @@ def pytib(filename, wyliestring, include, codepoints, schol):
     """
 
     def handle(content):
-        if content in W_SYMBOLS:
+        if content in latin_shads:
             return symbolLookup[content]
 
         syllable.clear()
@@ -44,14 +44,14 @@ def pytib(filename, wyliestring, include, codepoints, schol):
             'r',  'l',   'ś',  's',
             'h',  'a', )
 
-        global W_SYMBOLS
-        W_SYMBOLS = ('|', '||', )
+        latin_shads = ('|', '||', )
     else:
         consonants = W_ROOTLETTERS
+        latin_shads = W_SYMBOLS
 
     translator = Translator(consonants, '-')
     syllable = Syllable()
-    symbolLookup = dict(zip(W_SYMBOLS, U_SYMBOLS))
+    symbolLookup = dict(zip(latin_shads, U_SYMBOLS))
 
     content = wyliestring if wyliestring else filename.read()
 
@@ -62,7 +62,9 @@ def pytib(filename, wyliestring, include, codepoints, schol):
     else:
         lines = [line.split() for line in content.rstrip().splitlines()]
         tib_lines = [list(map(handle, line)) for line in lines]
-        shads = [words.pop() if words and not_tibetan(words[-1]) else '' for words in tib_lines]
+        # generate list of lines to be terminated by a shad
+        shads = [words.pop() if words and not_tibetan(words[-1]) else ''
+                 for words in tib_lines]
         translated_lines = [TSHEG.join(words) for words in tib_lines]
         result = '\n'.join(''.join(line) for line in zip(translated_lines, shads))
 
