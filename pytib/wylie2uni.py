@@ -204,13 +204,9 @@ class Translator(object):
         vowelAtFourthPosition,
         vowelAtFifthPosition)
 
-    def invalidWylieString(self, syllable):
-        if not syllable.wylie.startswith(self.ga_prefix):
-            for c in syllable.wylie:
-                if c not in self.latin_set:
-                    return True
-
-        return False
+    def invalidWylie(self, syllable):
+        return not syllable.wylie.startswith(self.ga_prefix) \
+            and any(char not in self.latin_set for char in syllable.wylie)
 
     def analyze(self, syllable, string):
         syllable.wylie = string
@@ -225,7 +221,7 @@ class Translator(object):
             self.generateWylieUnicode(syllable)
 
     def analyzeWylie(self, syllable):
-        if self.invalidWylieString(syllable):
+        if self.invalidWylie(syllable):
             return False
 
         wylieLetters = self.partitionToWylie(syllable)

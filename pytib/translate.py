@@ -56,11 +56,7 @@ def validate(wylieLetters, vowelPosition, sub=1):
             and not (truth_vector[3] ^ validSubscribe(wylieLetters[1],
                                                       wylieLetters[2]))
 
-# TODO:
-# def invalidWylieString(wylie, ga_prefix, latin_set):
-#     if not syllable.wylie.startswith(ga_prefix):
-#         for c in syllable.wylie:
-#             if c not in latin_set:
-#                 return True
+def invalidWylie(string, ga_prefix, latin_set):
+    return not string.startswith(ga_prefix) \
+        and any(char not in latin_set for char in string)
 
-#     return False
