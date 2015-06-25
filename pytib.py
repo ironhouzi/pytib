@@ -80,7 +80,7 @@ def pytib(filename, wyliestring, include, codepoints, schol, whitespace):
             join_flag = False
 
             for word in line:
-                if word in U_SYMBOLS and not new_line:
+                if word in U_SYMBOLS and new_line != []:
                     shad_w_space = ''.join([word, whitespace])
                     new_line[-1] = ''.join([new_line[-1], shad_w_space])
                     join_flag = True
