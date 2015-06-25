@@ -6,12 +6,17 @@ from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG, W_VOWELS, W_ROOTLETTERS
 
 
 @click.command()
-@click.option('--filename', '-f', help='Specify file to read', type=click.File(), nargs=1, default='-')
+@click.option('--filename', '-f',
+              help='Specify file to read',
+              type=click.File(), nargs=1, default='-')
 @click.option('--include', '-i', help='Include input in printout', is_flag=True)
 @click.option('--codepoints', '-c', help='Print Unicode values', is_flag=True)
 @click.option('--schol', '-s', help='Use polyglotta transliteration', is_flag=True)
+@click.option('--whitespace', '-w',
+              help='Decimal Unicode codepoint for whitespace character.',
+              default=8195, nargs=1)
 @click.argument('wyliestring', required=False)
-def pytib(filename, wyliestring, include, codepoints, schol):
+def pytib(filename, wyliestring, include, codepoints, schol, whitespace):
     """ Docstring
     WYLIESTRING can be either a string literal or a file passed via STDIN or with the -f parameter.
     """
@@ -49,6 +54,7 @@ def pytib(filename, wyliestring, include, codepoints, schol):
         consonants = W_ROOTLETTERS
         latin_shads = W_SYMBOLS
 
+    whitespace = chr(whitespace)
     translator = Translator(consonants, '-')
     syllable = Syllable()
     symbolLookup = dict(zip(latin_shads, U_SYMBOLS))
@@ -62,11 +68,27 @@ def pytib(filename, wyliestring, include, codepoints, schol):
     else:
         lines = [line.split() for line in content.rstrip().splitlines()]
         tib_lines = [list(map(handle, line)) for line in lines]
-        # generate list of lines to be terminated by a shad
-        shads = [words.pop() if words and not_tibetan(words[-1]) else ''
-                 for words in tib_lines]
-        translated_lines = [TSHEG.join(words) for words in tib_lines]
-        result = '\n'.join(''.join(line) for line in zip(translated_lines, shads))
+        post_joined_shads_lines = []
+
+        for line in tib_lines:
+            new_line = []
+            join_flag = False
+
+            for i, word in enumerate(line):
+                if word in U_SYMBOLS and i > 0:
+                    shad_w_space = ''.join([word, whitespace])
+                    new_line[-1] = ''.join([new_line[-1], shad_w_space])
+                    join_flag = True
+                elif join_flag:
+                    new_line[-1] = ''.join([new_line[-1], word])
+                    join_flag = False
+                else:
+                    new_line.append(word)
+
+            post_joined_shads_lines.append(new_line)
+
+    translated_lines = [TSHEG.join(words) for words in post_joined_shads_lines]
+    result = '\n'.join(''.join(line) for line in translated_lines)
 
     if include:
         print(content)
