@@ -165,3 +165,25 @@ class SanskritGenerationTest(unittest.TestCase):
         uni = '\u0F68' + '\u0F7D'
         wylie = 'au'
         self.analyzeAndCheck(uni, wylie)
+
+
+class MisspellingTest(unittest.TestCase):
+    def test_misspelled_schol(self):
+        # Schol/latin consonants
+        consonants = (
+            'k',  'kh',  'g',  'ṅ',
+            'c',  'ch',  'j',  'ñ',
+            't',  'th',  'd',  'n',
+            'p',  'ph',  'b',  'm',
+            'ts', 'tsh', 'dz', 'v',
+            'ź',  'z',   '’', 'y',
+            'r',  'l',   'ś',  's',
+            'h',  'a', )
+
+        t = Translator(consonants, '-')
+
+        with open("resources/spellerrors_schol") as f:
+            for line in f:
+                s = Syllable()
+                t.analyze(s, line)
+                self.assertIs(s.uni, '')
