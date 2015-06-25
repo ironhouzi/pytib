@@ -17,8 +17,12 @@ from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG, W_VOWELS, W_ROOTLETTERS
               default=8195, nargs=1)
 @click.argument('wyliestring', required=False)
 def pytib(filename, wyliestring, include, codepoints, schol, whitespace):
-    """ Docstring
-    WYLIESTRING can be either a string literal or a file passed via STDIN or with the -f parameter.
+    """
+    WYLIESTRING can be either a string literal or a file passed via STDIN or
+    with the -f parameter.
+
+    WHITESPACE defaults to U+2003 (EM SPACE) and _must_
+    be written as a decimal value, _not_ hexadecimal.
     """
 
     def handle(content):
@@ -39,6 +43,7 @@ def pytib(filename, wyliestring, include, codepoints, schol, whitespace):
 
     if schol:
         # Schol/latin consonants
+        # TODO: pass list from json file
         consonants = (
             'k',  'kh',  'g',  'ṅ',
             'c',  'ch',  'j',  'ñ',
@@ -74,8 +79,8 @@ def pytib(filename, wyliestring, include, codepoints, schol, whitespace):
             new_line = []
             join_flag = False
 
-            for i, word in enumerate(line):
-                if word in U_SYMBOLS and i > 0:
+            for word in line:
+                if word in U_SYMBOLS and not new_line:
                     shad_w_space = ''.join([word, whitespace])
                     new_line[-1] = ''.join([new_line[-1], shad_w_space])
                     join_flag = True
