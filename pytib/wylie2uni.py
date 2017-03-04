@@ -4,7 +4,15 @@
     Requires Python 3
 '''
 
-from pytib.tables import *
+from pytib.tables import (
+    W_ROOTLETTERS, W_VOWELS, SW_ROOTLETTERS, SW_VOWELS, ACHUNG_INDEX,
+    U_ROOTLETTERS, U_VOWELS, SU_ROOTLETTERS, SU_VOWELS, U_ACHUNG, RAGO_INDICES,
+    LAGO_INDICES, SAGO_INDICES, defs, SUPER_INDICES, WAZUR_INDICES,
+    YATA_INDICES, RATA_INDICES, LATA_INDICES, SUB_INDICES, suffix_rules,
+    get_chars, PREFIXES_I, SUBOFFSET, U_OM, S_OM, SNA_LDAN_CASES, STACK,
+    SW_REGEX, S_SNA_LDAN, POSTVOWEL, SYLLSTRUCT, S_DOUBLE_CONSONANTS,
+    S_BASIC_RULES, TSHEG
+)
 import re
 import logging
 
@@ -45,7 +53,7 @@ class Translator(object):
     '''
 
     def __init__(self, consonants=W_ROOTLETTERS, ga_prefix_marker='.'):
-        self.consonants=consonants
+        self.consonants = consonants
         self.latin_table = (consonants + W_VOWELS)
         table = (SW_ROOTLETTERS + SW_VOWELS + (consonants[ACHUNG_INDEX],))
         self.latin_sanskrit_table = table
@@ -64,7 +72,7 @@ class Translator(object):
         self.validSuffix = suffix_rules(consonants)
         self.prefixes = get_chars(PREFIXES_I, consonants)
 
-        self.allWylieVowels = (W_VOWELS + (consonants[-1],))
+        self.allWylieVowels = W_VOWELS + (consonants[-1],)
         self.explicitSanskritVowels = SW_VOWELS[1:]
         self.wylie_vowel_a = consonants[-1]
         self.ga_prefix = ''.join([consonants[2], ga_prefix_marker])
@@ -101,21 +109,29 @@ class Translator(object):
 
     def isSuperscribed(self, wylieLetters, vowelPosition):
         if vowelPosition == 2:
-            return self.validSuperscribe(wylieLetters[0], wylieLetters[1]) \
+            return (
+                self.validSuperscribe(wylieLetters[0], wylieLetters[1])
                 and not self.validSubscribe(wylieLetters[0], wylieLetters[1])
+            )
         else:   # vowelPosition == 3
-            return self.isPrefix(wylieLetters[0]) \
-                and self.validSuperscribe(wylieLetters[1], wylieLetters[2]) \
+            return (
+                self.isPrefix(wylieLetters[0])
+                and self.validSuperscribe(wylieLetters[1], wylieLetters[2])
                 and not self.validSubscribe(wylieLetters[1], wylieLetters[2])
+            )
 
     def isSubscribed(self, wylieLetters, vowelPosition):
         if vowelPosition == 2:
-            return not self.validSuperscribe(wylieLetters[0], wylieLetters[1]) \
+            return (
+                not self.validSuperscribe(wylieLetters[0], wylieLetters[1])
                 and self.validSubscribe(wylieLetters[0], wylieLetters[1])
+            )
         else:   # vowelPosition == 3
-            return self.isPrefix(wylieLetters[0]) \
-                and not self.validSuperscribe(wylieLetters[1], wylieLetters[2]) \
+            return (
+                self.isPrefix(wylieLetters[0])
+                and not self.validSuperscribe(wylieLetters[1], wylieLetters[2])
                 and self.validSubscribe(wylieLetters[1], wylieLetters[2])
+            )
 
     # tuple index correlates to the syllable's vowel position
     analyzeBaseCase = (
@@ -205,8 +221,10 @@ class Translator(object):
         vowelAtFifthPosition)
 
     def invalidWylie(self, syllable):
-        return not syllable.wylie.startswith(self.ga_prefix) \
+        return (
+            not syllable.wylie.startswith(self.ga_prefix)
             and any(char not in self.latin_set for char in syllable.wylie)
+        )
 
     def analyze(self, syllable, string):
         syllable.wylie = string
@@ -292,7 +310,6 @@ class Translator(object):
             syllable.wylie in SNA_LDAN_CASES
 
     def potentialSanskritSubjoin(self, letter):
-        '''letter is 'y', 'r' or 'v' ?'''
         return letter is SW_ROOTLETTERS[25] or \
             letter is SW_ROOTLETTERS[26] or \
             letter is SW_ROOTLETTERS[28]
@@ -380,7 +397,6 @@ class Translator(object):
         forms a valid wylie letter and continues backwards through the
         wylie/IAST string, until the entire wylie string is partitioned.'''
 
-
         if syllable.isSanskrit:
             alphabet = self.sanskrit_set
             max_char_len = self.max_sanskrit_char_len
@@ -408,17 +424,23 @@ class Translator(object):
         return wylieLetters
 
     def validSuperscribe(self, headLetter, rootLetter):
-        return  headLetter in self.superjoin and \
-            rootLetter in self.validSuperjoin[headLetter]
+        return (
+            headLetter in self.superjoin
+            and rootLetter in self.validSuperjoin[headLetter]
+        )
 
     def validSubscribe(self, rootLetter, subjoinedLetter):
-        return  subjoinedLetter in self.sub \
-            and rootLetter in self.validSubjoinedList[subjoinedLetter]
+        return (
+            subjoinedLetter in self.sub and
+            rootLetter in self.validSubjoinedList[subjoinedLetter]
+        )
 
     def needsSubjoin(self, syllable, component):
-        return component == 'subjoined' or component == 'secondsub' \
-            or (component == 'root'
-                and syllable.structure['super'])
+        return (
+            component == 'subjoined'
+            or component == 'secondsub'
+            or (component == 'root' and syllable.structure['super'])
+        )
 
     def generateWylieUnicode(self, syllable):
         for syllableComponent in SYLLSTRUCT:
@@ -451,13 +473,8 @@ class Translator(object):
         return char in self.prefixes
 
     def hasAtleastNVowels(self, string, n):
-        vowels = (c for c in list(string) if c in self.allWylieVowels)
-
-        for i, unused in enumerate(vowels):
-            if i == n - 1:
-                return True
-
-        return False
+        vowels = tuple(c for c in string if c in self.allWylieVowels)
+        return len(vowels) >= n
 
     def hasNoAChung(self, string):
         return self.consonants[ACHUNG_INDEX] not in string
@@ -466,18 +483,17 @@ class Translator(object):
         string = syllable.wylie
 
         # Check if what could potentially be valid wylie, is actually Sanskrit
-        if len(string) == 3 and string[0:2] in S_DOUBLE_CONSONANTS:
+        if len(string) == 3 and string[:2] in S_DOUBLE_CONSONANTS:
             return True
 
         # Check for clear case Sanskrit syllables to save time
-        matches = S_BASIC_RULES
+        if any(string.startswith(r) for r in S_BASIC_RULES):
+            return True
 
-        for substring in matches:
-            if string.startswith(substring):
-                return True
+        if any(sanskrit_vowel in string for sanskrit_vowel in ('ai', 'au')):
+            return True
 
-        return 'ai' in string or 'au' in string or \
-            self.hasAtleastNVowels(string, 2) and self.hasNoAChung(string)
+        return self.hasAtleastNVowels(string, 2) and self.hasNoAChung(string)
 
     def bytecodes(self, syllable, wylie_string):
         self.analyze(syllable, wylie_string)
