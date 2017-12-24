@@ -317,23 +317,21 @@ def stackSanskritLetters(vowelIndices, latin):
 
 def generateSanskritUnicode(latin, letterStacks, table):
     if latin['string'] == table['U_OM']:
-        return table['S_OM']
+        yield table['S_OM']
+        raise StopIteration
 
-    unicodeString = []
     literal_va = table['SW_ROOTLETTERS'][28]
     literal_ba = table['CONSONANTS'][14]
     literal_rv = table['SW_ROOTLETTERS'][26] + table['SW_ROOTLETTERS'][28]
 
     for i, stack in enumerate(letterStacks):
         if stack[0] in table['SW_VOWELS'][1:]:   # avoid leading `a`
-            unicodeString.append(
-                table['TIBINDIC_UNICODE'][table['LATIN_VOWEL_A']]
-            )
-            unicodeString.append(table['TIBINDIC_UNICODE'][stack[0]])
+            yield table['TIBINDIC_UNICODE'][table['LATIN_VOWEL_A']]
+            yield table['TIBINDIC_UNICODE'][stack[0]]
         elif stack[0] is literal_va:
-            unicodeString.append(table['TIBINDIC_UNICODE'][literal_ba])
+            yield table['TIBINDIC_UNICODE'][literal_ba]
         else:
-            unicodeString.append(table['TIBINDIC_UNICODE'][stack[0]])
+            yield table['TIBINDIC_UNICODE'][stack[0]]
 
         stackedLetters = stack[1:]
 
@@ -347,15 +345,15 @@ def generateSanskritUnicode(latin, letterStacks, table):
             )
 
             if sna_ldan_case:
-                unicodeString.append(table['S_SNA_LDAN'])
+                yield table['S_SNA_LDAN']
                 continue
 
             if letter in table['SW_VOWELS']:
-                unicodeString.append(table['TIBINDIC_UNICODE'][letter])
+                yield table['TIBINDIC_UNICODE'][letter]
                 continue
 
             if ''.join(stack[:2]) == literal_rv:
-                unicodeString.append(
+                yield (
                     chr(table['SUBJOIN'] +
                         ord(table['TIBINDIC_UNICODE'][literal_ba]))
                 )
@@ -370,7 +368,7 @@ def generateSanskritUnicode(latin, letterStacks, table):
 
             if subjoin_special_case:
                 if stack.index(letter) < len(stack)-2:
-                    unicodeString.append(table['STACK'][letter])
+                    yield table['STACK'][letter]
                     continue
 
                 subjoin = None
@@ -383,14 +381,10 @@ def generateSanskritUnicode(latin, letterStacks, table):
                         )
                         break
 
-                unicodeString.append(subjoin or table['STACK'][letter])
+                yield subjoin or table['STACK'][letter]
                 continue
 
-            unicodeString.append(
-                chr(table['SUBJOIN'] + ord(table['TIBINDIC_UNICODE'][letter]))
-            )
-
-    return ''.join(unicodeString)
+            yield chr(table['SUBJOIN'] + ord(table['TIBINDIC_UNICODE'][letter]))
 
 
 def analyze_sanskrit(latin_string, table):
@@ -415,4 +409,4 @@ def analyze_sanskrit(latin_string, table):
         return None
 
     letterStacks = stackSanskritLetters(vowel_indices, latin['parts'])
-    return generateSanskritUnicode(latin, letterStacks, table)
+    return ''.join(generateSanskritUnicode(latin, letterStacks, table))
