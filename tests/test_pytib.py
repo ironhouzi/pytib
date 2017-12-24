@@ -5,32 +5,43 @@ from pytib.tables import create_lookup
 
 
 @pytest.fixture
-def w_defs():
+def defs():
     return (
-        'sangs',   'bre',     'rta',      'mgo',
-        'gya',     'g.yag',   "'rba",     'tshos',
-        'lhongs',  'mngar',   'sngas',    'rnyongs',
-        'brnyes',  'rgyas',   'skyongs',  'bskyongs',
-        'grwa',    "spre'u",  "spre'u'i", "'dra",
-        "'bya",    "'gra",    "'gyang",   "'khra",
-        "'khyig",  "'kyags",  "'phre",    "'phyags",
-        'a',       'o',       "a'am",     'ab',
-        'bswa',    'grwa',    "dbu'i"
-    )
-
-
-@pytest.fixture
-def u_defs():
-    return (
-        'སངས', 'བྲེ',    'རྟ',   'མགོ',
-        'གྱ',   'གཡག',  'འརྦ',  'ཚོས',
-        'ལྷོངས', 'མངར',  'སྔས',  'རྙོངས',
-        'བརྙེས', 'རྒྱས',   'སྐྱོངས', 'བསྐྱོངས',
-        'གྲྭ',   'སྤྲེའུ',   'སྤྲེའུའི', 'འདྲ',
-        'འབྱ',  'འགྲ',   'འགྱང', 'འཁྲ',
-        'འཁྱིག', 'འཀྱགས', 'འཕྲེ',  'འཕྱགས',
-        'ཨ',   'ཨོ',    'ཨའམ', 'ཨབ',
-        'བསྭ',  'གྲྭ',    'དབུའི'
+        ('sangs', 'སངས'),
+        ('bre', 'བྲེ'),
+        ('rta', 'རྟ'),
+        ('mgo', 'མགོ'),
+        ('gya', 'གྱ'),
+        ('g.yag', 'གཡག'),
+        ("'rba", 'འརྦ'),
+        ('tshos', 'ཚོས'),
+        ('lhongs', 'ལྷོངས'),
+        ('mngar', 'མངར'),
+        ('sngas', 'སྔས'),
+        ('rnyongs', 'རྙོངས'),
+        ('brnyes', 'བརྙེས'),
+        ('rgyas', 'རྒྱས'),
+        ('skyongs', 'སྐྱོངས'),
+        ('bskyongs', 'བསྐྱོངས'),
+        ('grwa', 'གྲྭ'),
+        ("spre'u", 'སྤྲེའུ'),
+        ("spre'u'i", 'སྤྲེའུའི'),
+        ("'dra", 'འདྲ'),
+        ("'bya", 'འབྱ'),
+        ("'gra", 'འགྲ'),
+        ("'gyang", 'འགྱང'),
+        ("'khra", 'འཁྲ'),
+        ("'khyig", 'འཁྱིག'),
+        ("'kyags", 'འཀྱགས'),
+        ("'phre", 'འཕྲེ'),
+        ("'phyags", 'འཕྱགས'),
+        ('a', 'ཨ'),
+        ('o', 'ཨོ'),
+        ("a'am", 'ཨའམ'),
+        ('ab', 'ཨབ'),
+        ('bswa', 'བསྭ'),
+        ('grwa', 'གྲྭ'),
+        ("dbu'i", 'དབུའི'),
     )
 
 
@@ -62,10 +73,13 @@ def polyglotta_table():
     # return Table(consonants, '-')
 
 
-def test_wylie(w_defs, u_defs, table):
-    for wylie, u_tibetan in zip(w_defs, u_defs):
+def test_wylie(defs, table):
+    for wylie, u_tibetan in defs:
         syllable = parse(wylie, table)
-        assert syllable == u_tibetan
+        assert (
+            tuple((f, f'U+0{ord(f):X}') for f in syllable)
+            == tuple((f, f'U+0{ord(f):X}') for f in u_tibetan)
+        )
 
 
 def test_sna_ldan(table):
@@ -79,7 +93,6 @@ def test_om(table):
     uni = '\u0f00'
     latin = 'oṃ'
     result = parse(latin, table)
-    print([hex(ord(n)) for n in result])
     assert result == uni
 
 
@@ -112,7 +125,6 @@ def test_sanskrit_tib_genitive(table):
     uni = '\u0F64' + '\u0F71' + '\u0F40' + '\u0FB1' + '\u0F60' + '\u0F72'
     latin = "śākya'i"
     result = parse(latin, table)
-    print([hex(ord(n)) for n in result])
     assert result == uni
 
 
@@ -131,10 +143,10 @@ def test_vajra(table):
 
 
 # # TODO: find counter case
-# def test_badzra():
-#     uni = '\u0F56' + '\u0F5B' + '\u0FB2'
-#     self.t.analyze(s, 'badzra')
-#     self.assertNotEqual(s.uni, uni)
+def test_badzra(table):
+    uni = '\u0F56' + '\u0F5B' + '\u0FB2'
+    latin = 'badzra'
+    assert parse(latin, table) != uni
 
 
 # TODO: find counter case
@@ -164,7 +176,6 @@ def test_kyai(table):
     uni = '\u0f40' + '\u0fb1' + '\u0f7b'
     latin = 'kyai'
     result = parse(latin, table)
-    print([hex(ord(n)) for n in result])
     assert result == uni
 
 
