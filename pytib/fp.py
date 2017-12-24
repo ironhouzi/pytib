@@ -129,7 +129,11 @@ def find_suffixes(syllable, vowel_position, latin, table):
     components = iter(table['POSTVOWEL'])
 
     for latin_suffix in latin[vowel_position+1:]:
-        component = next(components)
+        try:
+            component = next(components)
+        except StopIteration:
+            return None
+
         invalid_suffix = (
             component in table['POSTVOWEL'][:2]
             and latin_suffix not in table['TIBETAN_VOWELS']
