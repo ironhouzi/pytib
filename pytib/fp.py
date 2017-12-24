@@ -132,7 +132,7 @@ def find_suffixes(syllable, vowel_position, latin, table):
         try:
             post_vowel = next(post_vowels)
         except StopIteration:
-            return None    # Disallow multiple genetive vowels
+            break   # Disallow multiple genetive vowels
 
         invalid_suffix = (
             post_vowel in table['POSTVOWEL'][:2]
