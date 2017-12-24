@@ -3,6 +3,10 @@ import logging
 # from tables import Table
 
 
+class InvalidTibetan(Exception):
+    pass
+
+
 def valid_superscribe(head_letter, root_letter, table):
     return (
         head_letter in table['SUPERJOIN']
@@ -155,8 +159,6 @@ def letter_partition(string, table, alphabet, max_char_len):
     wylie/IAST string, until the entire wylie string is partitioned.
     '''
 
-    wylie_letters = []
-
     while len(string) != 0:
         for i in range(max_char_len, 0, -1):
             part = string[:i]
@@ -165,12 +167,10 @@ def letter_partition(string, table, alphabet, max_char_len):
                 break
 
             if part == table['GA_PREFIX'] or part in alphabet:
-                wylie_letters.append(part)
+                yield part
                 string = string[i:]
             elif i == 1 and part not in alphabet:
-                return None
-
-    return wylie_letters
+                raise InvalidTibetan
 
 
 def parse(string, table):
@@ -206,14 +206,14 @@ def parse(string, table):
     if is_sanskrit:
         return analyze_sanskrit(string, table)
 
-    latin = letter_partition(
-        string,
-        table,
-        alphabet=table['LATIN_TIBETAN_ALPHABET_SET'],
-        max_char_len=table['MAX_TIB_CHAR_LEN']
-    )
-
-    if latin is None:
+    try:
+        latin = list(letter_partition(
+            string,
+            table,
+            alphabet=table['LATIN_TIBETAN_ALPHABET_SET'],
+            max_char_len=table['MAX_TIB_CHAR_LEN']
+        ))
+    except InvalidTibetan:
         return analyze_sanskrit(string, table)
 
     # TODO: measure performance using tib vowel set
@@ -229,20 +229,16 @@ def parse(string, table):
     if len(vowel_positions) != 1 and any(adjacent_vowels):
         return analyze_sanskrit(string, table)
 
-    vowel_position = vowel_positions[0]
+    first_vowel_index = vowel_positions[0]
 
-    if vowel_position >= len(analyze_syllable):
+    if first_vowel_index >= len(analyze_syllable):
         logging.warning(
-            f'Oversized vowel position: {vowel_position} for «{latin}»'
+            f'Oversized vowel position: {first_vowel_index} for «{latin}»'
         )
         return analyze_sanskrit(string, table)
 
-    syllable = analyze_syllable[vowel_position](latin, table)
-
-    if syllable is None:
-        return analyze_sanskrit(string, table)
-
-    syllable = find_suffixes(syllable, vowel_position, latin, table)
+    syllable = analyze_syllable[first_vowel_index](latin, table)
+    syllable = find_suffixes(syllable, first_vowel_index, latin, table)
 
     if syllable is None:
         return analyze_sanskrit(string, table)
@@ -288,7 +284,6 @@ def to_unicode(syllable, table):
             yield table['TIBETAN_UNICODE'][latin_char]
 
 
-# TODO: pass vowel list as argument instead of a boolean
 def vowel_positions(latin, table):
     result = []
 
@@ -306,7 +301,7 @@ def vowel_positions(latin, table):
 
 
 def stackSanskritLetters(vowelIndices, latin):
-    vowelIndices = list(map(lambda x: x+1, vowelIndices))
+    vowelIndices = list(i+1 for i in vowelIndices)
 
     if vowelIndices[0] != 0:
         vowelIndices.insert(0, 0)
@@ -316,7 +311,8 @@ def stackSanskritLetters(vowelIndices, latin):
 
     vowelIndices = zip(vowelIndices, vowelIndices[1:])
 
-    return [latin[i[0]:i[1]] for i in vowelIndices]
+    for i in vowelIndices:
+        yield latin[i[0]:i[1]]
 
 
 def generateSanskritUnicode(latin, letterStacks, table):
@@ -398,12 +394,15 @@ def generateSanskritUnicode(latin, letterStacks, table):
 
 
 def analyze_sanskrit(latin_string, table):
-    parts = letter_partition(
-        latin_string,
-        table,
-        alphabet=table['LATIN_INDIC_ALPHABET_SET'],
-        max_char_len=table['MAX_INDIC_CHAR_LEN']
-    )
+    try:
+        parts = list(letter_partition(
+            latin_string,
+            table,
+            alphabet=table['LATIN_INDIC_ALPHABET_SET'],
+            max_char_len=table['MAX_INDIC_CHAR_LEN']
+        ))
+    except InvalidTibetan:
+        return None
 
     latin = dict(parts=parts, string=latin_string)
 
