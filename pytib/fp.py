@@ -126,24 +126,24 @@ analyze_syllable = (
 def find_suffixes(syllable, vowel_position, latin, table):
     '''Identifies the syllable suffixes'''
 
-    components = iter(table['POSTVOWEL'])
+    post_vowels = iter(table['POSTVOWEL'])
 
     for latin_suffix in latin[vowel_position+1:]:
         try:
-            component = next(components)
+            post_vowel = next(post_vowels)
         except StopIteration:
-            return None
+            return None    # Disallow multiple genetive vowels
 
         invalid_suffix = (
-            component in table['POSTVOWEL'][:2]
+            post_vowel in table['POSTVOWEL'][:2]
             and latin_suffix not in table['TIBETAN_VOWELS']
-            and latin_suffix not in table['VALID_SUFFIX'][component]
+            and latin_suffix not in table['VALID_SUFFIX'][post_vowel]
         )
 
         if invalid_suffix:
             return None
 
-        syllable[component] = latin_suffix
+        syllable[post_vowel] = latin_suffix
 
     return syllable
 
