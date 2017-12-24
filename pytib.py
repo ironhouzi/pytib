@@ -2,9 +2,14 @@
 import click
 import logging
 
+from functools import partial
+# from multiprocessing import Pool
+
 from pytib.fp import parse
 from pytib.wylie2uni import Translator, Syllable
-from pytib.tables import W_SYMBOLS, U_SYMBOLS, TSHEG, W_ROOTLETTERS, Table
+from pytib.tables import (
+    W_SYMBOLS, U_SYMBOLS, TSHEG, W_ROOTLETTERS, create_lookup
+)
 
 
 @click.command()
@@ -23,32 +28,26 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
     """
 
     def handle(content):
-        if content in latin_shads:
-            return symbolLookup[content]
+        for line in content:
+            line_items = [[]]
 
-        syllable.clear()
-        translator.analyze(syllable, content)
+            for word in line:
+                if word in latin_shads:
+                    line_items.append([symbolLookup[word]])
+                    line_items.append([])
+                    continue
 
-        if syllable.uni:
-            return syllable.uni
-        else:
-            logging.warning("Could not parse: %s", syllable.wylie)
-            return syllable.wylie
+                syllable.clear()
+                translator.analyze(syllable, word)
 
-    def fp_handle(content):
-        if content in latin_shads:
-            return symbolLookup[content]
+                if syllable.uni:
+                    line_items[-1].append(syllable.uni)
+                else:
+                    logging.warning("Could not parse: %s", syllable.wylie)
+                    line_items.append([syllable.wylie])
+                    line_items.append([])
 
-        tib_unicode = parse(content, table)
-
-        if tib_unicode is None:
-            logging.warning("Could not parse: %s", syllable.wylie)
-            return content
-
-        return tib_unicode
-
-    def not_tibetan(word):
-        return word in U_SYMBOLS or 0xf00 < ord(word[0]) > 0x0fff
+            yield line_items
 
     if schol:
         # Schol/latin consonants
@@ -69,32 +68,77 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
         latin_shads = W_SYMBOLS
 
     translator = Translator(consonants, '-')
-    table = Table(consonants, '-')
+    table = create_lookup(consonants, '-')
     syllable = Syllable()
     symbolLookup = dict(zip(latin_shads, U_SYMBOLS))
-    handler = fp_handle if new else handle
 
     content = wyliestring if wyliestring else filename.read()
 
     if codepoints:
         content = content.split('\n')
-        result = [translator.bytecodes(syllable, word.strip())
-                  for line in content for word in line.split()]
+        result = [
+            translator.bytecodes(syllable, word.strip())
+            for line in content for word in line.split()
+        ]
     else:
         lines = [line.split() for line in content.rstrip().splitlines()]
-        tib_lines = [list(map(handler, line)) for line in lines]
-        # generate list of lines to be terminated by a shad
-        shads = [words.pop() if words and not_tibetan(words[-1]) else ''
-                 for words in tib_lines]
-        translated_lines = [TSHEG.join(words) for words in tib_lines]
-        result = '\n'.join(
-            ''.join(line) for line in zip(translated_lines, shads)
+        fph = partial(
+            fp_handle,
+            latin_shads=latin_shads,
+            symbolLookup=symbolLookup,
+            table=table
         )
+
+        handler = fph if new else handle
+        tib_lines = handler(lines)
+
+        result = ''.join(apply_tsheg(tib_lines))
 
     if include:
         print(content)
 
     print(result)
+
+
+def not_tibetan(word):
+    v = ord(word[0])
+    return word in U_SYMBOLS or v < 0xf00 or v > 0x0fff
+
+
+def apply_tsheg(tib_lines):
+    for line in tib_lines:
+        for segment in line:
+            if not segment:
+                continue
+
+            if not_tibetan(segment[-1]):
+                yield ' '.join(segment)
+            else:
+                yield TSHEG.join(segment)
+            yield ' '
+        yield '\n'
+
+
+def fp_handle(content, latin_shads, symbolLookup, table):
+    for line in content:
+        line_items = [[]]
+
+        for word in line:
+            if word in latin_shads:
+                line_items.append([symbolLookup[word]])
+                line_items.append([])
+                continue
+
+            tib_unicode = parse(word, table)
+
+            if tib_unicode is None:
+                logging.warning("Could not parse: %s", word)
+                line_items.append([word])
+                line_items.append([])
+            else:
+                line_items[-1].append(tib_unicode)
+
+        yield line_items
 
 
 if __name__ == '__main__':

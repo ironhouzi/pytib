@@ -154,9 +154,6 @@ class Translator(object):
          wylieLetters[3] in self.sub))
 
     def vowelAtFirstPosition(self, syllable, wylieLetters):
-        if not wylieLetters[0] in self.allWylieVowels:
-            return False
-
         syllable.structure['root'] = wylieLetters[0]
 
     def vowelAtSecondPosition(self, syllable, wylieLetters):

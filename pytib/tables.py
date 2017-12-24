@@ -14,6 +14,41 @@ W_ROOTLETTERS = (
     'h',  'a'
 )
 
+W_LOOKUP = {
+    'k': {'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA', 'WAZUR'},
+    'kh': {'YATA', 'RATA', 'WAZUR'},
+    'g': {'PREFIX', 'SUFFIX', 'RAGO', 'LAGO', 'SAGO',
+          'YATA', 'RATA', 'LATA', 'WAZUR'},
+    'ng': {'SUFFIX', 'RAGO', 'LAGO', 'SAGO'},
+    'c': {'LAGO', 'WAZUR'},
+    'ch': {'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA', 'WAZUR'},
+    'j': {'RAGO', 'LAGO'},
+    'ny': {'RAGO', 'SAGO', 'WAZUR'},
+    't': {'RAGO', 'LAGO', 'SAGO', 'RATA', 'WAZUR'},
+    'th': {'RATA'},
+    'd': {'PREFIX', 'SUFFIX', 'SUFFIX2',
+          'RAGO', 'LAGO', 'SAGO', 'RATA', 'WAZUR'},
+    'n': {'SUFFIX', 'RAGO', 'SAGO', 'RATA'},
+    'p': {'LAGO', 'SAGO', 'YATA', 'RATA'},
+    'ph': {'YATA', 'RATA'},
+    'b': {'PREFIX', 'SUFFIX', 'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA'},
+    'm': {'PREFIX', 'SUFFIX', 'RAGO', 'SAGO', 'YATA', 'RATA'},
+    'ts': {'RAGO', 'SAGO', 'WAZUR'},
+    'tsh': {'WAZUR'},
+    'dz': {'RAGO'},
+    'w': {'SUB'},
+    'zh': {'WAZUR'},
+    'z': {'LATA', 'WAZUR'},
+    '\'': {'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA', 'WAZUR'},
+    'y': {'SUB'},
+    'r': {'SUPER', 'SUB', 'SUFFIX', 'LATA', 'WAZUR'},
+    'l': {'SUPER', 'SUB', 'SUFFIX', 'WAZUR'},
+    'sh': {'WAZUR'},
+    's': {'SUPER', 'SUFFIX', 'SUFFIX2', 'RATA', 'WAZUR'},
+    'h': {'LAGO', 'YATA', 'RATA', 'WAZUR'},
+    'a': {}
+}
+
 # Tibetan Unicode consonants
 U_ROOTLETTERS = (
     '\u0f40', '\u0f41', '\u0f42', '\u0f44',
@@ -99,9 +134,9 @@ def get_chars(indices, alphabet):
 
 def defs(index_groups, char_indices, rootletters):
     group = get_chars(char_indices, rootletters)
-    rules = tuple([get_chars(indices, rootletters) for indices in index_groups])
+    rules = tuple(get_chars(indices, rootletters) for indices in index_groups)
     valid_list = dict(zip(group, rules))
-    return (group, valid_list,)
+    return group, valid_list
 
 
 def suffix_rules(rootletters):
@@ -249,57 +284,59 @@ SW_UNIQUE = (3, 4, 8, 9, 10, 11, 12, 13, 14, 18, 23, 28, 29, 30, 33)
 # TODO: find solution for the ww/wv ambiguity
 
 
-class Table:
-    def __init__(self, constants=W_ROOTLETTERS, ga_prefix_marker='.'):
-        self.CONSONANTS = constants
-        self.GA_PREFIX_MARKER = ga_prefix_marker
-
-        self.LATIN_VOWEL_A = self.CONSONANTS[-1]
-        self.LATIN_A_CHUNG = constants[ACHUNG_INDEX]
-        self.TIBETAN_VOWELS = W_VOWELS + (self.LATIN_VOWEL_A,)
-        self.LATIN_TIBETAN_ALPHABET = self.CONSONANTS + W_VOWELS
-        self.LATIN_TIBETAN_ALPHABET_SET = set(self.LATIN_TIBETAN_ALPHABET)
-        self.LATIN_INDIC_ALPHABET = (
-            SW_ROOTLETTERS + SW_VOWELS + (self.CONSONANTS[ACHUNG_INDEX],)
-        )
-        self.LATIN_INDIC_ALPHABET_SET = set(self.LATIN_INDIC_ALPHABET)
-        self.GA_PREFIX = ''.join([self.CONSONANTS[2], self.GA_PREFIX_MARKER])
-        self.PREFIXES = get_chars(PREFIXES_I, self.CONSONANTS)
-        self.SUPERJOIN, VALID_SUPERJOIN = defs(
-            (RAGO_INDICES, LAGO_INDICES, SAGO_INDICES),
-            SUPER_INDICES,
-            self.CONSONANTS
-        )
-        self.SUB, self.VALID_SUBJOINED_LIST = defs(
-            (WAZUR_INDICES, YATA_INDICES, RATA_INDICES, LATA_INDICES),
-            SUB_INDICES,
-            self.CONSONANTS
-        )
-        self.VALID_SUFFIX = suffix_rules(self.CONSONANTS)
-        self.TIBETAN_UNICODE = dict(
-            zip(self.LATIN_TIBETAN_ALPHABET, U_ROOTLETTERS + U_VOWELS)
-        )
-        self.TIBINDIC_UNICODE = dict(zip(
-            self.LATIN_INDIC_ALPHABET,
+def create_lookup(consonants=W_ROOTLETTERS, ga_prefix_marker='.'):
+    latin_vowel_a = consonants[-1]
+    latin_tibetan_alphabet = consonants + W_VOWELS
+    latin_indic_alphabet = (
+        SW_ROOTLETTERS + SW_VOWELS + (consonants[ACHUNG_INDEX],)
+    )
+    lookup = {
+        'CONSONANTS': consonants,
+        'GA_PREFIX_MARKER': ga_prefix_marker,
+        'LATIN_VOWEL_A': latin_vowel_a,
+        'LATIN_A_CHUNG': consonants[ACHUNG_INDEX],
+        'TIBETAN_VOWELS': W_VOWELS + (latin_vowel_a,),
+        'LATIN_TIBETAN_ALPHABET': latin_tibetan_alphabet,
+        'LATIN_TIBETAN_ALPHABET_SET': set(latin_tibetan_alphabet),
+        'LATIN_INDIC_ALPHABET': latin_indic_alphabet,
+        'LATIN_INDIC_ALPHABET_SET': set(latin_indic_alphabet),
+        'GA_PREFIX': ''.join([consonants[2], ga_prefix_marker]),
+        'PREFIXES': get_chars(PREFIXES_I, consonants),
+        'VALID_SUFFIX': suffix_rules(consonants),
+        'TIBETAN_UNICODE': dict(
+            zip(latin_tibetan_alphabet, U_ROOTLETTERS + U_VOWELS)
+        ),
+        'TIBINDIC_UNICODE': dict(zip(
+            latin_indic_alphabet,
             SU_ROOTLETTERS + SU_VOWELS + (U_ACHUNG,)
-        ))
-        self.MAX_TIB_CHAR_LEN = max(
-            len(char) for char in self.LATIN_TIBETAN_ALPHABET
-        )
-        self.MAX_INDIC_CHAR_LEN = max(
-            len(char) for char in self.LATIN_INDIC_ALPHABET
-        )
-        self.SUBJOIN = SUBOFFSET
-        self.S_BASIC_RULES = S_BASIC_RULES
-        self.SW_VOWELS = SW_VOWELS
-        self.W_VOWELS = W_VOWELS
-        self.U_OM = U_OM
-        self.S_OM = S_OM
-        self.SW_ROOTLETTERS = SW_ROOTLETTERS
-        self.SW_REGEX = SW_REGEX
-        self.STACK = STACK
-        self.SNA_LDAN_CASES = SNA_LDAN_CASES
-        self.S_SNA_LDAN = S_SNA_LDAN
-        self.S_DOUBLE_CONSONANTS = S_DOUBLE_CONSONANTS
-        self.POSTVOWEL = POSTVOWEL
-        self.VALID_SUPERJOIN = VALID_SUPERJOIN
+        )),
+        'MAX_TIB_CHAR_LEN': max(len(char) for char in latin_tibetan_alphabet),
+        'MAX_INDIC_CHAR_LEN': max(len(char) for char in latin_indic_alphabet),
+        'SUBJOIN': SUBOFFSET,
+        'S_BASIC_RULES': S_BASIC_RULES,
+        'SW_VOWELS': SW_VOWELS,
+        'W_VOWELS': W_VOWELS,
+        'U_OM': U_OM,
+        'S_OM': S_OM,
+        'SW_ROOTLETTERS': SW_ROOTLETTERS,
+        'SW_REGEX': SW_REGEX,
+        'STACK': STACK,
+        'SNA_LDAN_CASES': SNA_LDAN_CASES,
+        'S_SNA_LDAN': S_SNA_LDAN,
+        'S_DOUBLE_CONSONANTS': S_DOUBLE_CONSONANTS,
+        'POSTVOWEL': POSTVOWEL
+    }
+
+    lookup['SUPERJOIN'], lookup['VALID_SUPERJOIN'] = defs(
+        (RAGO_INDICES, LAGO_INDICES, SAGO_INDICES),
+        SUPER_INDICES,
+        consonants
+    )
+
+    lookup['SUB'], lookup['VALID_SUBJOINED_LIST'] = defs(
+        (WAZUR_INDICES, YATA_INDICES, RATA_INDICES, LATA_INDICES),
+        SUB_INDICES,
+        consonants
+    )
+
+    return lookup
