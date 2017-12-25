@@ -227,7 +227,10 @@ def parse(string, table):
     if len(vowel_positions) != 1 and any(adjacent_vowels):
         return analyze_sanskrit(string, table)
 
-    first_vowel_index = vowel_positions[0]
+    try:
+        first_vowel_index = vowel_positions[0]
+    except IndexError:
+        return None
 
     if first_vowel_index >= len(analyze_syllable):
         logging.warning(
