@@ -76,10 +76,10 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
 
     if codepoints:
         content = content.split('\n')
-        result = [
+        result = tuple(
             translator.bytecodes(syllable, word.strip())
             for line in content for word in line.split()
-        ]
+        )
     else:
         lines = [line.split() for line in content.rstrip().splitlines()]
         fph = partial(
@@ -120,13 +120,38 @@ def apply_tsheg(tib_lines):
 
 
 def fp_handle(content, latin_shads, symbolLookup, table):
+    def handle_unsplit_shad(shad):
+        tibetan = []
+
+        for p in word.split(shad):
+            if p == '':
+                tibetan.append(symbolLookup[shad])
+            else:
+                tib_unicode = parse(p, table)
+
+                if tib_unicode is None:
+                    logging.warning("Could not parse: %s", p)
+                    line_items.append([word])
+                    line_items.append([])
+                    return
+
+                tibetan.append(tib_unicode)
+
+        line_items[-1].append(''.join(tibetan))
+
     for line in content:
         line_items = [[]]
 
         for word in line:
-            if word in latin_shads:
+            if word in latin_shads:         # word is a type of shad
                 line_items.append([symbolLookup[word]])
                 line_items.append([])
+                continue
+            elif latin_shads[1] in word:    # word contains double shad
+                handle_unsplit_shad(latin_shads[1])
+                continue
+            elif latin_shads[0] in word:    # word contains shad
+                handle_unsplit_shad(latin_shads[0])
                 continue
 
             tib_unicode = parse(word, table)
