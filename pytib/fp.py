@@ -1,7 +1,5 @@
 import logging
 
-# from tables import Table
-
 
 class InvalidTibetan(Exception):
     pass
@@ -57,8 +55,8 @@ def vowel_pos_0(latin, table):
 
 
 def vowel_pos_1(latin, table):
-    if not latin[0] in table['CONSONANTS'] \
-       and latin[1] in table['TIBETAN_VOWELS']:
+    if (not latin[0] in table['CONSONANTS']
+       and latin[1] in table['TIBETAN_VOWELS']):
         return None
 
     return dict(root=latin[0], vowel=latin[1])
@@ -389,16 +387,15 @@ def generateSanskritUnicode(latin, letterStacks, table):
 
 def analyze_sanskrit(latin_string, table):
     try:
-        parts = list(letter_partition(
+        parts = letter_partition(
             latin_string,
             table,
             alphabet=table['LATIN_INDIC_ALPHABET_SET'],
             max_char_len=table['MAX_INDIC_CHAR_LEN']
-        ))
+        )
+        latin = dict(parts=list(parts), string=latin_string)
     except InvalidTibetan:
         return None
-
-    latin = dict(parts=parts, string=latin_string)
 
     if latin['parts'] is None:
         return None
