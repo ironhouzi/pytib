@@ -1,7 +1,7 @@
 '''
     Wylie2Uni
     Wylie to Unicode convertor
-    Requires Python 3
+    Requires Python 3.6
 '''
 
 from pytib.tables import (
@@ -494,7 +494,9 @@ class Translator(object):
 
     def bytecodes(self, syllable, wylie_string):
         self.analyze(syllable, wylie_string)
-        return ', '.join("U+0{0:X}".format(ord(c)) for c in syllable.uni)
+
+        for c in syllable.uni:
+            yield f'U+{ord(c):04X}'
 
 
 class Syllable(object):

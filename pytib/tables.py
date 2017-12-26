@@ -123,6 +123,11 @@ S_NYIS_SHAD = '\u0f0e'
 S_SNA_LDAN = '\u0f83'
 S_OM = '\u0f00'
 
+SPECIAL_CASE = {
+    'oṃ': '\u0f00',
+    'tsandan': '\u0f59' + '\u0f53' + '\u0fa1' + '\u0f53'
+}
+
 W_SYMBOLS = ('/', '//')
 
 U_SYMBOLS = (S_SHAD, S_NYIS_SHAD)

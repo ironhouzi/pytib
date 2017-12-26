@@ -1,4 +1,5 @@
 import logging
+from pytib.tables import SPECIAL_CASE
 
 
 class InvalidTibetan(Exception):
@@ -49,7 +50,7 @@ def is_subscribed(latin, vowel_position, table):
 
 def vowel_pos_0(latin, table):
     if not latin[0] in table['TIBETAN_VOWELS']:
-        return None
+        raise InvalidTibetan
 
     return dict(root=latin[0])
 
@@ -57,7 +58,7 @@ def vowel_pos_0(latin, table):
 def vowel_pos_1(latin, table):
     if (not latin[0] in table['CONSONANTS']
        and latin[1] in table['TIBETAN_VOWELS']):
-        return None
+        raise InvalidTibetan
 
     return dict(root=latin[0], vowel=latin[1])
 
@@ -72,7 +73,7 @@ def vowel_pos_2(latin, table):
           and latin[1] in table['CONSONANTS']):
         result = dict(prefix=latin[0], root=latin[1])
     else:
-        return None
+        raise InvalidTibetan
 
     result['vowel'] = latin[2]
 
@@ -93,7 +94,7 @@ def vowel_pos_3(latin, table):
           and latin[2] in table['SUB']):
         result = dict(super=latin[0], root=latin[1], subjoined=latin[2])
     else:
-        return None
+        raise InvalidTibetan
 
     result['vowel'] = latin[3]
 
@@ -105,7 +106,7 @@ def vowel_pos_4(latin, table):
             and latin[1] in table['SUPERJOIN']
             and latin[2] in table['CONSONANTS']
             and latin[3] in table['SUB']):
-        return None
+        raise InvalidTibetan
 
     return dict(
         prefix=latin[0],
@@ -230,7 +231,7 @@ def parse(string, table):
     try:
         first_vowel_index = vowel_positions[0]
     except IndexError:
-        return None
+        return string
 
     if first_vowel_index >= len(analyze_syllable):
         logging.warning(
@@ -238,7 +239,11 @@ def parse(string, table):
         )
         return analyze_sanskrit(string, table)
 
-    syllable = analyze_syllable[first_vowel_index](latin, table)
+    try:
+        syllable = analyze_syllable[first_vowel_index](latin, table)
+    except InvalidTibetan:
+        return string
+
     syllable = find_suffixes(syllable, first_vowel_index, latin, table)
 
     if syllable is None:
@@ -317,9 +322,11 @@ def stackSanskritLetters(vowelIndices, latin):
 
 
 def generateSanskritUnicode(latin, letterStacks, table):
-    if latin['string'] == table['U_OM']:
-        yield table['S_OM']
+    try:
+        yield SPECIAL_CASE[latin['string']]
         raise StopIteration
+    except KeyError:
+        pass
 
     literal_va = table['SW_ROOTLETTERS'][28]
     literal_ba = table['CONSONANTS'][14]
@@ -337,7 +344,7 @@ def generateSanskritUnicode(latin, letterStacks, table):
         stackedLetters = stack[1:]
 
         for j, letter in enumerate(stackedLetters):
-            if letter is table['LATIN_VOWEL_A']:
+            if letter == table['LATIN_VOWEL_A']:
                 continue
 
             sna_ldan_case = (

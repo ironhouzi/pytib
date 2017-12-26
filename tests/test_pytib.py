@@ -1,6 +1,6 @@
 import pytest
 
-from pytib.fp import parse
+from pytib.core import parse
 from pytib.tables import create_lookup
 
 
@@ -221,3 +221,9 @@ def test_dpei(polyglotta_table):
     uni = '\u0F51' + '\u0F54' + '\u0F60' + '\u0F72'
     latin = 'dpa’i'
     assert parse(latin, polyglotta_table) == uni
+
+
+def test_tsandan(table):
+    uni = '\u0f59' + '\u0f53' + '\u0fa1' + '\u0f53'
+    latin = 'tsandan'
+    assert parse(latin, table) == uni

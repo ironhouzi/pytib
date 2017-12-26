@@ -5,7 +5,7 @@ import logging
 from functools import partial
 # from multiprocessing import Pool
 
-from pytib.fp import parse
+from pytib.core import parse
 from pytib.wylie2uni import Translator, Syllable
 from pytib.tables import (
     W_SYMBOLS, U_SYMBOLS, TSHEG, W_ROOTLETTERS, create_lookup
@@ -76,12 +76,19 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
 
     if codepoints:
         content = content.split('\n')
-        result = tuple(
-            translator.bytecodes(syllable, word.strip())
-            for line in content for word in line.split()
-        )
+        if new:
+            result = tuple(
+                f'U+{ord(c):04X}'
+                for line in content for word in line.split()
+                for c in parse(word, table)
+            )
+        else:
+            result = tuple(
+                translator.bytecodes(syllable, word.strip())
+                for line in content for word in line.split()
+            )
     else:
-        lines = [line.split() for line in content.rstrip().splitlines()]
+        words = tuple(line.split() for line in content.rstrip().splitlines())
         fph = partial(
             fp_handle,
             latin_shads=latin_shads,
@@ -90,7 +97,7 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
         )
 
         handler = fph if new else handle
-        tib_lines = handler(lines)
+        tib_lines = handler(words)
 
         result = ''.join(apply_tsheg(tib_lines))
 
@@ -107,25 +114,33 @@ def not_tibetan(word):
 
 def apply_tsheg(tib_lines):
     for line in tib_lines:
-        for segment in line:
+        for i, segment in enumerate(line):
             if not segment:
                 continue
-
-            if not_tibetan(segment[-1]):
+            elif not_tibetan(segment[-1]):
                 yield ' '.join(segment)
             else:
                 yield TSHEG.join(segment)
-            yield ' '
+
+            # Join line segments with a space, but don't create trailing spaces,
+            # and account for line[-1] == []
+            if i < len(line) - (2 if not line[-1] else 1):
+                yield ' '
+
         yield '\n'
 
 
 def fp_handle(content, latin_shads, symbolLookup, table):
     def handle_unsplit_shad(shad):
         tibetan = []
-
         for p in word.split(shad):
             if p == '':
                 tibetan.append(symbolLookup[shad])
+
+                if len(tibetan) > 1:     # terminating shad
+                    line_items[-1].append(''.join(tibetan))
+                    tibetan = []
+                    line_items.append([])
             else:
                 tib_unicode = parse(p, table)
 
@@ -137,7 +152,8 @@ def fp_handle(content, latin_shads, symbolLookup, table):
 
                 tibetan.append(tib_unicode)
 
-        line_items[-1].append(''.join(tibetan))
+        if tibetan:
+            line_items[-1].append(''.join(tibetan))
 
     for line in content:
         line_items = [[]]
