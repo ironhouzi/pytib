@@ -379,7 +379,10 @@ class Translator(object):
         components = iter(POSTVOWEL)
 
         for wylieChar in wylieLetters[vowelPosition+1:]:
-            syllableComponent = next(components)
+            try:
+                syllableComponent = next(components)
+            except StopIteration:
+                break
 
             if self.invalidSuffix(syllableComponent, wylieChar):
                 return False
