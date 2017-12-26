@@ -2,6 +2,7 @@
 
 import click
 import logging
+import os
 
 from functools import partial
 
@@ -10,6 +11,15 @@ from pytib.wylie2uni import Translator, Syllable
 from pytib.tables import (
     W_SYMBOLS, U_SYMBOLS, TSHEG, W_ROOTLETTERS, create_lookup
 )
+
+
+log_level = logging.DEBUG if os.getenv('DEBUG') in ('1', 'on') else logging.INFO
+logger = logging.getLogger('pytib')
+logger.setLevel(log_level)
+stream_handler = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 
 
 @click.command()
@@ -43,7 +53,7 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
                 if syllable.uni:
                     line_items[-1].append(syllable.uni)
                 else:
-                    logging.warning("Could not parse: %s", syllable.wylie)
+                    logger.debug("Could not parse: %s", syllable.wylie)
                     line_items.append([syllable.wylie])
                     line_items.append([])
 
@@ -147,7 +157,7 @@ def fp_handle(content, latin_shads, symbolLookup, table):
                 tib_unicode = parse(p, table)
 
                 if tib_unicode is None:
-                    logging.warning("Could not parse: %s", p)
+                    logger.debug("Could not parse: %s", p)
                     line_items.append([word])
                     line_items.append([])
                     return
@@ -175,7 +185,7 @@ def fp_handle(content, latin_shads, symbolLookup, table):
             tib_unicode = parse(word, table)
 
             if tib_unicode is None:
-                logging.warning("Could not parse: %s", word)
+                logger.debug("Could not parse: %s", word)
                 line_items.append([word])
                 line_items.append([])
             else:

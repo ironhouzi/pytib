@@ -2,6 +2,9 @@ import logging
 from pytib.tables import SPECIAL_CASE
 
 
+logger = logging.getLogger('pytib.core')
+
+
 class InvalidTibetan(Exception):
     pass
 
