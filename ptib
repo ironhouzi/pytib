@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+
 import click
 import logging
 
 from functools import partial
-# from multiprocessing import Pool
 
 from pytib.core import parse
 from pytib.wylie2uni import Translator, Syllable
@@ -63,12 +63,14 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
         )
 
         latin_shads = ('|', '||')
+        ga_prefixer = '-'
     else:
         consonants = W_ROOTLETTERS
         latin_shads = W_SYMBOLS
+        ga_prefixer = '.'
 
-    translator = Translator(consonants, '-')
-    table = create_lookup(consonants, '-')
+    translator = Translator(consonants, ga_prefixer)
+    table = create_lookup(consonants, ga_prefixer)
     syllable = Syllable()
     symbolLookup = dict(zip(latin_shads, U_SYMBOLS))
 
@@ -84,8 +86,8 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
             )
         else:
             result = tuple(
-                translator.bytecodes(syllable, word.strip())
-                for line in content for word in line.split()
+                c for line in content for word in line.split()
+                for c in translator.bytecodes(syllable, word.strip())
             )
     else:
         words = tuple(line.split() for line in content.rstrip().splitlines())
@@ -109,7 +111,7 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
 
 def not_tibetan(word):
     v = ord(word[0])
-    return word in U_SYMBOLS or v < 0xf00 or v > 0x0fff
+    return word in U_SYMBOLS or v < 0x0f00 or v > 0x0fff
 
 
 def apply_tsheg(tib_lines):
@@ -124,7 +126,7 @@ def apply_tsheg(tib_lines):
 
             # Join line segments with a space, but don't create trailing spaces,
             # and account for line[-1] == []
-            if i < len(line) - (2 if not line[-1] else 1):
+            if i < (len(line) - (2 if not line[-1] else 1)):
                 yield ' '
 
         yield '\n'
