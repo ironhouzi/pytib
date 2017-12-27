@@ -6,10 +6,7 @@ import os
 import json
 import sys
 
-from functools import partial
-
-from pytib.core import parse
-from pytib.wylie2uni import Translator, Syllable
+from pytib import parse
 from pytib.tables import (
     W_SYMBOLS, U_SYMBOLS, TSHEG, W_ROOTLETTERS, create_lookup
 )
@@ -39,28 +36,6 @@ def pytib(filename, wyliestring, include, codepoints, new, config):
     with the -f parameter.
     """
 
-    def handle(content):
-        for line in content:
-            line_items = [[]]
-
-            for word in line:
-                if word in latin_shads:
-                    line_items.append([symbolLookup[word]])
-                    line_items.append([])
-                    continue
-
-                syllable.clear()
-                translator.analyze(syllable, word)
-
-                if syllable.uni:
-                    line_items[-1].append(syllable.uni)
-                else:
-                    logger.debug("Could not parse: %s", syllable.wylie)
-                    line_items.append([syllable.wylie])
-                    line_items.append([])
-
-            yield line_items
-
     try:
         serial_cfg = config.read() if config else '{}'
         cfg = json.loads(serial_cfg)
@@ -72,38 +47,21 @@ def pytib(filename, wyliestring, include, codepoints, new, config):
     latin_shads = cfg.get('shads', W_SYMBOLS)
     ga_prefixer = cfg.get('ga_prefixer', '.')
 
-    translator = Translator(consonants, ga_prefixer)
     table = create_lookup(consonants, ga_prefixer)
-    syllable = Syllable()
-    symbolLookup = dict(zip(latin_shads, U_SYMBOLS))
+    symbol_lookup = dict(zip(latin_shads, U_SYMBOLS))
 
     content = wyliestring if wyliestring else filename.read()
 
     if codepoints:
         content = content.split('\n')
-        if new:
-            result = tuple(
-                f'U+{ord(c):04X}'
-                for line in content for word in line.split()
-                for c in parse(word, table)
-            )
-        else:
-            result = tuple(
-                c for line in content for word in line.split()
-                for c in translator.bytecodes(syllable, word.strip())
-            )
+        result = tuple(
+            f'U+{ord(c):04X}'
+            for line in content for word in line.split()
+            for c in parse(word, table)
+        )
     else:
         words = tuple(line.split() for line in content.rstrip().splitlines())
-        fph = partial(
-            fp_handle,
-            latin_shads=latin_shads,
-            symbolLookup=symbolLookup,
-            table=table
-        )
-
-        handler = fph if new else handle
-        tib_lines = handler(words)
-
+        tib_lines = handler(words, latin_shads, symbol_lookup, table)
         result = ''.join(apply_tsheg(tib_lines))
 
     if include:
@@ -135,12 +93,12 @@ def apply_tsheg(tib_lines):
         yield '\n'
 
 
-def fp_handle(content, latin_shads, symbolLookup, table):
+def handler(content, latin_shads, symbol_lookup, table):
     def handle_unsplit_shad(shad):
         tibetan = []
         for p in word.split(shad):
             if p == '':
-                tibetan.append(symbolLookup[shad])
+                tibetan.append(symbol_lookup[shad])
 
                 if len(tibetan) > 1:     # terminating shad
                     line_items[-1].append(''.join(tibetan))
@@ -165,7 +123,7 @@ def fp_handle(content, latin_shads, symbolLookup, table):
 
         for word in line:
             if word in latin_shads:         # word is a type of shad
-                line_items.append([symbolLookup[word]])
+                line_items.append([symbol_lookup[word]])
                 line_items.append([])
                 continue
             elif latin_shads[1] in word:    # word contains double shad

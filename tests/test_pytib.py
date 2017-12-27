@@ -53,7 +53,6 @@ def latin_sanskrit_quick_checks():
 @pytest.fixture
 def table():
     return create_lookup()
-    # return Table()
 
 
 @pytest.fixture
@@ -70,7 +69,6 @@ def polyglotta_table():
     )
 
     return create_lookup(consonants, '-')
-    # return Table(consonants, '-')
 
 
 def test_wylie(defs, table):

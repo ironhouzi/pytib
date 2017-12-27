@@ -1,1 +1,1 @@
-from pytib.wylie2uni import Syllable, Translator  # noqa
+from pytib.core import parse    # noqa
