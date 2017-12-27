@@ -3,6 +3,8 @@
 import click
 import logging
 import os
+import json
+import sys
 
 from functools import partial
 
@@ -24,14 +26,14 @@ logger.addHandler(stream_handler)
 
 @click.command()
 @click.option('--filename', '-f', help='Specify file to read',
-              type=click.File(), nargs=1, default='-')
+              type=click.File('r'), nargs=1, default='-')
+@click.option('--config', '-c', help='Config JSON file path',
+              type=click.File('r'), nargs=1, envvar='PYTIB_CONFIG')
 @click.option('--include', '-i', help='Include input in printout', is_flag=True)
-@click.option('--codepoints', '-c', help='Print Unicode values', is_flag=True)
-@click.option('--schol', '-s', help='Use polyglotta transliteration',
-              is_flag=True)
+@click.option('--codepoints', '-p', help='Print Unicode values', is_flag=True)
 @click.option('--new', '-n', help='Use new algorithm', is_flag=True)
 @click.argument('wyliestring', required=False)
-def pytib(filename, wyliestring, include, codepoints, schol, new):
+def pytib(filename, wyliestring, include, codepoints, new, config):
     """ Docstring
     WYLIESTRING can be either a string literal or a file passed via STDIN or
     with the -f parameter.
@@ -59,25 +61,16 @@ def pytib(filename, wyliestring, include, codepoints, schol, new):
 
             yield line_items
 
-    if schol:
-        # Schol/latin consonants
-        consonants = (
-            'k',  'kh',  'g',  'ṅ',
-            'c',  'ch',  'j',  'ñ',
-            't',  'th',  'd',  'n',
-            'p',  'ph',  'b',  'm',
-            'ts', 'tsh', 'dz', 'v',
-            'ź',  'z',   '’',  'y',
-            'r',  'l',   'ś',  's',
-            'h',  'a'
-        )
+    try:
+        serial_cfg = config.read() if config else '{}'
+        cfg = json.loads(serial_cfg)
+    except Exception:
+        logger.error('Invalid JSON config file!')
+        sys.exit(1)
 
-        latin_shads = ('|', '||')
-        ga_prefixer = '-'
-    else:
-        consonants = W_ROOTLETTERS
-        latin_shads = W_SYMBOLS
-        ga_prefixer = '.'
+    consonants = tuple(cfg.get('consonants', W_ROOTLETTERS))
+    latin_shads = cfg.get('shads', W_SYMBOLS)
+    ga_prefixer = cfg.get('ga_prefixer', '.')
 
     translator = Translator(consonants, ga_prefixer)
     table = create_lookup(consonants, ga_prefixer)
