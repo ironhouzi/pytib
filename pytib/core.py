@@ -309,22 +309,22 @@ def vowel_positions(latin, table):
     return result
 
 
-def stackSanskritLetters(vowelIndices, latin):
-    vowelIndices = list(i+1 for i in vowelIndices)
+def stack_sanskrit_letters(vowel_indices, latin):
+    vowel_indices = list(i+1 for i in vowel_indices)
 
-    if vowelIndices[0] != 0:
-        vowelIndices.insert(0, 0)
+    if vowel_indices[0] != 0:
+        vowel_indices.insert(0, 0)
 
-    if vowelIndices[-1] != len(latin):
-        vowelIndices.append(len(latin))
+    if vowel_indices[-1] != len(latin):
+        vowel_indices.append(len(latin))
 
-    vowelIndices = zip(vowelIndices, vowelIndices[1:])
+    vowel_indices = zip(vowel_indices, vowel_indices[1:])
 
-    for i in vowelIndices:
+    for i in vowel_indices:
         yield latin[i[0]:i[1]]
 
 
-def generateSanskritUnicode(latin, letterStacks, table):
+def generate_sanskrit_unicode(latin, letter_stacks, table):
     try:
         yield SPECIAL_CASE[latin['string']]
         raise StopIteration
@@ -335,18 +335,18 @@ def generateSanskritUnicode(latin, letterStacks, table):
     literal_ba = table['CONSONANTS'][14]
     literal_rv = table['SW_ROOTLETTERS'][26] + table['SW_ROOTLETTERS'][28]
 
-    for i, stack in enumerate(letterStacks):
+    for i, stack in enumerate(letter_stacks):
         if stack[0] in table['SW_VOWELS'][1:]:   # avoid leading `a`
             yield table['TIBINDIC_UNICODE'][table['LATIN_VOWEL_A']]
             yield table['TIBINDIC_UNICODE'][stack[0]]
-        elif stack[0] is literal_va:
+        elif stack[0] == literal_va:
             yield table['TIBINDIC_UNICODE'][literal_ba]
         else:
             yield table['TIBINDIC_UNICODE'][stack[0]]
 
-        stackedLetters = stack[1:]
+        stacked_letters = stack[1:]
 
-        for j, letter in enumerate(stackedLetters):
+        for j, letter in enumerate(stacked_letters):
             if letter == table['LATIN_VOWEL_A']:
                 continue
 
@@ -418,5 +418,5 @@ def analyze_sanskrit(latin_string, table):
     if not vowel_indices:
         return None
 
-    letterStacks = stackSanskritLetters(vowel_indices, latin['parts'])
-    return ''.join(generateSanskritUnicode(latin, letterStacks, table))
+    letter_stacks = stack_sanskrit_letters(vowel_indices, latin['parts'])
+    return ''.join(generate_sanskrit_unicode(latin, letter_stacks, table))

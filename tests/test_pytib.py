@@ -46,11 +46,6 @@ def defs():
 
 
 @pytest.fixture
-def latin_sanskrit_quick_checks():
-    return ('sarva', 'ai', 'au', 'akṣye', 'vajra', 'kyai')
-
-
-@pytest.fixture
 def table():
     return create_lookup()
 
@@ -225,3 +220,9 @@ def test_tsandan(table):
     uni = '\u0f59' + '\u0f53' + '\u0fa1' + '\u0f53'
     latin = 'tsandan'
     assert parse(latin, table) == uni
+
+
+# def test_mangalam(table):
+#     uni = '\u0f58' + '\u0f62' + '\u0f93' + '\u0f7e'
+#     latin = 'mangalaṃ'
+#     assert parse(latin, table) == uni
