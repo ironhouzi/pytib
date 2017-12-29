@@ -289,7 +289,10 @@ SW_UNIQUE = (3, 4, 8, 9, 10, 11, 12, 13, 14, 18, 23, 28, 29, 30, 33)
 # TODO: find solution for the ww/wv ambiguity
 
 
-def create_lookup(consonants=W_ROOTLETTERS, ga_prefix_marker='.'):
+def create_lookup(cfg={}):
+    consonants = tuple(cfg.get('consonants', W_ROOTLETTERS))
+    ga_prefix_marker = cfg.get('ga_prefixer', '.')
+    latin_shads = cfg.get('shads', W_SYMBOLS)
     latin_vowel_a = consonants[-1]
     latin_tibetan_alphabet = consonants + W_VOWELS
     latin_indic_alphabet = (
@@ -329,7 +332,9 @@ def create_lookup(consonants=W_ROOTLETTERS, ga_prefix_marker='.'):
         'SNA_LDAN_CASES': SNA_LDAN_CASES,
         'S_SNA_LDAN': S_SNA_LDAN,
         'S_DOUBLE_CONSONANTS': S_DOUBLE_CONSONANTS,
-        'POSTVOWEL': POSTVOWEL
+        'POSTVOWEL': POSTVOWEL,
+        'LATIN_SHADS': latin_shads,
+        'SYMBOL_LOOKUP': dict(zip(latin_shads, U_SYMBOLS))
     }
 
     lookup['SUPERJOIN'], lookup['VALID_SUPERJOIN'] = defs(

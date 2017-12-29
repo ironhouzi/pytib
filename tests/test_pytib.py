@@ -52,18 +52,21 @@ def table():
 
 @pytest.fixture
 def polyglotta_table():
-    consonants = (
-        'k',  'kh',  'g',  'ṅ',
-        'c',  'ch',  'j',  'ñ',
-        't',  'th',  'd',  'n',
-        'p',  'ph',  'b',  'm',
-        'ts', 'tsh', 'dz', 'v',
-        'ź',  'z',   '’',  'y',
-        'r',  'l',   'ś',  's',
-        'h',  'a'
-    )
+    cfg = {
+        'consonants': (
+            'k',  'kh',  'g',  'ṅ',
+            'c',  'ch',  'j',  'ñ',
+            't',  'th',  'd',  'n',
+            'p',  'ph',  'b',  'm',
+            'ts', 'tsh', 'dz', 'v',
+            'ź',  'z',   '’',  'y',
+            'r',  'l',   'ś',  's',
+            'h',  'a'
+        ),
+        'ga_prefixer': '-'
+    }
 
-    return create_lookup(consonants, '-')
+    return create_lookup(cfg)
 
 
 def test_wylie(defs, table):

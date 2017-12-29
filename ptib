@@ -5,11 +5,12 @@ import logging
 import os
 import json
 import sys
+import webbrowser
 
-from pytib import parse
-from pytib.tables import (
-    W_SYMBOLS, U_SYMBOLS, TSHEG, W_ROOTLETTERS, create_lookup
-)
+from pathlib import Path
+
+import pytib
+from pytib.tables import create_lookup
 
 
 log_level = logging.DEBUG if os.getenv('DEBUG') in ('1', 'on') else logging.INFO
@@ -22,18 +23,20 @@ logger.addHandler(stream_handler)
 
 
 @click.command()
-@click.option('--filename', '-f', help='Specify file to read',
+@click.option('--input-file', '-i', help='Specify file to read',
               type=click.File('r'), nargs=1, default='-')
 @click.option('--config', '-c', help='Config JSON file path',
               type=click.File('r'), nargs=1, envvar='PYTIB_CONFIG')
-@click.option('--include', '-i', help='Include input in printout', is_flag=True)
-@click.option('--codepoints', '-p', help='Print Unicode values', is_flag=True)
-@click.option('--new', '-n', help='Use new algorithm', is_flag=True)
-@click.argument('wyliestring', required=False)
-def pytib(filename, wyliestring, include, codepoints, new, config):
-    """ Docstring
-    WYLIESTRING can be either a string literal or a file passed via STDIN or
-    with the -f parameter.
+@click.option('--preserve-input', '-p', is_flag=True,
+              help='Preserve wylie in Unicode output')
+@click.option('--unicode-points', '-u', is_flag=True,
+              help='Print Unicode values')
+@click.option('--html', help='Output as basic HTML document', is_flag=True)
+@click.argument('wylie', required=False)
+def ptib(input_file, wylie, preserve_input, unicode_points, html, config):
+    """
+    WYLIE can be either a string literal or a file.
+    The file can be read from STDIN, or from a filepath using the -f parameter.
     """
 
     try:
@@ -43,107 +46,56 @@ def pytib(filename, wyliestring, include, codepoints, new, config):
         logger.error('Invalid JSON config file!')
         sys.exit(1)
 
-    consonants = tuple(cfg.get('consonants', W_ROOTLETTERS))
-    latin_shads = cfg.get('shads', W_SYMBOLS)
-    ga_prefixer = cfg.get('ga_prefixer', '.')
+    table = create_lookup(cfg)
+    content = wylie if wylie else input_file.read()
 
-    table = create_lookup(consonants, ga_prefixer)
-    symbol_lookup = dict(zip(latin_shads, U_SYMBOLS))
-
-    content = wyliestring if wyliestring else filename.read()
-
-    if codepoints:
+    if unicode_points:
         content = content.split('\n')
         result = tuple(
-            f'U+{ord(c):04X}'
+            f'U+{ord(char):04X}'
             for line in content for word in line.split()
-            for c in parse(word, table)
+            for char in pytib.parse(word, table)
         )
     else:
-        words = tuple(line.split() for line in content.rstrip().splitlines())
-        tib_lines = handler(words, latin_shads, symbol_lookup, table)
-        result = ''.join(apply_tsheg(tib_lines))
+        result = ''.join(pytib.read(content, table))
 
-    if include:
+    if preserve_input:
         print(content)
 
-    print(result)
+    if html:
+        cwd = Path(__file__).absolute().parent
+        web_dir = cwd / '.web_tmp/'
+        web_dir.mkdir(exist_ok=True)
+        index_html = web_dir / 'index.html'
+
+        with open(index_html, 'w') as f:
+            f.write(to_web(result))
+
+        webbrowser.open_new_tab(index_html.as_uri())
+    else:
+        print(result)
 
 
-def not_tibetan(word):
-    v = ord(word[0])
-    return word in U_SYMBOLS or v < 0x0f00 or v > 0x0fff
-
-
-def apply_tsheg(tib_lines):
-    for line in tib_lines:
-        for i, segment in enumerate(line):
-            if not segment:
-                continue
-            elif not_tibetan(segment[-1]):
-                yield ' '.join(segment)
-            else:
-                yield TSHEG.join(segment)
-
-            # Join line segments with a space, but don't create trailing spaces,
-            # and account for line[-1] == []
-            if i < (len(line) - (2 if not line[-1] else 1)):
-                yield ' '
-
-        yield '\n'
-
-
-def handler(content, latin_shads, symbol_lookup, table):
-    def handle_unsplit_shad(shad):
-        tibetan = []
-        for p in word.split(shad):
-            if p == '':
-                tibetan.append(symbol_lookup[shad])
-
-                if len(tibetan) > 1:     # terminating shad
-                    line_items[-1].append(''.join(tibetan))
-                    tibetan = []
-                    line_items.append([])
-            else:
-                tib_unicode = parse(p, table)
-
-                if tib_unicode is None:
-                    logger.debug("Could not parse: %s", p)
-                    line_items.append([word])
-                    line_items.append([])
-                    return
-
-                tibetan.append(tib_unicode)
-
-        if tibetan:
-            line_items[-1].append(''.join(tibetan))
-
-    for line in content:
-        line_items = [[]]
-
-        for word in line:
-            if word in latin_shads:         # word is a type of shad
-                line_items.append([symbol_lookup[word]])
-                line_items.append([])
-                continue
-            elif latin_shads[1] in word:    # word contains double shad
-                handle_unsplit_shad(latin_shads[1])
-                continue
-            elif latin_shads[0] in word:    # word contains shad
-                handle_unsplit_shad(latin_shads[0])
-                continue
-
-            tib_unicode = parse(word, table)
-
-            if tib_unicode is None:
-                logger.debug("Could not parse: %s", word)
-                line_items.append([word])
-                line_items.append([])
-            else:
-                line_items[-1].append(tib_unicode)
-
-        yield line_items
+def to_web(result):
+    tibetan = result.replace('\n', '</br>')
+    return f'''<!DOCTYPE html>
+    <html>
+      <head>
+        <title>PyTib</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <style type="text/css">
+            .tibetan {{
+                font-family: Microsoft Himalaya, Noto Sans Tibetan;
+                font-size: 48px;
+            }}
+        </style>
+      </head>
+      <body>
+      <p class="tibetan">{tibetan}</p>
+      </body>
+    </html>
+    '''
 
 
 if __name__ == '__main__':
-    pytib()
+    ptib()
