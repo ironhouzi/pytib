@@ -14,41 +14,6 @@ W_ROOTLETTERS = (
     'h',  'a'
 )
 
-W_LOOKUP = {
-    'k': {'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA', 'WAZUR'},
-    'kh': {'YATA', 'RATA', 'WAZUR'},
-    'g': {'PREFIX', 'SUFFIX', 'RAGO', 'LAGO', 'SAGO',
-          'YATA', 'RATA', 'LATA', 'WAZUR'},
-    'ng': {'SUFFIX', 'RAGO', 'LAGO', 'SAGO'},
-    'c': {'LAGO', 'WAZUR'},
-    'ch': {'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA', 'WAZUR'},
-    'j': {'RAGO', 'LAGO'},
-    'ny': {'RAGO', 'SAGO', 'WAZUR'},
-    't': {'RAGO', 'LAGO', 'SAGO', 'RATA', 'WAZUR'},
-    'th': {'RATA'},
-    'd': {'PREFIX', 'SUFFIX', 'SUFFIX2',
-          'RAGO', 'LAGO', 'SAGO', 'RATA', 'WAZUR'},
-    'n': {'SUFFIX', 'RAGO', 'SAGO', 'RATA'},
-    'p': {'LAGO', 'SAGO', 'YATA', 'RATA'},
-    'ph': {'YATA', 'RATA'},
-    'b': {'PREFIX', 'SUFFIX', 'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA'},
-    'm': {'PREFIX', 'SUFFIX', 'RAGO', 'SAGO', 'YATA', 'RATA'},
-    'ts': {'RAGO', 'SAGO', 'WAZUR'},
-    'tsh': {'WAZUR'},
-    'dz': {'RAGO'},
-    'w': {'SUB'},
-    'zh': {'WAZUR'},
-    'z': {'LATA', 'WAZUR'},
-    '\'': {'RAGO', 'LAGO', 'SAGO', 'YATA', 'RATA', 'LATA', 'WAZUR'},
-    'y': {'SUB'},
-    'r': {'SUPER', 'SUB', 'SUFFIX', 'LATA', 'WAZUR'},
-    'l': {'SUPER', 'SUB', 'SUFFIX', 'WAZUR'},
-    'sh': {'WAZUR'},
-    's': {'SUPER', 'SUFFIX', 'SUFFIX2', 'RATA', 'WAZUR'},
-    'h': {'LAGO', 'YATA', 'RATA', 'WAZUR'},
-    'a': {}
-}
-
 # Tibetan Unicode consonants
 U_ROOTLETTERS = (
     '\u0f40', '\u0f41', '\u0f42', '\u0f44',
@@ -113,11 +78,8 @@ SU_VOWELS = (
 
 # TODO: replace char literals with codepoints.
 U_OM = 'oṃ'
-U_STACKED_YA = '\u0fbb'
-U_STACKED_RA = '\u0fbc'
 
 TSHEG = '\u0f0b'
-S_SPACE = '\u00a0'
 S_SHAD = '\u0f0d'
 S_NYIS_SHAD = '\u0f0e'
 S_SNA_LDAN = '\u0f83'
@@ -202,23 +164,12 @@ WAZUR_INDICES = (0,  1,  2, 4,  7,  8, 10, 16, 17, 20, 21, 24, 25, 26, 27, 28)
 # Syllable objects have the following structure. The individual elements are
 # referred to as 'components', or 'syllable components'.
 
-PREVOWEL = (
-    'prefix',
-    'super',
-    'root',
-    'subjoined',
-    'secondsub',
-    'vowel'
-)
-
 POSTVOWEL = (
     'suffix',
     'suffix2',
     'genitive',
     'genvowel'
 )
-
-SYLLSTRUCT = PREVOWEL + POSTVOWEL
 
 SUBOFFSET = 0x50
 
@@ -230,7 +181,9 @@ STACK = {
 }
 
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
-SHAD_IRREGULAR = [U_ROOTLETTERS[0], U_ROOTLETTERS[2]]
+SHAD_IRREGULAR = (U_ROOTLETTERS[0], U_ROOTLETTERS[2])
+
+S_DONT_STACK = ('phaṭ',)
 
 # TODO improve rule string literals system agnostic, by referrencing to
 #      main rootletters or vowels
@@ -245,8 +198,6 @@ S_RULES_2 = ('gh', 'dh', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr', 'hy', 'ty',
 S_BASIC_RULES = S_RULES_4 + S_RULES_3 + S_RULES_2
 
 S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb')
-
-S_DONT_STACK = ('phaṭ',)
 
 SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', 'ddhaṃ')
 
@@ -281,10 +232,6 @@ SW_REGEX = {
 
 ACHUNG_INDEX = 22
 U_ACHUNG = U_ROOTLETTERS[22]
-
-SW_AMBIGOUS = ('ts', 'tsh', 'dz', 'w', 'ny', 'ng', 'sh')
-
-SW_UNIQUE = (3, 4, 8, 9, 10, 11, 12, 13, 14, 18, 23, 28, 29, 30, 33)
 
 # TODO: find solution for the ww/wv ambiguity
 
