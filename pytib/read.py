@@ -1,7 +1,7 @@
 import logging
 
 from pytib import parse
-from pytib.tables import U_SYMBOLS, TSHEG
+from pytib.tables import U_SYMBOLS, U_TSHEG
 
 logger = logging.getLogger('pytib.core')
 
@@ -17,7 +17,7 @@ def read(content, table):
             elif _not_tibetan(segment[-1]):
                 yield ' '.join(segment)
             else:
-                yield TSHEG.join(segment)
+                yield U_TSHEG.join(segment)
 
             # Join line segments with a space, but don't create trailing spaces,
             # and account for line[-1] == []

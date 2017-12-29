@@ -1,5 +1,6 @@
 import logging
-from pytib.tables import SPECIAL_CASE
+
+from pytib.tables import SUBOFFSET, U_SNA_LDAN, POSTVOWEL
 
 
 logger = logging.getLogger('pytib.core')
@@ -132,7 +133,7 @@ analyze_syllable = (
 def find_suffixes(syllable, vowel_position, latin, table):
     '''Identifies the syllable suffixes'''
 
-    post_vowels = iter(table['POSTVOWEL'])
+    post_vowels = iter(POSTVOWEL)
 
     for latin_suffix in latin[vowel_position+1:]:
         try:
@@ -141,7 +142,7 @@ def find_suffixes(syllable, vowel_position, latin, table):
             break   # Disallow multiple genetive vowels
 
         invalid_suffix = (
-            post_vowel in table['POSTVOWEL'][:2]
+            post_vowel in POSTVOWEL[:2]
             and latin_suffix not in table['TIBETAN_VOWELS']
             and latin_suffix not in table['VALID_SUFFIX'][post_vowel]
         )
@@ -286,7 +287,7 @@ def to_unicode(syllable, table):
 
         if needs_subjoin:
             yield (
-                chr(table['SUBJOIN'] +
+                chr(SUBOFFSET +
                     ord(table['TIBETAN_UNICODE'][latin_char]))
             )
         else:
@@ -326,7 +327,7 @@ def stack_sanskrit_letters(vowel_indices, latin):
 
 def generate_sanskrit_unicode(latin, letter_stacks, table):
     try:
-        yield SPECIAL_CASE[latin['string']]
+        yield table['SPECIAL_CASE'][latin['string']]
         raise StopIteration
     except KeyError:
         pass
@@ -356,7 +357,7 @@ def generate_sanskrit_unicode(latin, letter_stacks, table):
             )
 
             if sna_ldan_case:
-                yield table['S_SNA_LDAN']
+                yield U_SNA_LDAN
                 continue
 
             if letter in table['SW_VOWELS']:
@@ -365,7 +366,7 @@ def generate_sanskrit_unicode(latin, letter_stacks, table):
 
             if ''.join(stack[:2]) == literal_rv:
                 yield (
-                    chr(table['SUBJOIN'] +
+                    chr(SUBOFFSET +
                         ord(table['TIBINDIC_UNICODE'][literal_ba]))
                 )
                 continue
@@ -387,7 +388,7 @@ def generate_sanskrit_unicode(latin, letter_stacks, table):
                 for regex in table['SW_REGEX'][letter]:
                     if regex.search(''.join(stack)):
                         subjoin = chr(
-                            table['SUBJOIN'] +
+                            SUBOFFSET +
                             ord(table['TIBINDIC_UNICODE'][letter])
                         )
                         break
@@ -395,7 +396,7 @@ def generate_sanskrit_unicode(latin, letter_stacks, table):
                 yield subjoin or table['STACK'][letter]
                 continue
 
-            yield chr(table['SUBJOIN'] + ord(table['TIBINDIC_UNICODE'][letter]))
+            yield chr(SUBOFFSET + ord(table['TIBINDIC_UNICODE'][letter]))
 
 
 def analyze_sanskrit(latin_string, table):

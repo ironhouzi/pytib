@@ -76,14 +76,13 @@ SU_VOWELS = (
     '\u0f78',    '\u0f79', '\u0f7e',    '\u0f7f'
 )
 
-# TODO: replace char literals with codepoints.
-U_OM = 'oṃ'
+SW_OM = SW_VOWELS[8] + SW_VOWELS[14]
 
-TSHEG = '\u0f0b'
-S_SHAD = '\u0f0d'
-S_NYIS_SHAD = '\u0f0e'
-S_SNA_LDAN = '\u0f83'
-S_OM = '\u0f00'
+U_TSHEG = '\u0f0b'
+U_SHAD = '\u0f0d'
+U_NYIS_SHAD = '\u0f0e'
+U_SNA_LDAN = '\u0f83'
+U_OM = '\u0f00'
 
 SPECIAL_CASE = {
     'oṃ': '\u0f00',
@@ -91,12 +90,11 @@ SPECIAL_CASE = {
 }
 
 W_SYMBOLS = ('/', '//')
-
-U_SYMBOLS = (S_SHAD, S_NYIS_SHAD)
+U_SYMBOLS = (U_SHAD, U_NYIS_SHAD)
 
 
 def get_chars(indices, alphabet):
-    return tuple([alphabet[index] for index in indices])
+    return tuple(alphabet[index] for index in indices)
 
 
 def defs(index_groups, char_indices, rootletters):
@@ -183,53 +181,6 @@ STACK = {
 # The SHAD or NYIS SHAD are not to be drawn if followed by these letters
 SHAD_IRREGULAR = (U_ROOTLETTERS[0], U_ROOTLETTERS[2])
 
-S_DONT_STACK = ('phaṭ',)
-
-# TODO improve rule string literals system agnostic, by referrencing to
-#      main rootletters or vowels
-S_RULES_4 = ('phyw',)
-
-# TODO: n.y case needed??
-S_RULES_3 = ('ghr', 'hra', 'hwa', 'tsy', 'trw', 'rdh', 'sye', 'n.y')
-
-S_RULES_2 = ('gh', 'dh', 'cy', 'jh', 'nn', 'mm', 'ww', 'yy', 'rr', 'hy', 'ty',
-             'tv', 'tw', 'tz', 'bh', 'ss')
-
-S_BASIC_RULES = S_RULES_4 + S_RULES_3 + S_RULES_2
-
-S_DOUBLE_CONSONANTS = ('gg', 'dd', 'bb')
-
-SNA_LDAN_CASES = ('hūṃ', 'hkṣmlvryaṃ', 'ddhaṃ')
-
-SW_YATA_REGEX = (
-    # ya followed by one or two vowels and preceded by kṣ, t, ś, s, h
-    re.compile('(kṣ|t|ś|s|h)y({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
-    re.compile('(k|c)yai'),
-    re.compile('phyv'),
-    # TODO: handle n.y
-    re.compile('(k|d|b|m|n)y')
-)
-
-SW_RATA_REGEX = (
-    # ra followed by one or two vowels and preceded by t, th, bh, s
-    re.compile('(t|th|bh|s)r({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
-    re.compile('kri'),
-    re.compile('(kh|k|d|b|m|g|n|p|ph|j)r')
-)
-
-SW_WAZUR_REGEX = (
-    # va followed by one or two vowels and preceded by t, ḍ, d, dh, ś, s, tr
-    re.compile('(t|ḍ|d|dh|ś|s|tr)v({}){{1,2}}$'.format('|'.join(SW_VOWELS))),
-    re.compile('phyv'),
-    re.compile('(y|j|l|h)v')
-)
-
-SW_REGEX = {
-    SW_ROOTLETTERS[28]: SW_WAZUR_REGEX,
-    SW_ROOTLETTERS[25]: SW_YATA_REGEX,
-    SW_ROOTLETTERS[26]: SW_RATA_REGEX
-}
-
 ACHUNG_INDEX = 22
 U_ACHUNG = U_ROOTLETTERS[22]
 
@@ -237,27 +188,122 @@ U_ACHUNG = U_ROOTLETTERS[22]
 
 
 def create_lookup(cfg={}):
-    consonants = tuple(cfg.get('consonants', W_ROOTLETTERS))
-    ga_prefix_marker = cfg.get('ga_prefixer', '.')
+    c = tuple(cfg.get('consonants', W_ROOTLETTERS))
+    ga_prefixer = cfg.get('ga_prefixer', '.')
     latin_shads = cfg.get('shads', W_SYMBOLS)
-    latin_vowel_a = consonants[-1]
-    latin_tibetan_alphabet = consonants + W_VOWELS
+    latin_vowel_a = c[-1]
+    latin_tibetan_alphabet = c + W_VOWELS
     latin_indic_alphabet = (
-        SW_ROOTLETTERS + SW_VOWELS + (consonants[ACHUNG_INDEX],)
+        SW_ROOTLETTERS + SW_VOWELS + (c[ACHUNG_INDEX],)
     )
+
+    # TODO: n.y case needed??
+    S_BASIC_RULES = (
+        SW_ROOTLETTERS[21] + SW_ROOTLETTERS[25] + W_ROOTLETTERS[19],    # phyw
+        SW_ROOTLETTERS[3] + SW_ROOTLETTERS[26],     # ghr
+        SW_ROOTLETTERS[32] + SW_ROOTLETTERS[26] + SW_VOWELS[0],     # hra
+        SW_ROOTLETTERS[32] + W_ROOTLETTERS[19] + SW_VOWELS[0],      # hwa
+        W_ROOTLETTERS[16] + SW_ROOTLETTERS[25],     # tsy
+        SW_ROOTLETTERS[15] + SW_ROOTLETTERS[26] + W_ROOTLETTERS[19],    # trw
+        SW_ROOTLETTERS[26] + SW_ROOTLETTERS[18],    # rdh
+        SW_ROOTLETTERS[31] + SW_ROOTLETTERS[25] + SW_VOWELS[6],    # sye
+        SW_ROOTLETTERS[31] + ga_prefixer + SW_ROOTLETTERS[25],    # n.y
+        SW_ROOTLETTERS[3],  # gh
+        SW_ROOTLETTERS[18],  # dh
+        SW_ROOTLETTERS[5] + SW_ROOTLETTERS[25],  # cy
+        SW_ROOTLETTERS[8],  # jh
+        SW_ROOTLETTERS[19] + SW_ROOTLETTERS[19],  # nn
+        SW_ROOTLETTERS[24] + SW_ROOTLETTERS[24],  # mm
+        W_ROOTLETTERS[19] + W_ROOTLETTERS[19],  # ww
+        SW_ROOTLETTERS[25] + SW_ROOTLETTERS[25],  # yy
+        SW_ROOTLETTERS[26] + SW_ROOTLETTERS[26],  # rr
+        SW_ROOTLETTERS[32] + SW_ROOTLETTERS[25],  # hy
+        SW_ROOTLETTERS[15] + SW_ROOTLETTERS[25],  # ty
+        SW_ROOTLETTERS[15] + SW_ROOTLETTERS[28],  # tv
+        SW_ROOTLETTERS[15] + W_ROOTLETTERS[19],  # tw
+        SW_ROOTLETTERS[15] + W_ROOTLETTERS[21],  # tz
+        SW_ROOTLETTERS[23],  # bh
+        SW_ROOTLETTERS[31] + SW_ROOTLETTERS[31]   # ss
+    )
+
+    S_DOUBLE_CONSONANTS = (
+        SW_ROOTLETTERS[2] + SW_ROOTLETTERS[2],      # gg
+        SW_ROOTLETTERS[17] + SW_ROOTLETTERS[17],    # dd
+        SW_ROOTLETTERS[22] + SW_ROOTLETTERS[22]     # bb
+    )
+
+    SNA_LDAN_CASES = (
+        SW_ROOTLETTERS[32] + SW_VOWELS[5] + SW_VOWELS[14],     # hūṃ
+        (SW_ROOTLETTERS[32] + SW_ROOTLETTERS[33] + SW_ROOTLETTERS[24]
+         + SW_ROOTLETTERS[27] + SW_ROOTLETTERS[28] + SW_ROOTLETTERS[26]
+         + SW_ROOTLETTERS[25] + SW_VOWELS[0] + SW_VOWELS[14]),     # hkṣmlvryaṃ
+        SW_ROOTLETTERS[17] + SW_ROOTLETTERS[18] + SW_VOWELS[0]    # 'ddhaṃ'
+    )
+
+    re_vow = '|'.join(SW_VOWELS)
+    phyv = SW_ROOTLETTERS[21] + SW_ROOTLETTERS[25] + SW_ROOTLETTERS[28]
+    kri = SW_ROOTLETTERS[0] + SW_ROOTLETTERS[26] + SW_VOWELS[2]
+
+    SW_YATA_REGEX = (
+        # ya followed by one or two vowels and preceded by kṣ, t, ś, s, h
+        re.compile(
+            f'({SW_ROOTLETTERS[33]}|{SW_ROOTLETTERS[15]}|{SW_ROOTLETTERS[29]}|'
+            f'{SW_ROOTLETTERS[31]}|{SW_ROOTLETTERS[32]}){SW_ROOTLETTERS[25]}'
+            f'({re_vow}){{1,2}}$'),
+        re.compile(
+            f'({SW_ROOTLETTERS[0]}|{SW_ROOTLETTERS[5]})'
+            f'{SW_ROOTLETTERS[25]}{SW_VOWELS[7]}'),  # (k|c)yai
+        re.compile(phyv),
+        # TODO: handle n.y
+        re.compile(  # (k|d|b|m|n)y
+            f'({SW_ROOTLETTERS[0]}|{SW_ROOTLETTERS[17]}|{SW_ROOTLETTERS[22]}|'
+            f'{SW_ROOTLETTERS[24]}|{SW_ROOTLETTERS[19]}){SW_ROOTLETTERS[25]}'
+        )
+    )
+
+    SW_RATA_REGEX = (
+        # ra followed by one or two vowels and preceded by t, th, bh, s
+        re.compile(
+            f'({SW_ROOTLETTERS[15]}|{SW_ROOTLETTERS[16]}|{SW_ROOTLETTERS[23]}|'
+            f'{SW_ROOTLETTERS[31]}){SW_ROOTLETTERS[26]}({re_vow}){{1,2}}$'),
+        re.compile(kri),
+        re.compile(  # (kh|k|d|b|m|g|n|p|ph|j)r
+            f'({SW_ROOTLETTERS[1]}|{SW_ROOTLETTERS[0]}|{SW_ROOTLETTERS[17]}|'
+            f'{SW_ROOTLETTERS[22]}|{SW_ROOTLETTERS[24]}|{SW_ROOTLETTERS[2]}|'
+            f'{SW_ROOTLETTERS[19]}|{SW_ROOTLETTERS[20]}|{SW_ROOTLETTERS[21]}|'
+            f'{SW_ROOTLETTERS[7]}){SW_ROOTLETTERS[26]}')
+    )
+
+    SW_WAZUR_REGEX = (
+        # va followed by one or two vowels and preceded by t, ḍ, d, dh, ś, s, tr
+        re.compile(
+            f'({SW_ROOTLETTERS[15]}|{SW_ROOTLETTERS[12]}|{SW_ROOTLETTERS[17]}|'
+            f'{SW_ROOTLETTERS[18]}|{SW_ROOTLETTERS[29]}|{SW_ROOTLETTERS[31]}|'
+            f'{SW_ROOTLETTERS[15]}{SW_ROOTLETTERS[26]}){SW_ROOTLETTERS[28]}'
+            f'({re_vow}){{1,2}}$'),
+        re.compile(phyv),
+        re.compile(
+            f'({SW_ROOTLETTERS[25]}|{SW_ROOTLETTERS[7]}|{SW_ROOTLETTERS[27]}'
+            f'|{SW_ROOTLETTERS[32]}){SW_ROOTLETTERS[28]}')
+    )
+
+    SW_REGEX = {
+        SW_ROOTLETTERS[28]: SW_WAZUR_REGEX,
+        SW_ROOTLETTERS[25]: SW_YATA_REGEX,
+        SW_ROOTLETTERS[26]: SW_RATA_REGEX
+    }
+
     lookup = {
-        'CONSONANTS': consonants,
-        'GA_PREFIX_MARKER': ga_prefix_marker,
+        'CONSONANTS': c,
         'LATIN_VOWEL_A': latin_vowel_a,
-        'LATIN_A_CHUNG': consonants[ACHUNG_INDEX],
+        'LATIN_A_CHUNG': c[ACHUNG_INDEX],
         'TIBETAN_VOWELS': W_VOWELS + (latin_vowel_a,),
         'LATIN_TIBETAN_ALPHABET': latin_tibetan_alphabet,
         'LATIN_TIBETAN_ALPHABET_SET': set(latin_tibetan_alphabet),
-        'LATIN_INDIC_ALPHABET': latin_indic_alphabet,
         'LATIN_INDIC_ALPHABET_SET': set(latin_indic_alphabet),
-        'GA_PREFIX': ''.join([consonants[2], ga_prefix_marker]),
-        'PREFIXES': get_chars(PREFIXES_I, consonants),
-        'VALID_SUFFIX': suffix_rules(consonants),
+        'GA_PREFIX': ''.join([c[2], ga_prefixer]),
+        'PREFIXES': get_chars(PREFIXES_I, c),
+        'VALID_SUFFIX': suffix_rules(c),
         'TIBETAN_UNICODE': dict(
             zip(latin_tibetan_alphabet, U_ROOTLETTERS + U_VOWELS)
         ),
@@ -267,33 +313,34 @@ def create_lookup(cfg={}):
         )),
         'MAX_TIB_CHAR_LEN': max(len(char) for char in latin_tibetan_alphabet),
         'MAX_INDIC_CHAR_LEN': max(len(char) for char in latin_indic_alphabet),
-        'SUBJOIN': SUBOFFSET,
         'S_BASIC_RULES': S_BASIC_RULES,
         'SW_VOWELS': SW_VOWELS,
         'W_VOWELS': W_VOWELS,
-        'U_OM': U_OM,
-        'S_OM': S_OM,
         'SW_ROOTLETTERS': SW_ROOTLETTERS,
         'SW_REGEX': SW_REGEX,
         'STACK': STACK,
         'SNA_LDAN_CASES': SNA_LDAN_CASES,
-        'S_SNA_LDAN': S_SNA_LDAN,
         'S_DOUBLE_CONSONANTS': S_DOUBLE_CONSONANTS,
-        'POSTVOWEL': POSTVOWEL,
         'LATIN_SHADS': latin_shads,
-        'SYMBOL_LOOKUP': dict(zip(latin_shads, U_SYMBOLS))
+        'SYMBOL_LOOKUP': dict(zip(latin_shads, U_SYMBOLS)),
+        'SPECIAL_CASE': {
+            SW_OM: U_OM,             # oṃ
+            c[16] + c[29] + c[11] + c[10] + c[29] + c[11]: (    # tsandan
+                '\u0f59' + '\u0f53' + '\u0fa1' + '\u0f53')
+        }
+
     }
 
     lookup['SUPERJOIN'], lookup['VALID_SUPERJOIN'] = defs(
         (RAGO_INDICES, LAGO_INDICES, SAGO_INDICES),
         SUPER_INDICES,
-        consonants
+        c
     )
 
     lookup['SUB'], lookup['VALID_SUBJOINED_LIST'] = defs(
         (WAZUR_INDICES, YATA_INDICES, RATA_INDICES, LATA_INDICES),
         SUB_INDICES,
-        consonants
+        c
     )
 
     return lookup
