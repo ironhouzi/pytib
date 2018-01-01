@@ -81,7 +81,8 @@ def ptib(input_file, wylie, preserve_input, unicode_points, html, config):
 
 
 def to_web(result):
-    tibetan = result.replace('\n', '</br>')
+    tibetan = result.replace('\n\n', '</p><p>').replace('\n', '</br>')
+    tibetan = f'<p>{tibetan}</p>'
     return f'''<!DOCTYPE html>
     <html>
       <head>
@@ -95,7 +96,7 @@ def to_web(result):
         </style>
       </head>
       <body>
-      <p class="tibetan">{tibetan}</p>
+      <div class="tibetan">{tibetan}</div>
       </body>
     </html>
     '''
