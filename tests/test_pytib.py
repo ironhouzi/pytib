@@ -1,7 +1,8 @@
 import pytest
 
 from pytib.core import parse
-from pytib.tables import create_lookup
+from pytib.tables import generate_tables
+from pytib.exceptions import InvalidLanguage, InvalidSanskrit
 
 
 @pytest.fixture
@@ -47,13 +48,13 @@ def defs():
 
 @pytest.fixture
 def table():
-    return create_lookup()
+    return generate_tables({})
 
 
 @pytest.fixture
 def polyglotta_table():
     cfg = {
-        'consonants': (
+        'wylie_consonants': (
             'k',  'kh',  'g',  'ṅ',
             'c',  'ch',  'j',  'ñ',
             't',  'th',  'd',  'n',
@@ -66,7 +67,7 @@ def polyglotta_table():
         'ga_prefixer': '-'
     }
 
-    return create_lookup(cfg)
+    return generate_tables(cfg)
 
 
 def test_wylie(defs, table):
@@ -140,9 +141,11 @@ def test_vajra(table):
 
 # # TODO: find counter case
 def test_badzra(table):
-    uni = '\u0F56' + '\u0F5B' + '\u0FB2'
     latin = 'badzra'
-    assert parse(latin, table) != uni
+    with pytest.raises(InvalidLanguage):
+        parse(latin, table)
+    with pytest.raises(InvalidSanskrit):
+        parse(latin, table)
 
 
 # TODO: find counter case
