@@ -52,15 +52,18 @@ def _generate_tibetan_lines(content, table):
             line_items.append([word])
             line_items.append([])
 
-    def handle_unsplit_shad(shad, word):
-        ''' Handle words containing a shad character not separated by space '''
+    def handle_unsplit_char(char, word):
+        ''' Handle words containing a non-alphabet character '''
 
         tibetan = []
-        for p in word.split(shad):
+        for p in word.split(char):
             if p == '':
-                tibetan.append(table['SYMBOL_LOOKUP'][shad])
+                try:
+                    tibetan.append(table['SYMBOL_LOOKUP'][char])
+                except KeyError:
+                    tibetan.append(char)
 
-                if len(tibetan) > 1:     # terminating shad
+                if len(tibetan) > 1:     # terminating char
                     line_items[-1].append(''.join(tibetan))
                     tibetan = []
                     line_items.append([])
@@ -72,8 +75,6 @@ def _generate_tibetan_lines(content, table):
                     logger.debug(f'Could not parse: {e.input}')
                     handle_fail(word)
                     return
-
-                tibetan.append(tib_unicode)
 
         if tibetan:
             line_items[-1].append(''.join(tibetan))
@@ -87,10 +88,16 @@ def _generate_tibetan_lines(content, table):
                 line_items.append([])
                 continue
             elif table['LATIN_SHADS'][1] in word:    # word contains double shad
-                handle_unsplit_shad(table['LATIN_SHADS'][1], word)
+                handle_unsplit_char(table['LATIN_SHADS'][1], word)
                 continue
             elif table['LATIN_SHADS'][0] in word:    # word contains shad
-                handle_unsplit_shad(table['LATIN_SHADS'][0], word)
+                handle_unsplit_char(table['LATIN_SHADS'][0], word)
+                continue
+            elif not word[0].isalpha():
+                handle_unsplit_char(word[0], word)
+                continue
+            elif not word[-1].isalpha():
+                handle_unsplit_char(word[-1], word)
                 continue
 
             try:
