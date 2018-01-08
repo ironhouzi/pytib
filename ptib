@@ -61,7 +61,7 @@ def ptib(input_file, wylie, preserve_input, unicode_points, html, config):
             for char in pytib.parse(word, tables)
         )
     else:
-        result = ''.join(pytib.read(content, tables))
+        result = ''.join(pytib.read(content, tables)).rstrip()
 
     if preserve_input:
         print(content)
@@ -90,7 +90,7 @@ def to_web(result):
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <style type="text/css">
             .tibetan {{
-                font-family: Microsoft Himalaya, Noto Sans Tibetan;
+                font-family: Noto Sans Tibetan, Noto Sans Regular;
                 font-size: 48px;
             }}
         </style>

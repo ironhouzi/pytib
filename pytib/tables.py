@@ -88,6 +88,7 @@ SPECIAL_CASE = {
 }
 
 W_SYMBOLS = ('/', '//')
+U_SHADS = (U_SHAD, U_NYIS_SHAD)
 U_SYMBOLS = (U_SHAD, U_NYIS_SHAD)
 
 

@@ -228,6 +228,12 @@ def test_tsandan(table):
     assert parse(latin, table) == uni
 
 
+def test_bka(table):
+    uni = '\u0f56' + '\u0f40' + '\u0F60'
+    latin = "bka'"
+    assert parse(latin, table) == uni
+
+
 # def test_mangalam(table):
 #     uni = '\u0f58' + '\u0f62' + '\u0f93' + '\u0f7e'
 #     latin = 'mangalaṃ'
