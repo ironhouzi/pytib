@@ -63,21 +63,21 @@ def test_multiple_invalid_in_word(table):
     assert ''.join(read('/foo/fofo/', table)).rstrip() == '། foo ། fofo །'
 
 
-def test_double_shad_for_kha(table):
-    assert ''.join(read('ka/', table)).rstrip() == 'ཀ།'
+# def test_double_shad_for_kha(table):
+#     assert ''.join(read('ka/', table)).rstrip() == 'ཀ།'
 
 
-def test_invalid_double_shad_for_kha(table):
-    assert ''.join(read('ka//', table)).rstrip() == 'ཀ།'
+# def test_invalid_double_shad_for_kha(table):
+#     assert ''.join(read('ka//', table)).rstrip() == 'ཀ།'
 
 
-def test_double_shad_for_ga(table):
-    assert ''.join(read('ga/', table)).rstrip() == 'ག།'
+# def test_double_shad_for_ga(table):
+#     assert ''.join(read('ga/', table)).rstrip() == 'ག།'
 
 
-def test_invalid_double_shad_for_ga(table):
-    assert ''.join(read('ga//', table)).rstrip() == 'ག།'
+# def test_invalid_double_shad_for_ga(table):
+#     assert ''.join(read('ga//', table)).rstrip() == 'ག།'
 
 
-def test_no_double_shad_for_ga(table):
-    assert ''.join(read('ga/', table)).rstrip() == 'ག'
+# def test_no_double_shad_for_ga(table):
+#     assert ''.join(read('ga/', table)).rstrip() == 'ག'

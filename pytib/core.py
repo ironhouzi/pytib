@@ -1,4 +1,5 @@
 import logging
+import itertools
 
 from pytib.tables import SUBOFFSET, U_SNA_LDAN, POSTVOWEL
 from pytib.exceptions import InvalidTibetan, InvalidSanskrit, ParseError
@@ -152,25 +153,32 @@ def find_suffixes(syllable, vowel_position, latin, table):
     return syllable
 
 
-def letter_partition(string, table, alphabet, max_char_len):
+def letter_partition(string, table, letter_set, char_limit):
     '''
     Checks if the roman character(s) at the end of the wylie/IAST string
     forms a valid wylie letter and continues backwards through the
     wylie/IAST string, until the entire wylie string is partitioned.
     '''
 
+    alphabet = table[letter_set]
+    found = False
+
     while len(string) != 0:
-        for i in range(max_char_len, 0, -1):
+        for i in range(table[char_limit], 0, -1):
             part = string[:i]
 
             if part == '':
                 break
 
             if part == table['GA_PREFIX'] or part in alphabet:
+                found = True
                 yield part
                 string = string[i:]
             elif i == 1 and part not in alphabet:
-                raise InvalidTibetan(string)
+                raise ParseError
+
+    if not found:
+        raise ParseError
 
 
 def parse(string, table):
@@ -188,12 +196,10 @@ def parse(string, table):
     elif any(v in string for v in ('ai', 'au')):
         sanskrit_quick_check = True
     else:
-        vowels = tuple(c for c in string if c in table['TIBETAN_VOWELS'])
-        atleast_two_vowels = len(vowels) >= 2
-
         sanskrit_quick_check = (
             table['LATIN_A_CHUNG'] not in string
-            and atleast_two_vowels
+            and len(tuple(c for c in string
+                          if c in table['TIBETAN_VOWELS'])) >= 2
         )
 
     is_sanskrit = (
@@ -210,41 +216,27 @@ def parse(string, table):
         latin = tuple(letter_partition(
             string,
             table,
-            alphabet=table['LATIN_TIBETAN_ALPHABET_SET'],
-            max_char_len=table['MAX_TIB_CHAR_LEN']
+            letter_set='LATIN_TIBETAN_ALPHABET_SET',
+            char_limit='MAX_TIB_CHAR_LEN'
         ))
-    except InvalidTibetan:
+    except ParseError:
         return analyze_sanskrit(string, table)
 
-    vowel_positions = tuple(
+    vowel_indices = (
         index for index, char in enumerate(latin)
         if char in table['TIBETAN_VOWELS']
     )
 
-    # Any adjacent vowels constitutes a sanskrit word
-    vowel_index_pairs = zip(vowel_positions[::-1], vowel_positions[-2::-1])
-    adjacent_vowels = (x - y == 1 for x, y in vowel_index_pairs)
-
-    if len(vowel_positions) != 1 and any(adjacent_vowels):
-        return analyze_sanskrit(string, table)
-
     try:
-        first_vowel_index = vowel_positions[0]
-    except IndexError:
+        first_vowel_index = next(vowel_indices)
+    except StopIteration:
         raise InvalidTibetan(string)
 
     if first_vowel_index >= len(analyze_syllable):
-        logging.warning(
-            f'Oversized vowel position: {first_vowel_index} for «{latin}»'
-        )
         return analyze_sanskrit(string, table)
 
     try:
         syllable = analyze_syllable[first_vowel_index](latin, table)
-    except ParseError:
-        raise InvalidTibetan(string)
-
-    try:
         find_suffixes(syllable, first_vowel_index, latin, table)
     except ParseError:
         return analyze_sanskrit(string, table)
@@ -282,48 +274,38 @@ def to_unicode(syllable, table):
         )
 
         if needs_subjoin:
-            yield (
-                chr(SUBOFFSET +
-                    ord(table['TIBETAN_UNICODE'][latin_char]))
-            )
+            yield chr(SUBOFFSET + ord(table['TIBETAN_UNICODE'][latin_char]))
         else:
             yield table['TIBETAN_UNICODE'][latin_char]
 
 
-def vowel_positions(latin, table):
-    result = []
+def generate_stacks(latin, table):
+    ''' Group letters into stacks, represented by a list '''
 
-    for i, char in enumerate(latin):
-        if char in table['SW_VOWELS']:
+    stack = []
+    prev, curr = itertools.tee(latin)
+    curr_char = next(curr, None)
 
-            # conjoin adjacent vowels
-            if latin[i-1] in table['SW_VOWELS'] and result:
-                result[-1] += 1
-                continue
+    for prev_char, curr_char in zip(prev, curr):
+        stack.append(prev_char)
+        prev_match = prev_char in table['SW_VOWELS']
+        curr_match = curr_char in table['SW_VOWELS']
 
-            result.append(i)
+        if prev_match == curr_match:
+            continue
 
-    return result
+        if prev_match:
+            yield stack
+            stack = []
 
-
-def stack_sanskrit_letters(vowel_indices, latin):
-    vowel_indices = [i+1 for i in vowel_indices]
-
-    if vowel_indices[0] != 0:
-        vowel_indices.insert(0, 0)
-
-    if vowel_indices[-1] != len(latin):
-        vowel_indices.append(len(latin))
-
-    vowel_indices = zip(vowel_indices, vowel_indices[1:])
-
-    for i in vowel_indices:
-        yield latin[i[0]:i[1]]
+    if curr_char:
+        stack.append(curr_char)
+        yield stack
 
 
-def generate_sanskrit_unicode(latin, letter_stacks, table):
+def generate_sanskrit_unicode(latin_string, letter_stacks, table):
     try:
-        yield table['SPECIAL_CASE'][latin['string']]
+        yield table['SPECIAL_CASE'][latin_string]
         raise StopIteration
     except KeyError:
         pass
@@ -349,7 +331,7 @@ def generate_sanskrit_unicode(latin, letter_stacks, table):
 
             sna_ldan_case = (
                 letter == table['SW_VOWELS'][-2]
-                and latin['string'] in table['SNA_LDAN_CASES']
+                and latin_string in table['SNA_LDAN_CASES']
             )
 
             if sna_ldan_case:
@@ -400,24 +382,11 @@ def analyze_sanskrit(latin_string, table):
         parts = letter_partition(
             latin_string,
             table,
-            alphabet=table['LATIN_INDIC_ALPHABET_SET'],
-            max_char_len=table['MAX_INDIC_CHAR_LEN']
+            letter_set='LATIN_INDIC_ALPHABET_SET',
+            char_limit='MAX_INDIC_CHAR_LEN'
         )
-        latin = dict(parts=tuple(parts), string=latin_string)
-    except InvalidTibetan as e:
-        raise InvalidSanskrit(latin_string)
-
-    if latin['parts'] is None:
-        raise InvalidSanskrit(latin_string)
-
-    vowel_indices = vowel_positions(latin['parts'], table)
-
-    if not vowel_indices:
-        raise InvalidSanskrit(latin_string)
-
-    letter_stacks = stack_sanskrit_letters(vowel_indices, latin['parts'])
-
-    try:
-        return ''.join(generate_sanskrit_unicode(latin, letter_stacks, table))
-    except KeyError:
+        letter_stacks = generate_stacks(parts, table)
+        sanskrit = generate_sanskrit_unicode(latin_string, letter_stacks, table)
+        return ''.join(sanskrit)
+    except (KeyError, ParseError):
         raise InvalidSanskrit(latin_string)

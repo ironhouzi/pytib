@@ -2,7 +2,7 @@ import pytest
 
 from pytib.core import parse
 from pytib.tables import generate_tables
-from pytib.exceptions import InvalidLanguage, InvalidSanskrit
+from pytib.exceptions import ParseError, InvalidSanskrit
 
 
 @pytest.fixture
@@ -44,11 +44,6 @@ def defs():
         ('grwa', 'གྲྭ'),
         ("dbu'i", 'དབུའི'),
     )
-
-
-@pytest.fixture
-def table():
-    return generate_tables({})
 
 
 @pytest.fixture
@@ -142,7 +137,7 @@ def test_vajra(table):
 # # TODO: find counter case
 def test_badzra(table):
     latin = 'badzra'
-    with pytest.raises(InvalidLanguage):
+    with pytest.raises(ParseError):
         parse(latin, table)
     with pytest.raises(InvalidSanskrit):
         parse(latin, table)
