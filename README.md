@@ -5,7 +5,7 @@ Software for Tibetan word processing
 
 Dependencies:
 + Python >= 3.6.
-+ Tibetan Unicode font. I recommend [MS Himalaya](http://fontzone.net/font-details/microsoft-himalaya) for it's unprecedented functionality, being able to correctly render even the most obscure stacks from Tibetan transliterations of Sanskrit. Despite the excellent implementation work in MS Himalaya, the font can be rather illegible for intensive reading sessions. If you do require complicated stacking, [Noto Sans Tibetan](https://www.google.com/get/noto/#sans-tibt) supports both regular and bold types and fit very well with the fonts in the Noto font package which cover most of the spoken languages today.
++ Tibetan Unicode font. I recommend [MS Himalaya](http://fontzone.net/font-details/microsoft-himalaya) for it's unprecedented functionality, being able to correctly render even the most obscure stacks from Tibetan transliterations of Sanskrit. Despite the excellent implementation work in MS Himalaya, the font can be rather illegible for intensive reading sessions. If you do not need complicated stacking, [Noto Sans Tibetan](https://www.google.com/get/noto/#sans-tibt) supports both regular and bold types and fits very well with the fonts in the Noto font package which cover most of the spoken languages today.
 
 Currently handles conversion of wylie, polyglotta and [IAST](http://en.wikipedia.org/wiki/Tibetan_alphabet#Transliteration_of_Sanskrit) to Tibetan Unicode. You are free to redefine the translation tables by creating a JSON file with the Tibetan/Sanskrit consonant, vowels and ga prefix forcing character and special characters. This JSON file can be passed to `ptib` using the `-c` or `--config` parameter.
 
