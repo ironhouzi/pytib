@@ -1,7 +1,7 @@
 import logging
 import itertools
 
-from pytib.tables import SUBOFFSET, U_SNA_LDAN, POSTVOWEL
+from pytib.tables import SUBOFFSET, U_SNA_LDAN, POSTVOWEL, generate_tables
 from pytib.exceptions import InvalidTibetan, InvalidSanskrit, ParseError
 
 
@@ -190,6 +190,11 @@ def letter_partition(string, table, letter_set, char_limit):
 
     if not found:
         raise ParseError
+
+
+def translate(string):
+    ''' Convenince function for parsing default wylie '''
+    return parse(string, generate_tables())
 
 
 def parse(string, table):

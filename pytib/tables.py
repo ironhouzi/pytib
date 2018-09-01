@@ -186,9 +186,10 @@ U_ACHUNG = U_ROOTLETTERS[22]
 # TODO: find solution for the ww/wv ambiguity
 
 
-def generate_tables(config):
+def generate_tables(config=None):
     ''' Dynamically generate lookup tables '''
 
+    config = {} if config is None else config
     validate(config)
 
     tc = tuple(config.get('wylie_consonants', W_ROOTLETTERS))

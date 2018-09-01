@@ -1,17 +1,21 @@
 import logging
 
 from pytib import parse
-from pytib.tables import U_SHADS, U_TSHEG, U_ROOTLETTERS, U_SYMBOLS
+from pytib.tables import (U_SHADS, U_TSHEG, U_ROOTLETTERS,
+                          U_SYMBOLS, generate_tables)
 from pytib.exceptions import InvalidLanguage
 
 logger = logging.getLogger('pytib.core')
 
 
-def read(content, table):
+def read(content, table=None):
     '''
     Parses latin content of file or string given the specified table.
     PLEASE NOTE: Always creates trailing newline! Use rstrip() to remove.
     '''
+
+    if table is None:
+        table = generate_tables()
 
     words = (line.split() for line in content.rstrip().splitlines())
 
