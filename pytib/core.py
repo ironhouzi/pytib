@@ -22,100 +22,109 @@ def valid_subscribe(root_letter, subjoined_letter, table):
     )
 
 
-def is_superscribed(latin, vowel_position, table):
+def is_superscribed(latin_letters, vowel_position, table):
     if vowel_position == 2:
         return (
-            valid_superscribe(latin[0], latin[1], table)
-            and not valid_subscribe(latin[0], latin[1], table)
+            valid_superscribe(latin_letters[0], latin_letters[1], table)
+            and not valid_subscribe(latin_letters[0], latin_letters[1], table)
         )
     else:   # vowel_position == 3
         return (
-            latin[0] in table['PREFIXES']
-            and valid_superscribe(latin[1], latin[2], table)
-            and not valid_subscribe(latin[1], latin[2], table)
+            latin_letters[0] in table['PREFIXES']
+            and valid_superscribe(latin_letters[1], latin_letters[2], table)
+            and not valid_subscribe(latin_letters[1], latin_letters[2], table)
         )
 
 
-def is_subscribed(latin, vowel_position, table):
+def is_subscribed(latin_letters, vowel_position, table):
     if vowel_position == 2:
         return (
-            not valid_superscribe(latin[0], latin[1], table)
-            and valid_subscribe(latin[0], latin[1], table)
+            not valid_superscribe(latin_letters[0], latin_letters[1], table)
+            and valid_subscribe(latin_letters[0], latin_letters[1], table)
         )
     else:   # vowel_position == 3
         return (
-            latin[0] in table['PREFIXES']
-            and not valid_superscribe(latin[1], latin[2], table)
-            and valid_subscribe(latin[1], latin[2], table)
+            latin_letters[0] in table['PREFIXES']
+            and not valid_superscribe(latin_letters[1], latin_letters[2], table)
+            and valid_subscribe(latin_letters[1], latin_letters[2], table)
         )
 
 
-def vowel_pos_0(latin, table):
-    if not latin[0] in table['TIBETAN_VOWELS']:
+def vowel_pos_0(latin_letters, table):
+    if not latin_letters[0] in table['TIBETAN_VOWELS']:
         raise ParseError
 
-    return dict(root=latin[0])
+    return dict(root=latin_letters[0])
 
 
-def vowel_pos_1(latin, table):
-    if (not latin[0] in table['CONSONANTS']
-       and latin[1] in table['TIBETAN_VOWELS']):
+def vowel_pos_1(latin_letters, table):
+    if (not latin_letters[0] in table['CONSONANTS']
+       and latin_letters[1] in table['TIBETAN_VOWELS']):
         raise ParseError
 
-    return dict(root=latin[0], vowel=latin[1])
+    return dict(root=latin_letters[0], vowel=latin_letters[1])
 
 
-def vowel_pos_2(latin, table):
-    if is_subscribed(latin, 2, table):
-        result = dict(root=latin[0], subjoined=latin[1])
-    elif is_superscribed(latin, 2, table):
-        result = dict(super=latin[0], root=latin[1])
-    elif (latin[0] == table['GA_PREFIX']
-          or latin[0] in table['PREFIXES']
-          and latin[1] in table['CONSONANTS']):
-        result = dict(prefix=latin[0], root=latin[1])
+def vowel_pos_2(latin_letters, table):
+    if is_subscribed(latin_letters, 2, table):
+        result = dict(root=latin_letters[0], subjoined=latin_letters[1])
+    elif is_superscribed(latin_letters, 2, table):
+        result = dict(super=latin_letters[0], root=latin_letters[1])
+    # TODO: investigate logical bug!
+    elif (latin_letters[0] == table['GA_PREFIX']
+          or latin_letters[0] in table['PREFIXES']
+          and latin_letters[1] in table['CONSONANTS']):
+        result = dict(prefix=latin_letters[0], root=latin_letters[1])
     else:
         raise ParseError
 
-    result['vowel'] = latin[2]
+    result['vowel'] = latin_letters[2]
 
     return result
 
 
-def vowel_pos_3(latin, table):
-    if latin[2] == table['CONSONANTS'][19]\
-       and latin[1] == table['CONSONANTS'][24]:
+def vowel_pos_3(latin_letters, table):
+    if latin_letters[2] == table['CONSONANTS'][19]\
+       and latin_letters[1] == table['CONSONANTS'][24]:
         # syllable has both 'w' and 'r' as subscribed letters
-        result = dict(root=latin[0], subjoined=latin[1], secondsub=latin[2])
-    elif is_superscribed(latin, 3, table):
-        result = dict(prefix=latin[0], super=latin[1], root=latin[2])
-    elif is_subscribed(latin, 3, table):
-        result = dict(prefix=latin[0], root=latin[1], subjoined=latin[2])
-    elif (latin[0] in table['SUPERJOIN']
-          and latin[1] in table['CONSONANTS']
-          and latin[2] in table['SUB']):
-        result = dict(super=latin[0], root=latin[1], subjoined=latin[2])
+        result = dict(root=latin_letters[0],
+                      subjoined=latin_letters[1],
+                      secondsub=latin_letters[2])
+    elif is_superscribed(latin_letters, 3, table):
+        result = dict(prefix=latin_letters[0],
+                      super=latin_letters[1],
+                      root=latin_letters[2])
+    elif is_subscribed(latin_letters, 3, table):
+        result = dict(prefix=latin_letters[0],
+                      root=latin_letters[1],
+                      subjoined=latin_letters[2])
+    elif (latin_letters[0] in table['SUPERJOIN']
+          and latin_letters[1] in table['CONSONANTS']
+          and latin_letters[2] in table['SUB']):
+        result = dict(super=latin_letters[0],
+                      root=latin_letters[1],
+                      subjoined=latin_letters[2])
     else:
         raise ParseError
 
-    result['vowel'] = latin[3]
+    result['vowel'] = latin_letters[3]
 
     return result
 
 
-def vowel_pos_4(latin, table):
-    if not (latin[0] in table['PREFIXES']
-            and latin[1] in table['SUPERJOIN']
-            and latin[2] in table['CONSONANTS']
-            and latin[3] in table['SUB']):
+def vowel_pos_4(latin_letters, table):
+    if not (latin_letters[0] in table['PREFIXES']
+            and latin_letters[1] in table['SUPERJOIN']
+            and latin_letters[2] in table['CONSONANTS']
+            and latin_letters[3] in table['SUB']):
         raise ParseError
 
     return dict(
-        prefix=latin[0],
-        super=latin[1],
-        root=latin[2],
-        subjoined=latin[3],
-        vowel=latin[4]
+        prefix=latin_letters[0],
+        super=latin_letters[1],
+        root=latin_letters[2],
+        subjoined=latin_letters[3],
+        vowel=latin_letters[4]
     )
 
 
@@ -127,13 +136,15 @@ analyze_syllable = (
     vowel_pos_4,
 )
 
+TIBETAN_VOWEL_LIMIT = len(analyze_syllable)
 
-def find_suffixes(syllable, vowel_position, latin, table):
+
+def find_suffixes(syllable, vowel_position, latin_letters, table):
     '''Identifies the syllable suffixes'''
 
     post_vowels = iter(POSTVOWEL)
 
-    for latin_suffix in latin[vowel_position+1:]:
+    for latin_suffix in latin_letters[vowel_position+1:]:
         try:
             post_vowel = next(post_vowels)
         except StopIteration:
@@ -213,7 +224,7 @@ def parse(string, table):
         return analyze_sanskrit(string, table)
 
     try:
-        latin = tuple(letter_partition(
+        latin_letters = tuple(letter_partition(
             string,
             table,
             letter_set='LATIN_TIBETAN_ALPHABET_SET',
@@ -223,7 +234,7 @@ def parse(string, table):
         return analyze_sanskrit(string, table)
 
     vowel_indices = (
-        index for index, char in enumerate(latin)
+        index for index, char in enumerate(latin_letters)
         if char in table['TIBETAN_VOWELS']
     )
 
@@ -232,12 +243,12 @@ def parse(string, table):
     except StopIteration:
         raise InvalidTibetan(string)
 
-    if first_vowel_index >= len(analyze_syllable):
+    if first_vowel_index >= TIBETAN_VOWEL_LIMIT:
         return analyze_sanskrit(string, table)
 
     try:
-        syllable = analyze_syllable[first_vowel_index](latin, table)
-        find_suffixes(syllable, first_vowel_index, latin, table)
+        syllable = analyze_syllable[first_vowel_index](latin_letters, table)
+        find_suffixes(syllable, first_vowel_index, latin_letters, table)
     except ParseError:
         return analyze_sanskrit(string, table)
 
@@ -279,11 +290,11 @@ def to_unicode(syllable, table):
             yield table['TIBETAN_UNICODE'][latin_char]
 
 
-def generate_stacks(latin, table):
+def generate_stacks(latin_letters, table):
     ''' Group letters into stacks, represented by a list '''
 
     stack = []
-    prev, curr = itertools.tee(latin)
+    prev, curr = itertools.tee(latin_letters)
     curr_char = next(curr, None)
 
     for prev_char, curr_char in zip(prev, curr):
@@ -379,13 +390,13 @@ def generate_sanskrit_unicode(latin_string, letter_stacks, table):
 
 def analyze_sanskrit(latin_string, table):
     try:
-        parts = letter_partition(
+        latin_letters = letter_partition(
             latin_string,
             table,
             letter_set='LATIN_INDIC_ALPHABET_SET',
             char_limit='MAX_INDIC_CHAR_LEN'
         )
-        letter_stacks = generate_stacks(parts, table)
+        letter_stacks = generate_stacks(latin_letters, table)
         sanskrit = generate_sanskrit_unicode(latin_string, letter_stacks, table)
         return ''.join(sanskrit)
     except (KeyError, ParseError):
