@@ -1,9 +1,32 @@
 pytib
 =====
 
-Software for Tibetan word processing
+Generate Tibetan Unicode from Latin script
 
-Dependencies:
+## Usage
+
+### As shell script
+
+```sh
+ptib skyo
+```
+
+### As python function
+
+```python
+from pytib import translate
+
+
+print(f'Latin: `skyo` -> Unicode: {translate("skyo")}')
+```
+
+### Output to web browser
+
+```sh
+ptib skyo --html
+```
+
+## Dependencies
 + Python >= 3.6.
 + Tibetan Unicode font. I recommend [MS Himalaya](http://fontzone.net/font-details/microsoft-himalaya) for it's unprecedented functionality, being able to correctly render even the most obscure stacks from Tibetan transliterations of Sanskrit. Despite the excellent implementation work in MS Himalaya, the font can be rather illegible for intensive reading sessions. If you do not need complicated stacking, [Noto Sans Tibetan](https://www.google.com/get/noto/#sans-tibt) supports both regular and bold types and fits very well with the fonts in the Noto font package which cover most of the spoken languages today.
 

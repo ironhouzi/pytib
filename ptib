@@ -36,7 +36,7 @@ logger.addHandler(stream_handler)
 def ptib(input_file, wylie, preserve_input, unicode_points, html, config):
     """
     WYLIE can be either a string literal or a file.
-    The file can be read from STDIN, or from a filepath using the -f parameter.
+    The file can be read from STDIN, or from a filepath using the -i parameter.
     """
 
     try:
