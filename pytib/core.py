@@ -317,7 +317,7 @@ def generate_stacks(latin_letters, table):
 def generate_sanskrit_unicode(latin_string, letter_stacks, table):
     try:
         yield table['SPECIAL_CASE'][latin_string]
-        raise StopIteration
+        return
     except KeyError:
         pass
 
