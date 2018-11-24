@@ -143,13 +143,6 @@ def _generate_tibetan_lines(content, table):
                 line_items[-1].append(tib_unicode)
             except InvalidLanguage as e:
                 logger.debug(f'Could not parse: {e.input}')
-
-                if e.input.isalpha():
-                    # non-translated words are tsheg joined
-                    line_items[-1].append(e.input)
-                else:
-                    # non-translated symbols are not tsheg joined
-                    line_items.append([e.input])
-                    line_items.append([])
+                line_items[-1].append(e.input)
 
         yield line_items
