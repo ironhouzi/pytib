@@ -10,7 +10,7 @@ logger = logging.getLogger('pytib.core')
 
 def read(content, table=None):
     '''
-    Parses latin content of file or string given the specified table.
+    Parses latin content from file or string to tibetan unicode.
     PLEASE NOTE: Always creates trailing newline! Use rstrip() to remove.
     '''
 
@@ -61,12 +61,14 @@ def _not_latin_letter(char, table):
 def _generate_tibetan_lines(content, table):
     '''
     The data structure used here is one list per content line. The elements of
-    each list hold a sequence of words that are to be joined with a tsheg. If
-    a content line contains one ore more shad's or a word that could not be
-    parsed, the list representing this line, will contain multiple lists. E.g:
+    each list hold a sequence of words that are to be joined with a tsheg
+    (Tibetan syllable/word separator). If a content line contains one ore more
+    shad's (Tibetan sentence terminator), or a word that could not be parsed,
+    the list representing this line, will contain multiple lists. E.g:
 
     The line `sangs rgyas` is represented as ['sangs', 'rgyas', []]. The line:
-    `| sangs rgyas |` is represented as [['|'], ['sangs', 'rgyas'], ['|'], []].
+    `| sangs rgyas |` is represented as [['|'], ['sangs', 'rgyas'], ['|'], []],
+    due to the shad (`|`).
     '''
 
     def handle_unsplit_char(char, word):
@@ -114,10 +116,11 @@ def _generate_tibetan_lines(content, table):
         line_items = [[]]
 
         for i, word in enumerate(line):
-            if word in table['LATIN_SHADS']:         # word is a type of shad
+            if word in table['LATIN_SHADS']:         # terminator
                 prev_word = line[max(i-1, 0)]
                 preceding_nga = prev_word[-2:] == table['CONSONANTS'][3]
 
+                # Join shad with last word avoids space char converted to tsheg
                 if preceding_nga:
                     line_items[-1].append(table['SYMBOL_LOOKUP'][word])
                 else:

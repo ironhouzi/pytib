@@ -139,6 +139,7 @@ analyze_syllable = (
 TIBETAN_VOWEL_LIMIT = len(analyze_syllable)
 
 
+# XXX: IS this function really needed?? No vertical stacking after root anyway..
 def find_suffixes(syllable, vowel_position, latin_letters, table):
     '''Identifies the syllable suffixes'''
 
@@ -274,7 +275,7 @@ def to_unicode(syllable, table):
             continue
 
         if latin_char in table['W_VOWELS'] and syllable_component == 'root':
-            yield (table['TIBETAN_UNICODE'][table['LATIN_VOWEL_A']])
+            yield table['TIBETAN_UNICODE'][table['LATIN_VOWEL_A']]
 
         if latin_char == table['GA_PREFIX']:
             latin_char = table['CONSONANTS'][2]
@@ -283,10 +284,7 @@ def to_unicode(syllable, table):
         needs_subjoin = (
             syllable_component == 'subjoined'
             or syllable_component == 'secondsub'
-            or (
-                syllable_component == 'root'
-                and syllable.get('super') is not None
-            )
+            or (syllable_component == 'root' and syllable.get('super', False))
         )
 
         if needs_subjoin:
