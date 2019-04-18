@@ -1,8 +1,8 @@
 import logging
 
-from pytib import parse
-from pytib.tables import (U_SHADS, U_TSHEG, U_ROOTLETTERS,
-                          U_SYMBOLS, generate_tables)
+from typing import Iterable
+from pytib.core import parse
+from pytib.tables import (U_SHADS, U_TSHEG, generate_tables)
 from pytib.exceptions import InvalidLanguage
 
 logger = logging.getLogger('pytib.core')
@@ -23,6 +23,9 @@ def read(content, table=None):
         for i, segment in enumerate(line):
             if not segment:
                 continue
+            elif not isinstance(segment, list):
+                print(segment)
+                yield segment
             elif _not_tibetan(segment[-1]):
                 if _tsheg_before_shad(segment, table):
                     yield U_TSHEG.join(segment)
@@ -58,6 +61,50 @@ def _not_latin_letter(char, table):
     return char not in table['LATIN_TIBETAN_ALPHABET'] and not char.isalpha()
 
 
+def _partition_word(word: str, table) -> Iterable[str]:
+    ''' Splits words if word contains separator (shad) marks. '''
+
+    punctuation_indices = list(word.find(p) for p in table['PUNCTUATION_CHARS'])
+
+    if not any(shad_index > -1 for shad_index in punctuation_indices):
+        yield word
+        return
+
+    remainder = word
+
+    while remainder != '':
+        for punctuation in table['PUNCTUATION_CHARS']:
+            part, separator, new_remainder = remainder.partition(punctuation)
+            contains_punctuation = separator != ''
+
+            if contains_punctuation:
+                if part:
+                    yield part
+
+                yield separator
+                remainder = new_remainder
+                break
+        else:
+            yield part
+            remainder = new_remainder
+
+
+def shad_before_nga(prev_word, partitioned_word, table):
+    if not prev_word:
+        return False
+
+    nga = table['CONSONANTS'][3]
+    return prev_word[-len(partitioned_word):] == nga
+
+
+def shad_before_ka_ga(prev_word, partitioned_word, table):
+    if not prev_word:
+        return False
+
+    ka_ga = (table['CONSONANTS'][0], table['CONSONANTS'][2])
+    return prev_word[-2:-1] in ka_ga
+
+
 def _generate_tibetan_lines(content, table):
     '''
     The data structure used here is one list per content line. The elements of
@@ -71,81 +118,40 @@ def _generate_tibetan_lines(content, table):
     due to the shad (`|`).
     '''
 
-    def handle_unsplit_char(char, word):
-        ''' Handle words containing non-alphabet characters '''
-
-        tibetan = []
-        rest = word
-        preceding_nga = False
-
-        while rest != '':
-            head, separator, tail = rest.partition(char)
-
-            if head:
-                try:
-                    tib_unicode = parse(head, table)
-                    tibetan.append(tib_unicode)
-                    preceding_nga = tib_unicode[-1] == U_ROOTLETTERS[3]
-                except InvalidLanguage as e:
-                    logger.debug(f'Could not parse: {e.input}')
-                    line_items.append([head])
-                    line_items.append([])
-
-            result = table['SYMBOL_LOOKUP'].get(separator, separator)
-
-            if preceding_nga and result in U_SHADS:
-                tibetan.append(U_TSHEG)
-
-            if result:
-                tibetan.append(result)
-
-                if result in U_SYMBOLS:
-                    line_items[-1].append(''.join(tibetan))
-                    line_items.append([])
-                    tibetan = []
-
-            rest = tail
-
-        if tibetan:
-            line_items[-1].append(''.join(tibetan))
-
-            if tibetan[-1] in U_SYMBOLS:
-                line_items.append([])
-
     for line in content:
         line_items = [[]]
 
         for i, word in enumerate(line):
-            if word in table['LATIN_SHADS']:         # terminator
-                prev_word = line[max(i-1, 0)]
-                preceding_nga = prev_word[-2:] == table['CONSONANTS'][3]
+            prev_word = ''
+            for j, partitioned_word in enumerate(_partition_word(word, table)):
+                if partitioned_word in table['LATIN_SHADS']:    # terminator
+                    # # if at start of a partitioned word, check previous line
+                    # prev_word = (partitioned_word[-1] if j > 0
+                    #              else line[max(i-1, 0)])
+                    unicode_shad = table['SYMBOL_LOOKUP'][partitioned_word]
 
-                # Join shad with last word avoids space char converted to tsheg
-                if preceding_nga:
-                    line_items[-1].append(table['SYMBOL_LOOKUP'][word])
-                else:
-                    line_items.append([table['SYMBOL_LOOKUP'][word]])
+                    if shad_before_nga(prev_word, partitioned_word, table):
+                        # tsheg between nga and shad
+                        line_items.append([unicode_shad])
+                    elif shad_before_ka_ga(prev_word, partitioned_word, table):
+                        # normalize double shad to single when preceded by ka/ga
+                        line_items.append(U_SHADS[0])
+                    else:
+                        # Join with last word avoids space converted to tsheg
+                        line_items[-1].append(unicode_shad)
 
-                line_items.append([])
-                continue
-            elif table['LATIN_SHADS'][1] in word:    # word contains double shad
-                handle_unsplit_char(table['LATIN_SHADS'][1], word)
-                continue
-            elif table['LATIN_SHADS'][0] in word:    # word contains shad
-                handle_unsplit_char(table['LATIN_SHADS'][0], word)
-                continue
-            elif _not_latin_letter(word[0], table):
-                handle_unsplit_char(word[0], word)
-                continue
-            elif _not_latin_letter(word[-1], table):
-                handle_unsplit_char(word[-1], word)
-                continue
+                    line_items.append([])
+                    prev_word = partitioned_word
+                    continue
 
-            try:
-                tib_unicode = parse(word, table)
-                line_items[-1].append(tib_unicode)
-            except InvalidLanguage as e:
-                logger.debug(f'Could not parse: {e.input}')
-                line_items[-1].append(e.input)
+                try:
+                    tib_unicode = parse(partitioned_word, table)
+                    line_items[-1].append(tib_unicode)
+                except InvalidLanguage as e:
+                    logger.debug(f'Could not parse: {e.input}')
+                    line_items.append([e.input])
+                    line_items.append([])
+
+                prev_word = partitioned_word
 
         yield line_items

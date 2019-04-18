@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import string
 
 from pytib.exceptions import InvalidConfig
 
@@ -287,6 +288,10 @@ def generate_tables(config=None):
     }
 
     SW_OM = sv[8] + sv[14]
+    valid_tibetan_char_set = set(''.join(latin_tibetan_alphabet))
+    valid_indic_char_set = set(''.join(latin_indic_alphabet))
+    all_valid_chars = valid_tibetan_char_set | valid_indic_char_set
+    valid_punctuation_chars = set(string.punctuation) - all_valid_chars
 
     tables = {
         'CONSONANTS': tc,
@@ -296,6 +301,8 @@ def generate_tables(config=None):
         'LATIN_TIBETAN_ALPHABET': latin_tibetan_alphabet,
         'LATIN_TIBETAN_ALPHABET_SET': set(latin_tibetan_alphabet),
         'LATIN_INDIC_ALPHABET_SET': set(latin_indic_alphabet),
+        'VALID_TIBETAN_LATIN_CHAR_SET': valid_tibetan_char_set,
+        'VALID_INDIC_LATIN_CHAR_SET': valid_indic_char_set,
         'GA_PREFIX': ''.join([tc[2], ga_prefixer]),
         'PREFIXES': get_chars(PREFIXES_I, tc),
         'VALID_SUFFIX': suffix_rules(tc),
@@ -322,8 +329,10 @@ def generate_tables(config=None):
             SW_OM: U_OM,             # oṃ
             tc[16] + tc[29] + tc[11] + tc[10] + tc[29] + tc[11]: (    # tsandan
                 '\u0f59' + '\u0f53' + '\u0fa1' + '\u0f53')
-        }
-
+        },
+        # Double shad checked before single shad
+        'PUNCTUATION_CHARS': (list(reversed(latin_shads))
+                              + [p for p in valid_punctuation_chars])
     }
 
     tables['SUPERJOIN'], tables['VALID_SUPERJOIN'] = defs(
