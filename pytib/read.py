@@ -1,6 +1,8 @@
 import logging
 
 from typing import Iterable
+from functools import lru_cache
+
 from pytib.core import parse
 from pytib.tables import (U_SHADS, U_TSHEG, generate_tables)
 from pytib.exceptions import InvalidLanguage
@@ -105,6 +107,14 @@ def shad_before_ka_ga(prev_word, partitioned_word, table):
     return prev_word[-2:-1] in ka_ga
 
 
+def cached_parser(table):
+    @lru_cache(maxsize=2500)
+    def cached_parse(word):
+        return parse(word, table)
+
+    return cached_parse
+
+
 def _generate_tibetan_lines(content, table):
     '''
     The data structure used here is one list per content line. The elements of
@@ -117,6 +127,8 @@ def _generate_tibetan_lines(content, table):
     `| sangs rgyas |` is represented as [['|'], ['sangs', 'rgyas'], ['|'], []],
     due to the shad (`|`).
     '''
+
+    fast_parse = cached_parser(table)
 
     for line in content:
         line_items = [[]]
@@ -145,7 +157,7 @@ def _generate_tibetan_lines(content, table):
                     continue
 
                 try:
-                    tib_unicode = parse(partitioned_word, table)
+                    tib_unicode = fast_parse(partitioned_word)
                     line_items[-1].append(tib_unicode)
                 except InvalidLanguage as e:
                     logger.debug(f'Could not parse: {e.input}')
