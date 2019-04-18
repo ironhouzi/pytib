@@ -39,19 +39,23 @@ def ptib(input_file, wylie, preserve_input, unicode_points, html, config):
     The file can be read from STDIN, or from a filepath using the -i parameter.
     """
 
-    try:
-        serial_cfg = config.read() if config else '{}'
-    except Exception:
-        raise InvalidConfig('Invalid JSON config file!', 'JSON file read')
+    if wylie:
+        content = wylie
+    else:
+        content = input_file.read()
+        input_file.close()
 
-    try:
-        cfg = json.loads(serial_cfg)
-    except Exception:
-        raise InvalidConfig('Invalid JSON config file!', 'JSON decoding')
+    if config:
+        try:
+            cfg = json.load(config)
+        except ValueError:
+            raise InvalidConfig('Invalid JSON config file!', 'JSON decoding')
+        finally:
+            config.close()
+    else:
+        cfg = {}
 
-    # TODO Close config file handle??
     tables = pytib.generate_tables(cfg)
-    content = wylie if wylie else input_file.read()
 
     if unicode_points:
         content = content.split('\n')
