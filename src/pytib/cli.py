@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import click
 import logging
 import os
@@ -55,7 +53,7 @@ def ptib(input_file, wylie, preserve_input, unicode_points, html, config):
     else:
         cfg = {}
 
-    tables = pytib.generate_tables(cfg)
+    tables = pytib.tables.generate_tables(cfg)
 
     if unicode_points:
         content = content.split('\n')

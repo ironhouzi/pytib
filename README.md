@@ -3,6 +3,12 @@ pytib
 
 Generate Tibetan Unicode from Latin script
 
+## Install
+
+```sh
+python -m build
+```
+
 ## Usage
 
 ### As shell script

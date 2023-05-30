@@ -302,13 +302,13 @@ def generate_stacks(latin_letters, table):
 
     for prev_char, curr_char in zip(prev, curr):
         stack.append(prev_char)
-        prev_match = prev_char in table['SW_VOWELS']
-        curr_match = curr_char in table['SW_VOWELS']
+        prev_is_vowel = prev_char in table['SW_VOWELS']
+        curr_is_vowel = curr_char in table['SW_VOWELS']
 
-        if prev_match == curr_match:
+        if prev_is_vowel and curr_is_vowel:
             continue
 
-        if prev_match:
+        if prev_is_vowel:
             yield stack
             stack = []
 
@@ -328,7 +328,7 @@ def generate_sanskrit_unicode(latin_string, letter_stacks, table):
     literal_ba = table['CONSONANTS'][14]
     literal_rv = table['SW_ROOTLETTERS'][26] + table['SW_ROOTLETTERS'][28]
 
-    for i, stack in enumerate(letter_stacks):
+    for stack in letter_stacks:
         if stack[0] in table['SW_VOWELS'][1:]:   # avoid leading `a`
             yield table['TIBINDIC_UNICODE'][table['LATIN_VOWEL_A']]
             yield table['TIBINDIC_UNICODE'][stack[0]]
@@ -339,7 +339,7 @@ def generate_sanskrit_unicode(latin_string, letter_stacks, table):
 
         stacked_letters = stack[1:]
 
-        for j, letter in enumerate(stacked_letters):
+        for letter in stacked_letters:
             if letter == table['LATIN_VOWEL_A']:
                 continue
 
